@@ -1,0 +1,7 @@
+general:
+  seed: 42
+  use_bert: False
+  schema: True
+  pretraining: False
+  use_bm25: False
+  use_hnbm25: False

@@ -97,32 +97,34 @@ FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
-  del unused_argv
-  config = synthesize_entablement.SynthesizationConfig(
-      prob_count_aggregation=FLAGS.prob_count_aggregation,)
-  conversion_config = None
-  if FLAGS.convert_to_examples:
-    conversion_config = tf_example_utils.ClassifierConversionConfig(
-        vocab_file=FLAGS.vocab_file,
-        max_seq_length=FLAGS.max_seq_length,
-        max_column_id=FLAGS.max_seq_length,
-        max_row_id=FLAGS.max_seq_length,
-        strip_column_names=False,
+    del unused_argv
+    config = synthesize_entablement.SynthesizationConfig(
+        prob_count_aggregation=FLAGS.prob_count_aggregation,
     )
-  pipeline = intermediate_pretrain_utils.build_pipeline(
-      mode=FLAGS.mode,
-      config=config,
-      use_fake_table=FLAGS.use_fake_table,
-      add_opposite_table=FLAGS.add_opposite_table,
-      drop_without_support_rate=FLAGS.drop_without_support_rate,
-      input_file=FLAGS.input_file,
-      output_dir=FLAGS.output_dir,
-      output_suffix=FLAGS.output_suffix,
-      conversion_config=conversion_config)
-  beam_runner.run(pipeline)
+    conversion_config = None
+    if FLAGS.convert_to_examples:
+        conversion_config = tf_example_utils.ClassifierConversionConfig(
+            vocab_file=FLAGS.vocab_file,
+            max_seq_length=FLAGS.max_seq_length,
+            max_column_id=FLAGS.max_seq_length,
+            max_row_id=FLAGS.max_seq_length,
+            strip_column_names=False,
+        )
+    pipeline = intermediate_pretrain_utils.build_pipeline(
+        mode=FLAGS.mode,
+        config=config,
+        use_fake_table=FLAGS.use_fake_table,
+        add_opposite_table=FLAGS.add_opposite_table,
+        drop_without_support_rate=FLAGS.drop_without_support_rate,
+        input_file=FLAGS.input_file,
+        output_dir=FLAGS.output_dir,
+        output_suffix=FLAGS.output_suffix,
+        conversion_config=conversion_config,
+    )
+    beam_runner.run(pipeline)
 
 
 if __name__ == "__main__":
-  flags.mark_flag_as_required("input_file")
-  flags.mark_flag_as_required("output_dir")
-  app.run(main)
+    flags.mark_flag_as_required("input_file")
+    flags.mark_flag_as_required("output_dir")
+    app.run(main)

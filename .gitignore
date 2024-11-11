@@ -1,0 +1,9 @@
+# Virtual Environment Folder
+venv_ir
+
+# Data and results
+data
+outputs
+
+# Misc
+.vscode

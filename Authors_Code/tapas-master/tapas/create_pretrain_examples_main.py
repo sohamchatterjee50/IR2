@@ -46,66 +46,71 @@ from tapas.utils import tf_example_utils
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string("input_file", None,
-                    "Compressed interaction in text format.")
-flags.DEFINE_string("output_dir", None,
-                    "Directory where new data is written to.")
-flags.DEFINE_string("vocab_file", None,
-                    "The vocabulary file that the BERT model was trained on.")
+flags.DEFINE_string("input_file", None, "Compressed interaction in text format.")
+flags.DEFINE_string("output_dir", None, "Directory where new data is written to.")
+flags.DEFINE_string(
+    "vocab_file", None, "The vocabulary file that the BERT model was trained on."
+)
 
-flags.DEFINE_integer("max_seq_length", 128,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_integer("max_predictions_per_seq", 20,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_integer("random_seed", 12345,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_integer("dupe_factor", 10,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_float("masked_lm_prob", 0.15,
-                   "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_integer("max_column_id", 512,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_integer("max_row_id", 512,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_integer("min_num_rows", 0,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_integer("min_num_columns", 0,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_integer("min_question_length", 8,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_integer("max_question_length", 32,
-                     "See tf_example_utils.PretrainConversionConfig")
-flags.DEFINE_bool("always_continue_cells", True,
-                  "See tf_example_utils.PretrainConversionConfig")
+flags.DEFINE_integer(
+    "max_seq_length", 128, "See tf_example_utils.PretrainConversionConfig"
+)
+flags.DEFINE_integer(
+    "max_predictions_per_seq", 20, "See tf_example_utils.PretrainConversionConfig"
+)
+flags.DEFINE_integer(
+    "random_seed", 12345, "See tf_example_utils.PretrainConversionConfig"
+)
+flags.DEFINE_integer("dupe_factor", 10, "See tf_example_utils.PretrainConversionConfig")
+flags.DEFINE_float(
+    "masked_lm_prob", 0.15, "See tf_example_utils.PretrainConversionConfig"
+)
+flags.DEFINE_integer(
+    "max_column_id", 512, "See tf_example_utils.PretrainConversionConfig"
+)
+flags.DEFINE_integer("max_row_id", 512, "See tf_example_utils.PretrainConversionConfig")
+flags.DEFINE_integer("min_num_rows", 0, "See tf_example_utils.PretrainConversionConfig")
+flags.DEFINE_integer(
+    "min_num_columns", 0, "See tf_example_utils.PretrainConversionConfig"
+)
+flags.DEFINE_integer(
+    "min_question_length", 8, "See tf_example_utils.PretrainConversionConfig"
+)
+flags.DEFINE_integer(
+    "max_question_length", 32, "See tf_example_utils.PretrainConversionConfig"
+)
+flags.DEFINE_bool(
+    "always_continue_cells", True, "See tf_example_utils.PretrainConversionConfig"
+)
 
 
 def main(argv):
-  if len(argv) > 1:
-    raise app.UsageError("Too many command-line arguments.")
-  config = tf_example_utils.PretrainConversionConfig(
-      vocab_file=FLAGS.vocab_file,
-      max_seq_length=FLAGS.max_seq_length,
-      max_predictions_per_seq=FLAGS.max_predictions_per_seq,
-      random_seed=FLAGS.random_seed,
-      masked_lm_prob=FLAGS.masked_lm_prob,
-      max_column_id=FLAGS.max_column_id,
-      max_row_id=FLAGS.max_row_id,
-      min_question_length=FLAGS.min_question_length,
-      max_question_length=FLAGS.max_question_length,
-      always_continue_cells=FLAGS.always_continue_cells,
-      strip_column_names=False,
-  )
-  pipeline = create_data.build_pretraining_pipeline(
-      input_file=FLAGS.input_file,
-      output_dir=FLAGS.output_dir,
-      output_suffix=".tfrecord",
-      config=config,
-      dupe_factor=FLAGS.dupe_factor,
-      min_num_rows=FLAGS.min_num_rows,
-      min_num_columns=FLAGS.min_num_columns,
-  )
-  beam_runner.run(pipeline)
+    if len(argv) > 1:
+        raise app.UsageError("Too many command-line arguments.")
+    config = tf_example_utils.PretrainConversionConfig(
+        vocab_file=FLAGS.vocab_file,
+        max_seq_length=FLAGS.max_seq_length,
+        max_predictions_per_seq=FLAGS.max_predictions_per_seq,
+        random_seed=FLAGS.random_seed,
+        masked_lm_prob=FLAGS.masked_lm_prob,
+        max_column_id=FLAGS.max_column_id,
+        max_row_id=FLAGS.max_row_id,
+        min_question_length=FLAGS.min_question_length,
+        max_question_length=FLAGS.max_question_length,
+        always_continue_cells=FLAGS.always_continue_cells,
+        strip_column_names=False,
+    )
+    pipeline = create_data.build_pretraining_pipeline(
+        input_file=FLAGS.input_file,
+        output_dir=FLAGS.output_dir,
+        output_suffix=".tfrecord",
+        config=config,
+        dupe_factor=FLAGS.dupe_factor,
+        min_num_rows=FLAGS.min_num_rows,
+        min_num_columns=FLAGS.min_num_columns,
+    )
+    beam_runner.run(pipeline)
 
 
 if __name__ == "__main__":
-  app.run(main)
+    app.run(main)

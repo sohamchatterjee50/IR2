@@ -1,7 +1,27 @@
 # **[Re] On the Reproducibility of Open Domain Question Answering over Tables via Dense Retrieval**
 
 ## **Setup**
-To setup the code, ...
+
+For all the following steps, we highly suggest first entering the repository folder by doing:
+
+```sh
+cd ir2
+```
+
+First, we need the environment. To set it up, please run the following:
+
+```sh
+conda env create -f environment.yml
+```
+
+### **Dataset**
+
+The dataset can be created via the following command (note that it requires `gsutil` installed beforehand):
+
+```sh
+mkdir -p "data"
+gsutil -m cp -R gs://tapas_models/2021_07_22/nq_tables/* "data"
+```
 
 ## **Running**
 To run the code, use the following script:

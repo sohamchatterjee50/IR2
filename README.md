@@ -16,14 +16,35 @@ conda env create -f environment.yml
 
 ### **Dataset**
 
-The dataset can be created via the following command (note that it requires `gsutil` installed beforehand):
+The dataset can be downloaded via the following command:
 
 ```sh
 mkdir -p "data"
 gsutil -m cp -R gs://tapas_models/2021_07_22/nq_tables/* "data"
+
+# Alternatively, you can run this bash script:
+bash/download_data.bash
 ```
 
+Note that doing the above requires `gsutil` installed beforehand. Instructions on how to do so can be found [here](https://cloud.google.com/storage/docs/gsutil_install).
+
+
+### **Model Checkpoints**
+
+The model checkpoint can be downloaded via the following command:
+
+```sh
+retrieval_model_name=tapas_dual_encoder_proj_256_large
+gsutil cp "gs://tapas_models/2021_04_27/${retrieval_model_name}.zip" . && unzip "${retrieval_model_name}.zip"
+
+# Alternatively, you can run this bash script:
+bash/download_ckpt.bash
+```
+
+You can change the retrieval model name to any one of the checkpoints listed [here](misc/model_list.md).
+
 ## **Running**
+
 To run the code, use the following script:
 
 ```sh

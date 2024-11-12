@@ -27,24 +27,22 @@ from tapas.utils import contrastive_statements
 from tapas.utils import pretrain_utils
 from tapas.utils import synthesize_entablement
 from tapas.utils import tf_example_utils
-import tensorflow.compat.v1 as tf
+import tensorflow._api.v2.compat.v1 as tf
 
 _KeyInteraction = Tuple[Text, interaction_pb2.Interaction]
 _NS = "main"
 
 
 class Mode(enum.Enum):
-  SYNTHETIC = 1
-  CONTRASTIVE = 2
-  ALL = 3
+    SYNTHETIC = 1
+    CONTRASTIVE = 2
+    ALL = 3
 
 
 class FlumeCounter(synthesize_entablement.Counter):
 
-  def count(self, message):
-    beam.metrics.Metrics.counter(_NS, message).inc()
-
-
+    def count(self, message):
+        beam.metrics.Metrics.counter(_NS, message).inc()
 
 
 def synthesize_fn(
@@ -53,60 +51,60 @@ def synthesize_fn(
     add_opposite_table,
     use_fake_table,
 ):
-  """Synthesizes up to 4 statements."""
-  key, interaction = key_interaction
-  rng = np.random.RandomState(beam_utils.to_numpy_seed(key))
-  for new_interaction in synthesize_entablement.synthesize_from_interaction(
-      config, rng, interaction, FlumeCounter(), add_opposite_table):
-    if use_fake_table:
-      _clear_table(new_interaction)
-    yield new_interaction.id, new_interaction
+    """Synthesizes up to 4 statements."""
+    key, interaction = key_interaction
+    rng = np.random.RandomState(beam_utils.to_numpy_seed(key))
+    for new_interaction in synthesize_entablement.synthesize_from_interaction(
+        config, rng, interaction, FlumeCounter(), add_opposite_table
+    ):
+        if use_fake_table:
+            _clear_table(new_interaction)
+        yield new_interaction.id, new_interaction
 
 
-def shard_interaction_fn(
-    key_interaction):
-  """Prepares tables for further processing."""
-  beam.metrics.Metrics.counter(_NS, "Interactions").inc()
-  key, interaction = key_interaction
-  num_cols = len(interaction.table.columns)
-  if num_cols < 2:
-    beam.metrics.Metrics.counter(_NS, "Invalid number of cols").inc()
-    return
+def shard_interaction_fn(key_interaction):
+    """Prepares tables for further processing."""
+    beam.metrics.Metrics.counter(_NS, "Interactions").inc()
+    key, interaction = key_interaction
+    num_cols = len(interaction.table.columns)
+    if num_cols < 2:
+        beam.metrics.Metrics.counter(_NS, "Invalid number of cols").inc()
+        return
 
-  num_rows = len(interaction.table.rows)
-  if num_rows < 2:
-    beam.metrics.Metrics.counter(_NS, "Invalid number of rows").inc()
-    return
+    num_rows = len(interaction.table.rows)
+    if num_rows < 2:
+        beam.metrics.Metrics.counter(_NS, "Invalid number of rows").inc()
+        return
 
-  interaction = beam_utils.rekey(interaction)
-  # Save the key for debugging.
-  interaction.table.document_title = key
+    interaction = beam_utils.rekey(interaction)
+    # Save the key for debugging.
+    interaction.table.document_title = key
 
-  beam.metrics.Metrics.counter(_NS, "Interactions: Valids").inc()
-  for new_interaction in beam_utils.get_row_sharded_interactions(
-      interaction,
-      max_num_cells=50,
-  ):
-    if len(new_interaction.table.rows) < 2:
-      continue
-    beam.metrics.Metrics.counter(_NS, "Interactions: Shards").inc()
-    yield key, new_interaction
+    beam.metrics.Metrics.counter(_NS, "Interactions: Valids").inc()
+    for new_interaction in beam_utils.get_row_sharded_interactions(
+        interaction,
+        max_num_cells=50,
+    ):
+        if len(new_interaction.table.rows) < 2:
+            continue
+        beam.metrics.Metrics.counter(_NS, "Interactions: Shards").inc()
+        yield key, new_interaction
 
 
 def _to_id(obj):
-  return hex(beam_utils.to_numpy_seed(obj))
+    return hex(beam_utils.to_numpy_seed(obj))
 
 
 def _count(message):
-  beam.metrics.Metrics.counter(_NS, message).inc()
+    beam.metrics.Metrics.counter(_NS, message).inc()
 
 
 def _clear_table(interaction):
-  table = interaction.table
-  del table.columns[:]
-  del table.rows[:]
-  table.columns.add().text = ""
-  table.rows.add().cells.add().text = ""
+    table = interaction.table
+    del table.columns[:]
+    del table.rows[:]
+    table.columns.add().text = ""
+    table.rows.add().cells.add().text = ""
 
 
 def _to_contrastive_statements_fn(
@@ -114,91 +112,94 @@ def _to_contrastive_statements_fn(
     use_fake_table,
     drop_without_support_rate,
 ):
-  """Converts pretraining interaction to contrastive interaction."""
+    """Converts pretraining interaction to contrastive interaction."""
 
-  # Make a copy since beam functions should not manipulate inputs.
-  new_interaction = interaction_pb2.Interaction()
-  new_interaction.CopyFrom(key_interaction[1])
-  interaction = new_interaction
-
-  iid = interaction.table.table_id
-  rng = random.Random(beam_utils.to_numpy_seed(iid))
-
-  generated_statements = set()
-
-  for result in contrastive_statements.get_contrastive_statements(
-      rng, interaction, count_fn=_count):
-
-    has_support, statement, contrastive_statement = result
-
-    beam.metrics.Metrics.counter(_NS, "Pairs").inc()
-
-    if not has_support and rng.random() < drop_without_support_rate:
-      beam.metrics.Metrics.counter(
-          _NS, "Pairs: Down-sampled pairs without support").inc()
-      continue
-
-    if contrastive_statement in generated_statements:
-      beam.metrics.Metrics.counter(_NS, "Pairs: Duplicates").inc()
-      continue
-
-    generated_statements.add(contrastive_statement)
-
+    # Make a copy since beam functions should not manipulate inputs.
     new_interaction = interaction_pb2.Interaction()
-    new_interaction.CopyFrom(interaction)
-    del new_interaction.questions[:]
+    new_interaction.CopyFrom(key_interaction[1])
+    interaction = new_interaction
 
-    new_interaction.id = _to_id((
-        iid,
-        (statement, contrastive_statement),
-    ))
+    iid = interaction.table.table_id
+    rng = random.Random(beam_utils.to_numpy_seed(iid))
 
-    if use_fake_table:
-      _clear_table(new_interaction)
+    generated_statements = set()
 
-    new_interaction.table.table_id = new_interaction.id
+    for result in contrastive_statements.get_contrastive_statements(
+        rng, interaction, count_fn=_count
+    ):
 
-    new_question = new_interaction.questions.add()
-    new_question.id = _to_id((iid, statement))
-    new_question.original_text = statement
-    new_question.answer.class_index = 1
+        has_support, statement, contrastive_statement = result
 
-    new_question = new_interaction.questions.add()
-    new_question.id = _to_id((iid, contrastive_statement))
-    new_question.original_text = contrastive_statement
-    new_question.answer.class_index = 0
+        beam.metrics.Metrics.counter(_NS, "Pairs").inc()
 
-    beam.metrics.Metrics.counter(_NS, "Pairs emitted").inc()
-    yield new_interaction.id, new_interaction
+        if not has_support and rng.random() < drop_without_support_rate:
+            beam.metrics.Metrics.counter(
+                _NS, "Pairs: Down-sampled pairs without support"
+            ).inc()
+            continue
+
+        if contrastive_statement in generated_statements:
+            beam.metrics.Metrics.counter(_NS, "Pairs: Duplicates").inc()
+            continue
+
+        generated_statements.add(contrastive_statement)
+
+        new_interaction = interaction_pb2.Interaction()
+        new_interaction.CopyFrom(interaction)
+        del new_interaction.questions[:]
+
+        new_interaction.id = _to_id(
+            (
+                iid,
+                (statement, contrastive_statement),
+            )
+        )
+
+        if use_fake_table:
+            _clear_table(new_interaction)
+
+        new_interaction.table.table_id = new_interaction.id
+
+        new_question = new_interaction.questions.add()
+        new_question.id = _to_id((iid, statement))
+        new_question.original_text = statement
+        new_question.answer.class_index = 1
+
+        new_question = new_interaction.questions.add()
+        new_question.id = _to_id((iid, contrastive_statement))
+        new_question.original_text = contrastive_statement
+        new_question.answer.class_index = 0
+
+        beam.metrics.Metrics.counter(_NS, "Pairs emitted").inc()
+        yield new_interaction.id, new_interaction
 
 
 class ToClassifierTensorflowExample(beam.DoFn):
-  """Class for converting finetuning examples."""
+    """Class for converting finetuning examples."""
 
-  def __init__(
-      self,
-      config,
-  ):
-    self._config = config
+    def __init__(
+        self,
+        config,
+    ):
+        self._config = config
 
-  def start_bundle(self):
-    self._converter = tf_example_utils.ToClassifierTensorflowExample(
-        self._config)
+    def start_bundle(self):
+        self._converter = tf_example_utils.ToClassifierTensorflowExample(self._config)
 
-  def process(
-      self,
-      key_interaction,
-  ):
-    _, interaction = key_interaction
-    for index, question in enumerate(interaction.questions):
-      beam.metrics.Metrics.counter(_NS, "Input question").inc()
-      try:
-        example = self._converter.convert(interaction, index)
-        yield question.id, example
-        beam.metrics.Metrics.counter(_NS, "Conversion success").inc()
-      except ValueError as e:
-        beam.metrics.Metrics.counter(_NS, "Conversion error").inc()
-        beam.metrics.Metrics.counter(_NS, str(e)).inc()
+    def process(
+        self,
+        key_interaction,
+    ):
+        _, interaction = key_interaction
+        for index, question in enumerate(interaction.questions):
+            beam.metrics.Metrics.counter(_NS, "Input question").inc()
+            try:
+                example = self._converter.convert(interaction, index)
+                yield question.id, example
+                beam.metrics.Metrics.counter(_NS, "Conversion success").inc()
+            except ValueError as e:
+                beam.metrics.Metrics.counter(_NS, "Conversion error").inc()
+                beam.metrics.Metrics.counter(_NS, str(e)).inc()
 
 
 def build_pipeline(
@@ -211,63 +212,69 @@ def build_pipeline(
     output_dir,
     output_suffix,
     conversion_config,
-    num_splits = 100,
+    num_splits=100,
 ):
-  """Builds the pipeline."""
+    """Builds the pipeline."""
 
-  def _pipeline(root):
-    """Pipeline."""
+    def _pipeline(root):
+        """Pipeline."""
 
-    interactions = (
-        pretrain_utils.read_interactions(root, input_file, name="input")
-        | "Preprocess" >> beam.FlatMap(shard_interaction_fn))
+        interactions = pretrain_utils.read_interactions(
+            root, input_file, name="input"
+        ) | "Preprocess" >> beam.FlatMap(shard_interaction_fn)
 
-    data = []
+        data = []
 
-    if mode in [Mode.CONTRASTIVE, Mode.ALL]:
+        if mode in [Mode.CONTRASTIVE, Mode.ALL]:
 
-      data.append(
-          interactions
-          | "ToContrastivePairs" >> beam.FlatMap(
-              _to_contrastive_statements_fn,
-              use_fake_table=use_fake_table,
-              drop_without_support_rate=drop_without_support_rate,
-          ))
+            data.append(
+                interactions
+                | "ToContrastivePairs"
+                >> beam.FlatMap(
+                    _to_contrastive_statements_fn,
+                    use_fake_table=use_fake_table,
+                    drop_without_support_rate=drop_without_support_rate,
+                )
+            )
 
-    if mode in [Mode.SYNTHETIC, Mode.ALL]:
+        if mode in [Mode.SYNTHETIC, Mode.ALL]:
 
-      data.append(interactions
-                  | "Synthesize" >> beam.FlatMap(
-                      synthesize_fn,
-                      config=config,
-                      add_opposite_table=add_opposite_table,
-                      use_fake_table=use_fake_table,
-                  ))
+            data.append(
+                interactions
+                | "Synthesize"
+                >> beam.FlatMap(
+                    synthesize_fn,
+                    config=config,
+                    add_opposite_table=add_opposite_table,
+                    use_fake_table=use_fake_table,
+                )
+            )
 
-    if not data:
-      raise ValueError(f"Unknown mode: {mode}")
+        if not data:
+            raise ValueError(f"Unknown mode: {mode}")
 
-    output_data = (data | "Flatten" >> beam.Flatten())
-    proto_message = interaction_pb2.Interaction
+        output_data = data | "Flatten" >> beam.Flatten()
+        proto_message = interaction_pb2.Interaction
 
-    if conversion_config is not None:
-      pretrain_utils.write_proto_outputs(
-          os.path.join(output_dir, "interactions") + output_suffix,
-          "interactions",
-          output_data,
-          interaction_pb2.Interaction,
-      )
-      output_data = (
-          output_data | "ToExamples" >> beam.ParDo(
-              ToClassifierTensorflowExample(conversion_config)))
-      proto_message = tf.train.Example
+        if conversion_config is not None:
+            pretrain_utils.write_proto_outputs(
+                os.path.join(output_dir, "interactions") + output_suffix,
+                "interactions",
+                output_data,
+                interaction_pb2.Interaction,
+            )
+            output_data = output_data | "ToExamples" >> beam.ParDo(
+                ToClassifierTensorflowExample(conversion_config)
+            )
+            proto_message = tf.train.Example
 
-    pretrain_utils.split_by_table_id_and_write(
-        (output_data | "Reshuffle" >> beam.transforms.util.Reshuffle()),
-        output_dir,
-        train_suffix=output_suffix,
-        test_suffix=output_suffix,
-        num_splits=num_splits,
-        proto_message=proto_message)
+        pretrain_utils.split_by_table_id_and_write(
+            (output_data | "Reshuffle" >> beam.transforms.util.Reshuffle()),
+            output_dir,
+            train_suffix=output_suffix,
+            test_suffix=output_suffix,
+            num_splits=num_splits,
+            proto_message=proto_message,
+        )
 
-  return _pipeline
+    return _pipeline

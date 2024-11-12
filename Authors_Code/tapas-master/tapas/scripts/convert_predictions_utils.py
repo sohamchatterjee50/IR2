@@ -20,58 +20,58 @@ from typing import Text, List
 
 from tapas.scripts import calc_metrics_utils
 from tapas.scripts import prediction_utils
-import tensorflow.compat.v1 as tf
+import tensorflow._api.v2.compat.v1 as tf
 
 
 class DatasetFormat(enum.Enum):
-  WIKITABLEQUESTIONS = 0
+    WIKITABLEQUESTIONS = 0
 
 
-def _convert_single_wtq(interaction_file, prediction_file,
-                        output_file):
-  """Convert predictions to WikiTablequestions format."""
+def _convert_single_wtq(interaction_file, prediction_file, output_file):
+    """Convert predictions to WikiTablequestions format."""
 
-  interactions = dict(
-      (prediction_utils.parse_interaction_id(i.id), i)
-      for i in prediction_utils.iterate_interactions(interaction_file))
-  missing_interaction_ids = set(interactions.keys())
+    interactions = dict(
+        (prediction_utils.parse_interaction_id(i.id), i)
+        for i in prediction_utils.iterate_interactions(interaction_file)
+    )
+    missing_interaction_ids = set(interactions.keys())
 
-  with tf.io.gfile.GFile(output_file, 'w') as output_file:
-    for prediction in prediction_utils.iterate_predictions(prediction_file):
-      interaction_id = prediction['id']
-      if interaction_id in missing_interaction_ids:
-        missing_interaction_ids.remove(interaction_id)
-      else:
-        continue
+    with tf.io.gfile.GFile(output_file, "w") as output_file:
+        for prediction in prediction_utils.iterate_predictions(prediction_file):
+            interaction_id = prediction["id"]
+            if interaction_id in missing_interaction_ids:
+                missing_interaction_ids.remove(interaction_id)
+            else:
+                continue
 
-      coordinates = prediction_utils.parse_coordinates(
-          prediction['answer_coordinates'])
+            coordinates = prediction_utils.parse_coordinates(
+                prediction["answer_coordinates"]
+            )
 
-      denot_pred, _ = calc_metrics_utils.execute(
-          int(prediction.get('pred_aggr', '0')), coordinates,
-          prediction_utils.table_to_panda_frame(
-              interactions[interaction_id].table))
+            denot_pred, _ = calc_metrics_utils.execute(
+                int(prediction.get("pred_aggr", "0")),
+                coordinates,
+                prediction_utils.table_to_panda_frame(
+                    interactions[interaction_id].table
+                ),
+            )
 
-      answers = '\t'.join(sorted(map(str, denot_pred)))
-      output_file.write('{}\t{}\n'.format(interaction_id, answers))
+            answers = "\t".join(sorted(map(str, denot_pred)))
+            output_file.write("{}\t{}\n".format(interaction_id, answers))
 
-    for interaction_id in missing_interaction_ids:
-      output_file.write('{}\n'.format(interaction_id))
-
-
-def _convert_single(interaction_file, prediction_file,
-                    output_file, dataset_format):
-  if dataset_format == DatasetFormat.WIKITABLEQUESTIONS:
-    return _convert_single_wtq(interaction_file, prediction_file, output_file)
-  else:
-    raise ValueError('Unknown dataset format {}'.format(dataset_format))
+        for interaction_id in missing_interaction_ids:
+            output_file.write("{}\n".format(interaction_id))
 
 
-def convert(interactions, predictions,
-            output_directory, dataset_format):
-  assert len(interactions) == len(predictions)
-  for interaction_file, prediction_file in zip(interactions, predictions):
-    output_file = os.path.join(output_directory,
-                               os.path.basename(prediction_file))
-    _convert_single(interaction_file, prediction_file, output_file,
-                    dataset_format)
+def _convert_single(interaction_file, prediction_file, output_file, dataset_format):
+    if dataset_format == DatasetFormat.WIKITABLEQUESTIONS:
+        return _convert_single_wtq(interaction_file, prediction_file, output_file)
+    else:
+        raise ValueError("Unknown dataset format {}".format(dataset_format))
+
+
+def convert(interactions, predictions, output_directory, dataset_format):
+    assert len(interactions) == len(predictions)
+    for interaction_file, prediction_file in zip(interactions, predictions):
+        output_file = os.path.join(output_directory, os.path.basename(prediction_file))
+        _convert_single(interaction_file, prediction_file, output_file, dataset_format)

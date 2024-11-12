@@ -19,7 +19,7 @@ from absl.testing import absltest
 import pandas as pd
 from tapas.protos import interaction_pb2
 from tapas.scripts import convert_predictions_utils
-import tensorflow.compat.v1 as tf
+import tensorflow._api.v2.compat.v1 as tf
 
 Cell = interaction_pb2.Cell
 Cells = interaction_pb2.Cells
@@ -28,36 +28,40 @@ Table = interaction_pb2.Table
 
 class ConvertPredictionsUtilsTest(absltest.TestCase):
 
-  def test_convert_single_no_pred_aggr(self):
-    interactions_path = tempfile.mktemp(suffix='.tfrecord')
-    with tf.python_io.TFRecordWriter(interactions_path) as writer:
-      writer.write(
-          interaction_pb2.Interaction(
-              id='dev-1-2_3',
-              table=Table(
-                  columns=[Cell(text='A')],
-                  rows=[Cells(cells=[Cell(text='answer')])],
-              )).SerializeToString())
-      writer.write(
-          interaction_pb2.Interaction(id='dev-2-1_3').SerializeToString())
+    def test_convert_single_no_pred_aggr(self):
+        interactions_path = tempfile.mktemp(suffix=".tfrecord")
+        with tf.python_io.TFRecordWriter(interactions_path) as writer:
+            writer.write(
+                interaction_pb2.Interaction(
+                    id="dev-1-2_3",
+                    table=Table(
+                        columns=[Cell(text="A")],
+                        rows=[Cells(cells=[Cell(text="answer")])],
+                    ),
+                ).SerializeToString()
+            )
+            writer.write(
+                interaction_pb2.Interaction(id="dev-2-1_3").SerializeToString()
+            )
 
-    predictions_path = tempfile.mktemp()
-    predictions_df = pd.DataFrame(
-        columns=['id', 'annotator', 'position', 'answer_coordinates'],
-        data=[['dev-1', '2', '3', '["(0,0)"]']])
-    predictions_df.to_csv(predictions_path, sep='\t', index=False)
+        predictions_path = tempfile.mktemp()
+        predictions_df = pd.DataFrame(
+            columns=["id", "annotator", "position", "answer_coordinates"],
+            data=[["dev-1", "2", "3", '["(0,0)"]']],
+        )
+        predictions_df.to_csv(predictions_path, sep="\t", index=False)
 
-    output_path = tempfile.mktemp()
-    convert_predictions_utils._convert_single(
-        interactions_path,
-        predictions_path,
-        output_path,
-        convert_predictions_utils.DatasetFormat.WIKITABLEQUESTIONS,
-    )
+        output_path = tempfile.mktemp()
+        convert_predictions_utils._convert_single(
+            interactions_path,
+            predictions_path,
+            output_path,
+            convert_predictions_utils.DatasetFormat.WIKITABLEQUESTIONS,
+        )
 
-    with open(output_path, 'rt') as file_handle:
-      self.assertEqual(file_handle.read(), 'dev-1\tanswer\ndev-2\n')
+        with open(output_path, "rt") as file_handle:
+            self.assertEqual(file_handle.read(), "dev-1\tanswer\ndev-2\n")
 
 
-if __name__ == '__main__':
-  absltest.main()
+if __name__ == "__main__":
+    absltest.main()

@@ -15,14 +15,14 @@
 """Helper function for dealing with local files."""
 
 from typing import List, Text
-import tensorflow.compat.v1 as tf
+import tensorflow._api.v2.compat.v1 as tf
 
 
 def make_directories(path):
-  """Create directory recursively. Don't do anything if directory exits."""
-  tf.io.gfile.makedirs(path)
+    """Create directory recursively. Don't do anything if directory exits."""
+    tf.io.gfile.makedirs(path)
 
 
 def list_directory(path):
-  """List directory contents."""
-  return tf.io.gfile.listdir(path)
+    """List directory contents."""
+    return tf.io.gfile.listdir(path)

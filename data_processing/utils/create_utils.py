@@ -1,18 +1,17 @@
 ## Create Masked LM/Next Sentence masked_lm TF examples for BERT
 
-import enum
 import os
+import enum
 import random
-
 import apache_beam as beam
+import tensorflow._api.v2.compat.v1 as tf
+from data_processing.utils import text_utils
+from data_processing.utils import base_utils
+from data_processing.utils import pretrain_utils
+from data_processing.utils import tf_example_utils
+
 from data_processing.protos import interaction_pb2
 from data_processing.protos import negative_retrieval_examples_pb2
-from data_processing.utils import tf_example_utils as retrieval_utils
-from data_processing.utils import pretrain_utils
-from data_processing.utils import text_utils
-from data_processing.utils import tf_example_utils
-import tensorflow._api.v2.compat.v1 as tf
-
 
 _NS = "main"
 
@@ -341,7 +340,7 @@ class ToRetrievalTensorflowExample(beam.DoFn):
     def start_bundle(self):
         convert_impl = ConverterImplType(self._convert_impl_value)
         if convert_impl == ConverterImplType.PYTHON:
-            self._converter = retrieval_utils.ToRetrievalTensorflowExample(self._config)
+            self._converter = base_utils.ToRetrievalTensorflowExample(self._config)
         else:
             raise ValueError(f"Unsupported implementation: {convert_impl.name}")
 

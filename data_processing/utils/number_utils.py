@@ -1,12 +1,10 @@
 ## Helper Functions for handling numeric Quik annotations and relations
 
-import itertools
-import collections
+import itertools, collections
 from absl import logging
 from data_processing.protos import interaction_pb2
+from data_processing.utils.constants import _DATE_TUPLE_SIZE
 from data_processing.utils import constants, text_utils, number_utils
-
-_DATE_TUPLE_SIZE = 3
 
 
 def _get_value_type(numeric_value):

@@ -1,16 +1,12 @@
 ## Beam Functions for Converting Interactions to TF Examples
 
-import os
-import random
+import os, random
 import apache_beam as beam
 import tensorflow._api.v2.compat.v1 as tf
+from google.protobuf import text_format
 from data_processing.protos import interaction_pb2
 from data_processing.utils import tf_example_utils, number_utils
-
-from google.protobuf import text_format
-
-_NS = "main"
-_MAX_INT = 2**32 - 1
+from data_processing.utils.constants import _NS, _MAX_INT
 
 
 def fingerprint(key):

@@ -1,8 +1,6 @@
 ## Create Masked LM/Next Sentence masked_lm TF examples for BERT
 
-import os
-import enum
-import random
+import os, enum, random
 import apache_beam as beam
 import tensorflow._api.v2.compat.v1 as tf
 from data_processing.utils import (
@@ -11,9 +9,8 @@ from data_processing.utils import (
     pretrain_utils,
     tf_example_utils,
 )
+from data_processing.utils.constants import _NS
 from data_processing.protos import interaction_pb2, negative_retrieval_examples_pb2
-
-_NS = "main"
 
 read_interactions = pretrain_utils.read_interactions
 _read_inputs = pretrain_utils.read_inputs

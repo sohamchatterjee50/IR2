@@ -1,18 +1,15 @@
 ## Heuristics for Finding Interpretations which Produce Float Answers
 
-import math
-import itertools
-import collections
+import math, itertools, collections
 from data_processing.protos import interaction_pb2
-
-
-_MAX_NUM_TRIALS = 100
-_FLOAT_TOLERANCE = 1.0e-2
-_MAX_NUM_CANDIDATES = 500
-_MAX_INDICES_TO_EXPLORE = 10
+from data_processing.utils.constants import (
+    _MAX_NUM_TRIALS,
+    _FLOAT_TOLERANCE,
+    _MAX_NUM_CANDIDATES,
+    _MAX_INDICES_TO_EXPLORE,
+)
 
 _Answer = interaction_pb2.Answer
-
 Candidate = collections.namedtuple("Candidate", ["agg_function", "column", "rows"])
 
 

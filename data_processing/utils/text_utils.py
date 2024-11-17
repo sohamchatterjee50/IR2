@@ -1,10 +1,6 @@
 ## Utility Functions for Text Conversion and Normalization
 
-import re
-import six
-import math
-import struct
-import unicodedata
+import re, six, math, struct, unicodedata
 from absl import logging
 from data_processing.utils import constants
 

@@ -1,10 +1,7 @@
 ## Utilities for converting interactions to TF examples
 
-import random
-import hashlib
-import collections
-import dataclasses
 import tensorflow._api.v2.compat.v1 as tf
+import random, hashlib, collections, dataclasses
 from absl import logging
 from official.nlp.bert import tokenization
 from typing import List, Mapping, Text, Tuple

@@ -1,13 +1,9 @@
 ## Helper Functions for Finding Relevant Paragraphs in a Website via a Query
 
-import enum
-import heapq
-import dataclasses
-from typing import Generic, TypeVar
+import enum, heapq, dataclasses
+from typing import Generic
+from data_processing.utils.constants import T
 from sklearn.feature_extraction.text import TfidfVectorizer
-
-
-T = TypeVar("T")
 
 
 class Analyzer(enum.Enum):

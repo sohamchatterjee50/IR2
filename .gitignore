@@ -5,5 +5,12 @@ venv_ir
 data
 outputs
 
+# Original Code
+Authors_Code
+
 # Misc
+test.ipynb
 .vscode
+*\__pycache__
+*\dist
+*\tapas_table_parsing.egg-info

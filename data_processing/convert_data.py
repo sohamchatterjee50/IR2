@@ -1,10 +1,8 @@
 ## Data Conversion to Tensorflow examples
 
 import argparse
-from data_processing.utils import base_utils
-from data_processing.utils import create_data
-from data_processing.utils import io_utils
 from apache_beam.runners.direct import direct_runner
+from data_processing.utils import io_utils, base_utils, create_utils
 
 
 def config():
@@ -64,7 +62,7 @@ def run(inputs, outputs, input_format, args):
 
     # Only require this runner as it will all be done locally
     direct_runner.DirectRunner().run(
-        create_data.build_retrieval_pipeline(
+        create_utils.build_retrieval_pipeline(
             input_files=inputs,
             input_format=input_format,
             output_files=outputs,
@@ -89,13 +87,13 @@ def main(args):
     if not inputs:
         raise ValueError(f"Input dir is empty: '{args.input_interactions_dir}'")
 
-    run(inputs, outputs, create_data.InputFormat.INTERACTION, args)
+    run(inputs, outputs, create_utils.InputFormat.INTERACTION, args)
 
     if args.input_tables_dir is not None:
         table_inputs, table_outputs = io_utils.get_inputs_and_outputs(
             args.input_tables_dir, args.output_dir
         )
-        run(table_inputs, table_outputs, create_data.InputFormat.TABLE)
+        run(table_inputs, table_outputs, create_utils.InputFormat.TABLE)
 
 
 if __name__ == "__main__":

@@ -1,12 +1,11 @@
 ## Conversion Code for Table Retrieval
 
 import tensorflow._api.v2.compat.v1 as tf
-from data_processing.utils import text_utils
-from data_processing.utils import tf_example_utils as base
+from data_processing.utils import text_utils, tf_example_utils
 
-_SEP = base._SEP  # pylint:disable=protected-access
-_MAX_INT = base._MAX_INT  # pylint:disable=protected-access
-RetrievalConversionConfig = base.RetrievalConversionConfig
+_SEP = tf_example_utils._SEP  # pylint:disable=protected-access
+_MAX_INT = tf_example_utils._MAX_INT  # pylint:disable=protected-access
+RetrievalConversionConfig = tf_example_utils.RetrievalConversionConfig
 
 
 def _join_features(features, negative_example_features):
@@ -32,7 +31,7 @@ def _join_features(features, negative_example_features):
             raise ValueError(f"Unsupported feature type: {k}")
 
 
-class ToRetrievalTensorflowExample(base.ToTrimmedTensorflowExample):
+class ToRetrievalTensorflowExample(tf_example_utils.ToTrimmedTensorflowExample):
 
     def __init__(self, config):
         super(ToRetrievalTensorflowExample, self).__init__(config)
@@ -89,26 +88,30 @@ class ToRetrievalTensorflowExample(base.ToTrimmedTensorflowExample):
                 raise ValueError("Cannot fit table into sequence.")
 
         question = interaction.questions[index]
-        features["question_id"] = base.create_string_feature(
+        features["question_id"] = tf_example_utils.create_string_feature(
             [question.id.encode("utf8")]
         )
-        features["question_id_ints"] = base.create_int_feature(
+        features["question_id_ints"] = tf_example_utils.create_int_feature(
             text_utils.str_to_ints(question.id, length=text_utils.DEFAULT_INTS_LENGTH)
         )
 
         q_tokens = self._tokenizer.tokenize(question.text)
         q_tokens = self._serialize_text(q_tokens)[0]
-        q_tokens.append(base.Token(_SEP, _SEP))
+        q_tokens.append(tf_example_utils.Token(_SEP, _SEP))
         q_input_ids = self._to_token_ids(q_tokens)
         self._pad_to_seq_length(q_input_ids)
         q_input_mask = [1] * len(q_tokens)
         self._pad_to_seq_length(q_input_mask)
-        features["question_input_ids"] = base.create_int_feature(q_input_ids)
-        features["question_input_mask"] = base.create_int_feature(q_input_mask)
+        features["question_input_ids"] = tf_example_utils.create_int_feature(
+            q_input_ids
+        )
+        features["question_input_mask"] = tf_example_utils.create_int_feature(
+            q_input_mask
+        )
 
         if question:
-            features["question_hash"] = base.create_int_feature(
-                [base.fingerprint(question.text) % _MAX_INT]
+            features["question_hash"] = tf_example_utils.create_int_feature(
+                [tf_example_utils.fingerprint(question.text) % _MAX_INT]
             )
 
         if negative_example is not None:

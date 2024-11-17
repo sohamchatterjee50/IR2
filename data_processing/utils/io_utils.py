@@ -5,6 +5,7 @@ import tensorflow._api.v2.compat.v1 as tf
 
 
 def _is_supported(filename):
+
     extension = os.path.splitext(filename)[-1]
     return extension in [
         ".txtpb.gz",

@@ -9,16 +9,9 @@ from absl import logging
 from official.nlp.bert import tokenization
 from typing import List, Mapping, Text, Tuple
 from apache_beam import metrics as beam_metrics
+from data_processing.protos import interaction_pb2, annotated_text_pb2, table_selection_pb2
+from data_processing.utils import constants, tokenizer, text_index, text_utils, number_utils, interpret_utils
 
-from data_processing.utils import constants
-from data_processing.utils import text_utils
-from tapas.protos import annotated_text_pb2
-from tapas.protos import interaction_pb2
-from tapas.protos import table_selection_pb2
-from tapas.utils import interpretation_utils
-from tapas.utils import number_annotation_utils
-from tapas.utils import sentence_tokenizer
-from tapas.utils import text_index
 
 
 _NS = "main"
@@ -385,7 +378,7 @@ def _add_entity_descriptions_to_table(
       num_results: Limit on the number of entities to expand with a description.
     """
     descriptions = {
-        key: sentence_tokenizer.tokenize(description)
+        key: tokenizer.tokenize(description)
         for key, description in descriptions.items()
     }
     documents = []
@@ -441,6 +434,7 @@ class TapasTokenizer:
     """Wraps a Bert tokenizer."""
 
     def __init__(self, vocab_file):
+
         self._basic_tokenizer = tokenization.BasicTokenizer(do_lower_case=True)
         self._wp_tokenizer = tokenization.FullTokenizer(
             vocab_file=vocab_file, do_lower_case=True
@@ -450,6 +444,7 @@ class TapasTokenizer:
         return self._wp_tokenizer.vocab.keys()
 
     def tokenize(self, text):
+
         if text_utils.format_text(text) == constants.EMPTY_TEXT:
             return [Token(_EMPTY, _EMPTY)]
         tokens = []
@@ -470,6 +465,7 @@ class ToTensorflowExampleBase:
     """Base class for converting interactions to TF examples."""
 
     def __init__(self, config):
+
         self._max_seq_length = config.max_seq_length
         self._max_column_id = config.max_column_id
         self._max_row_id = config.max_row_id
@@ -481,24 +477,30 @@ class ToTensorflowExampleBase:
         table,
     ):
         """Runs tokenizer over columns and table cell texts."""
-        tokenized_rows = []
-        tokenized_row = []
+        tokenized_rows, tokenized_row = [], []
         for column in table.columns:
             if self._strip_column_names:
                 tokenized_row.append(self._tokenizer.tokenize(""))
+
             else:
                 tokenized_row.append(self._tokenizer.tokenize(column.text))
+
         tokenized_rows.append(tokenized_row)
 
         for row in table.rows:
+
             tokenized_row = []
             for cell in row.cells:
                 tokenized_row.append(self._tokenizer.tokenize(cell.text))
+
             tokenized_rows.append(tokenized_row)
 
         token_coordinates = []
+
         for row_index, row in enumerate(tokenized_rows):
+
             for column_index, cell in enumerate(row):
+
                 for token_index, _ in enumerate(cell):
                     token_coordinates.append(
                         TokenCoordinates(
@@ -521,6 +523,7 @@ class ToTensorflowExampleBase:
                 continue
             if tc.column_index >= num_columns:
                 continue
+
             cell = table.rows[tc.row_index][tc.column_index]
             token = cell[tc.token_index]
             word_begin_index = tc.token_index
@@ -528,21 +531,16 @@ class ToTensorflowExampleBase:
             # fits in the token budget.
             while word_begin_index >= 0 and _is_inner_wordpiece(cell[word_begin_index]):
                 word_begin_index -= 1
+
             if word_begin_index >= num_tokens:
                 continue
+
             yield token, tc.column_index + 1, tc.row_index
 
     def _serialize_text(self, question_tokens):
-        """Serialzes texts in index arrays."""
-        tokens = []
-        segment_ids = []
-        column_ids = []
-        row_ids = []
-
-        tokens.append(Token(_CLS, _CLS))
-        segment_ids.append(0)
-        column_ids.append(0)
-        row_ids.append(0)
+        """Serializes texts in index arrays."""
+        tokens = [Token(_CLS, _CLS)]
+        segment_ids, row_ids, column_ids = [0], [0], [0]
 
         for token in question_tokens:
             tokens.append(token)
@@ -600,16 +598,20 @@ class ToTensorflowExampleBase:
             max_num_columns = max(max_num_columns, tc.column_index + 1)
             max_num_rows = max(max_num_rows, tc.row_index + 1)
             max_num_tokens = max(max_num_tokens, tc.token_index + 1)
+
         max_num_columns = min(self._max_column_id, max_num_columns)
         max_num_rows = min(self._max_row_id, max_num_rows)
+
         return max_num_rows, max_num_columns, max_num_tokens
 
     def _get_table_cost(self, table, num_columns, num_rows, num_tokens):
+
         return sum(
             1 for _ in self._get_table_values(table, num_columns, num_rows, num_tokens)
         )
 
     def _get_column_values(self, table, col_index):
+
         table_numeric_values = {}
         for row_index, row in enumerate(table.rows):
             cell = row.cells[col_index]
@@ -630,7 +632,7 @@ class ToTensorflowExampleBase:
                     continue
 
                 try:
-                    key_fn = number_annotation_utils.get_numeric_sort_key_fn(
+                    key_fn = number_utils.get_numeric_sort_key_fn(
                         table_numeric_values.values()
                     )
                 except ValueError:
@@ -662,7 +664,7 @@ class ToTensorflowExampleBase:
         """Returns the sort key function for comparing value to table values.
 
         The function returned will be a suitable input for the key param of the
-        sort(). See number_annotation_utils._get_numeric_sort_key_fn for details.
+        sort(). See number_utils._get_numeric_sort_key_fn for details.
 
         Args:
           table_numeric_values: Numeric values of a column
@@ -677,7 +679,7 @@ class ToTensorflowExampleBase:
         all_values = list(table_numeric_values.values())
         all_values.append(value)
         try:
-            return number_annotation_utils.get_numeric_sort_key_fn(all_values)
+            return number_utils.get_numeric_sort_key_fn(all_values)
         except ValueError:
             return None
 
@@ -710,7 +712,7 @@ class ToTensorflowExampleBase:
                         if sort_key_fn is None:
                             continue
                         for row_index, cell_value in table_numeric_values.items():
-                            relation = number_annotation_utils.get_numeric_relation(
+                            relation = number_utils.get_numeric_relation(
                                 value, cell_value, sort_key_fn
                             )
                             if relation is not None:
@@ -789,10 +791,13 @@ class ToTensorflowExampleBase:
         """Limits the input to max_seq_len."""
         if override_max_seq_length is not None:
             max_seq_length = override_max_seq_length
+
         else:
             max_seq_length = self._max_seq_length
+
         while len(inputs) > max_seq_length:
             inputs.pop()
+
         while len(inputs) < max_seq_length:
             inputs.append(0)
 
@@ -819,12 +824,14 @@ class ToTensorflowExampleBase:
 
         assert len(input_ids) == self._max_seq_length
         assert len(input_mask) == self._max_seq_length
+
         for values in token_ids_dict.values():
             assert len(values) == self._max_seq_length
 
         features = collections.OrderedDict()
         features["input_ids"] = create_int_feature(input_ids)
         features["input_mask"] = create_int_feature(input_mask)
+
         for key, values in sorted(token_ids_dict.items()):
             features[key] = create_int_feature(values)
 
@@ -841,7 +848,6 @@ class ToTensorflowExampleBase:
         )
 
         self._add_numeric_values(table, token_ids_dict, features)
-
         self._add_numeric_values_scale(table, token_ids_dict, features)
 
         if table:
@@ -851,6 +857,7 @@ class ToTensorflowExampleBase:
             features["table_id_hash"] = create_int_feature(
                 [fingerprint(table.table_id) % _MAX_INT]
             )
+
         return features
 
 
@@ -999,14 +1006,18 @@ class ToPretrainingTensorflowExample(ToTensorflowExampleBase):
         """Creates the predictions for the masked LM objective."""
         cand_indexes = []
         for i, token in enumerate(tokens):
+
             if token.piece in [_CLS, _SEP]:
                 continue
+
             column_id = column_ids[i]
             is_cell_continutation = column_id > 0 and column_id == column_ids[i - 1]
             if not self._always_continue_cells:
                 is_cell_continutation = False
+
             if cand_indexes and (_is_inner_wordpiece(token) or is_cell_continutation):
                 cand_indexes[-1].append(i)
+
             else:
                 cand_indexes.append([i])
 
@@ -1022,6 +1033,7 @@ class ToPretrainingTensorflowExample(ToTensorflowExampleBase):
         masked_lms = []
         covered_indexes = set()
         for index_set in cand_indexes:
+
             if len(masked_lms) >= num_to_predict:
                 break
             # If adding a whole-word mask would exceed the maximum number of
@@ -1037,10 +1049,12 @@ class ToPretrainingTensorflowExample(ToTensorflowExampleBase):
                 # 80% of the time, replace with [MASK]
                 if rng.random() < 0.8:
                     masked_token = _MASK
+
                 else:
                     # 10% of the time, keep original
                     if rng.random() < 0.5:
                         masked_token = tokens[index].piece
+
                     # 10% of the time, replace with random word
                     else:
                         masked_token = rng.choice(self._vocab_words)
@@ -1056,6 +1070,7 @@ class ToPretrainingTensorflowExample(ToTensorflowExampleBase):
         masked_lm_positions = []
         masked_lm_labels = []
         for p in masked_lms:
+
             masked_lm_positions.append(p.index)
             masked_lm_labels.append(p.label)
 
@@ -1068,13 +1083,17 @@ class ToPretrainingTensorflowExample(ToTensorflowExampleBase):
         if not self._concatenate_snippets:
             # Find the first snippet that satisfies the requirements.
             for question in questions:
+
                 tokens = self._tokenizer.tokenize(question)
                 if len(tokens) > self._max_question_length:
                     continue
+
                 if len(tokens) < self._min_question_length:
                     continue
+
                 return tokens
             return None
+
         tokens = []
         for question in questions:
             tokens += self._tokenizer.tokenize(question)
@@ -1119,24 +1138,30 @@ class ToPretrainingTensorflowExample(ToTensorflowExampleBase):
             or num_rows < max_num_rows
             or num_tokens < max_num_tokens
         ):
+
             if num_columns < max_num_columns and rng.random() < 0.5:
                 cost = self._get_table_cost(
                     table, num_columns + 1, num_rows, num_tokens
                 )
+
                 if cost > token_budget:
                     break
                 num_columns += 1
+
             if num_rows < max_num_rows and rng.random() < 0.5:
                 cost = self._get_table_cost(
                     table, num_columns, num_rows + 1, num_tokens
                 )
+
                 if cost > token_budget:
                     break
                 num_rows += 1
+
             if num_tokens < max_num_tokens and rng.random() < 0.5:
                 cost = self._get_table_cost(
                     table, num_columns, num_rows, num_tokens + 1
                 )
+
                 if cost > token_budget:
                     break
                 num_tokens += 1
@@ -1212,10 +1237,12 @@ class ToTrimmedTensorflowExample(ToTensorflowExampleBase):
             if num_tokens is not None:
                 # We could fit the table.
                 break
+
             if not drop_rows_to_fit or num_rows == 0:
                 raise ValueError("Sequence too long")
             # Try to drop a row to fit the table.
             num_rows -= 1
+
         if init_num_rows != num_rows:
             beam_metrics.Metrics.counter(_NS, "Tables with trimmed rows").inc()
         serialized_example = self._serialize(
@@ -1247,19 +1274,23 @@ class ToTrimmedTensorflowExample(ToTensorflowExampleBase):
         if self._cell_trim_length >= 0 and max_num_tokens > self._cell_trim_length:
             max_num_tokens = self._cell_trim_length
         num_tokens = 0
+
         for num_tokens in range(max_num_tokens + 1):
             cost = self._get_table_cost(
                 tokenized_table, num_columns, num_rows, num_tokens + 1
             )
             if cost > token_budget:
                 break
+
         if num_tokens < max_num_tokens:
             if self._cell_trim_length >= 0:
                 # We don't allow dynamic trimming if a cell_trim_length is set.
                 return None
+
             if num_tokens == 0:
                 return None
             beam_metrics.Metrics.counter(_NS, "Tables with trimmed cells").inc()
+
         return num_tokens
 
 
@@ -1294,10 +1325,12 @@ class ToClassifierTensorflowExample(ToTrimmedTensorflowExample):
             text_tokens.append(Token(_SEP, _SEP))
             text_tokens.extend(document_title_tokens)
         context_heading = table.context_heading
+
         if self._use_context_title and context_heading:
             context_title_tokens = self._tokenizer.tokenize(context_heading)
             text_tokens.append(Token(_SEP, _SEP))
             text_tokens.extend(context_title_tokens)
+
         return text_tokens
 
     def convert(self, interaction, index):
@@ -1337,8 +1370,10 @@ class ToClassifierTensorflowExample(ToTrimmedTensorflowExample):
         table_selection_ext = table_selection_pb2.TableSelection.table_selection_ext
         if table_selection_ext in question.Extensions:
             table_selection = question.Extensions[table_selection_ext]
+
             if not tokenized_table.selected_tokens:
                 raise ValueError("No tokens selected")
+
             if table_selection.selected_tokens:
                 selected_tokens = {
                     (t.row_index, t.column_index, t.token_index)
@@ -1374,6 +1409,7 @@ class ToClassifierTensorflowExample(ToTrimmedTensorflowExample):
                         for at in question.answer.answer_texts
                     ],
                 )
+
             return _get_answer_ids(column_ids, row_ids, question)
 
         answer_ids = get_answer_ids(question)
@@ -1384,15 +1420,19 @@ class ToClassifierTensorflowExample(ToTrimmedTensorflowExample):
             prev_answer_ids = get_answer_ids(
                 interaction.questions[index - 1],
             )
+
         else:
             prev_answer_ids = [0] * len(column_ids)
+
         self._pad_to_seq_length(prev_answer_ids)
         features["prev_label_ids"] = create_int_feature(prev_answer_ids)
         features["question_id"] = create_string_feature([question.id.encode("utf8")])
         if self._trim_question_ids:
             question_id = question.id[-text_utils.DEFAULT_INTS_LENGTH :]
+
         else:
             question_id = question.id
+
         features["question_id_ints"] = create_int_feature(
             text_utils.str_to_ints(question_id, length=text_utils.DEFAULT_INTS_LENGTH)
         )
@@ -1413,7 +1453,7 @@ class ToClassifierTensorflowExample(ToTrimmedTensorflowExample):
         if self._add_aggregation_candidates:
             rng = random.Random(fingerprint(question.id))
 
-            candidates = interpretation_utils.find_candidates(rng, table, question)
+            candidates = interpret_utils.find_candidates(rng, table, question)
             num_initial_candidates = len(candidates)
 
             candidates = [c for c in candidates if len(c.rows) < _MAX_NUM_ROWS]
@@ -1437,15 +1477,18 @@ class ToClassifierTensorflowExample(ToTrimmedTensorflowExample):
                 funs[index] = candidate.agg_function
                 indexes += token_indexes
 
-            # <int>[1]
-            features["cand_num"] = create_int_feature([num_final_candidates])
-            # <int>[_MAX_NUM_CANDIDATES]
-            features["can_aggregation_function_ids"] = create_int_feature(funs)
-            # <int>[_MAX_NUM_CANDIDATES]
-            features["can_sizes"] = create_int_feature(sizes)
-            # <int>[_MAX_INDEX_LENGTH]
-            # Actual length is sum(sizes).
-            features["can_indexes"] = create_int_feature(indexes)
+            features["cand_num"] = create_int_feature(
+                [num_final_candidates]
+            )  # <int>[1]
+            features["can_aggregation_function_ids"] = create_int_feature(
+                funs
+            )  # <int>[_MAX_NUM_CANDIDATES]
+            features["can_sizes"] = create_int_feature(
+                sizes
+            )  # <int>[_MAX_NUM_CANDIDATES]
+            features["can_indexes"] = create_int_feature(
+                indexes
+            )  # <int>[_MAX_INDEX_LENGTH], actual length is sum(sizes).
 
             if num_initial_candidates > 0:
                 beam_metrics.Metrics.counter(
@@ -1466,6 +1509,7 @@ class ToClassifierTensorflowExample(ToTrimmedTensorflowExample):
         return tf.train.Example(features=tf.train.Features(feature=features))
 
     def get_empty_example(self):
+
         interaction = interaction_pb2.Interaction(
             questions=[interaction_pb2.Question(id=text_utils.get_padded_question_id())]
         )

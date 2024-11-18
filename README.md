@@ -65,23 +65,31 @@ To cite this work, please use the following citation:
 
 We recommend citing the original paper here:
 ```
-@inproceedings{herzig-etal-2020-tapas,
-    title = "{T}a{P}as: Weakly Supervised Table Parsing via Pre-training",
+@inproceedings{herzig-etal-2021-open,
+    title = "Open Domain Question Answering over Tables via Dense Retrieval",
     author = {Herzig, Jonathan  and
-      Nowak, Pawel Krzysztof  and
       M{\"u}ller, Thomas  and
-      Piccinno, Francesco  and
+      Krichene, Syrine  and
       Eisenschlos, Julian},
-    editor = "Jurafsky, Dan  and
-      Chai, Joyce  and
-      Schluter, Natalie  and
-      Tetreault, Joel",
-    booktitle = "Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics",
-    month = jul,
-    year = "2020",
-    doi = "10.18653/v1/2020.acl-main.398",
-    pages = "4320--4333",
+    editor = "Toutanova, Kristina  and
+      Rumshisky, Anna  and
+      Zettlemoyer, Luke  and
+      Hakkani-Tur, Dilek  and
+      Beltagy, Iz  and
+      Bethard, Steven  and
+      Cotterell, Ryan  and
+      Chakraborty, Tanmoy  and
+      Zhou, Yichao",
+    booktitle = "Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies",
+    month = jun,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.naacl-main.43",
+    doi = "10.18653/v1/2021.naacl-main.43",
+    pages = "512--519",
 }
+
 ```
 
 The license of the original code is also included [here](LICENSE) as this work is based on it.

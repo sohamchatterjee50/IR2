@@ -15,7 +15,7 @@ syntax = "proto2";
 
 package language.tapas;
 
-import "tapas/protos/interaction.proto";
+import "data_processing/protos/interaction.proto";
 
 message RetrieverInfo {
   extend language.tapas.Question {

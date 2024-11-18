@@ -5,3 +5,17 @@ general:
   pretraining: False
   use_bm25: False
   use_hnbm25: False
+
+# This config is based on the initial parameters and decisions made
+# by the original authors
+conversion:
+  input_interactions_dir: data/interactions
+  input_tables_dir: data/tables
+  output_dir: data/tf_examples
+  vocab_file: tapas_retriever/vocab.txt
+  max_seq_length: 512
+  max_column_id: 512
+  max_row_id: 512
+  cell_trim_length: -1
+  use_document_title: True
+  converter_impl: PYTHON

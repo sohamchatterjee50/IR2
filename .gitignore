@@ -5,6 +5,10 @@ venv_ir
 data
 outputs
 
+# Models
+tapas_reader
+tapas_retriever
+
 # Original Code
 Authors_Code
 
@@ -13,4 +17,4 @@ test.ipynb
 .vscode
 *\__pycache__
 *\dist
-*\tapas_table_parsing.egg-info
+*\open_domain_reprod.egg-info

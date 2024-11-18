@@ -7,7 +7,7 @@ from official.nlp.bert import tokenization
 from typing import List, Mapping, Text, Tuple
 from apache_beam import metrics as beam_metrics
 from data_processing.protos import interaction_pb2, annotated_text_pb2, table_selection_pb2
-from data_processing.utils import constants, tokenizer, text_index, text_utils, number_utils, interpret_utils
+from data_processing.utils import constants, number_annot_utils, tokenizer, text_index, text_utils, interpret_utils
 
 
 
@@ -518,6 +518,7 @@ class ToTensorflowExampleBase:
             # First row is header row.
             if tc.row_index >= num_rows + 1:
                 continue
+            
             if tc.column_index >= num_columns:
                 continue
 
@@ -540,6 +541,7 @@ class ToTensorflowExampleBase:
         segment_ids, row_ids, column_ids = [0], [0], [0]
 
         for token in question_tokens:
+
             tokens.append(token)
             segment_ids.append(0)
             column_ids.append(0)
@@ -592,6 +594,7 @@ class ToTensorflowExampleBase:
         max_num_columns = 0
         max_num_rows = 0
         for tc in table.selected_tokens:
+
             max_num_columns = max(max_num_columns, tc.column_index + 1)
             max_num_rows = max(max_num_rows, tc.row_index + 1)
             max_num_tokens = max(max_num_tokens, tc.token_index + 1)
@@ -611,9 +614,11 @@ class ToTensorflowExampleBase:
 
         table_numeric_values = {}
         for row_index, row in enumerate(table.rows):
+
             cell = row.cells[col_index]
             if cell.HasField("numeric_value"):
                 table_numeric_values[row_index] = cell.numeric_value
+
         return table_numeric_values
 
     def _add_numeric_column_ranks(self, column_ids, row_ids, table, features):
@@ -624,12 +629,13 @@ class ToTensorflowExampleBase:
 
         if table:
             for col_index in range(len(table.columns)):
+
                 table_numeric_values = self._get_column_values(table, col_index)
                 if not table_numeric_values:
                     continue
 
                 try:
-                    key_fn = number_utils.get_numeric_sort_key_fn(
+                    key_fn = number_annot_utils.get_numeric_sort_key_fn(
                         table_numeric_values.values()
                     )
                 except ValueError:
@@ -642,12 +648,15 @@ class ToTensorflowExampleBase:
 
                 table_numeric_values_inv = collections.defaultdict(list)
                 for row_index, value in table_numeric_values.items():
+
                     table_numeric_values_inv[value].append(row_index)
 
                 unique_values = sorted(table_numeric_values_inv.keys())
 
                 for rank, value in enumerate(unique_values):
+
                     for row_index in table_numeric_values_inv[value]:
+
                         for index in _get_cell_token_indexes(
                             column_ids, row_ids, col_index, row_index
                         ):
@@ -676,7 +685,8 @@ class ToTensorflowExampleBase:
         all_values = list(table_numeric_values.values())
         all_values.append(value)
         try:
-            return number_utils.get_numeric_sort_key_fn(all_values)
+            return number_annot_utils.get_numeric_sort_key_fn(all_values)
+        
         except ValueError:
             return None
 
@@ -709,7 +719,7 @@ class ToTensorflowExampleBase:
                         if sort_key_fn is None:
                             continue
                         for row_index, cell_value in table_numeric_values.items():
-                            relation = number_utils.get_numeric_relation(
+                            relation = number_annot_utils.get_numeric_relation(
                                 value, cell_value, sort_key_fn
                             )
                             if relation is not None:

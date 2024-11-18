@@ -5,6 +5,7 @@ from absl import logging
 from data_processing.utils import constants
 
 _TOKENIZER = re.compile(r"\w+|[^\w\s]+", re.UNICODE)
+DEFAULT_INTS_LENGTH = 64
 
 
 def wtq_normalize(x):
@@ -117,9 +118,11 @@ def convert_to_float(value):
         # For example: 1,000.7
         if "." in sanitized and "," in sanitized:
             return float(sanitized.replace(",", ""))
+
         # 1,000
         if "," in sanitized and _split_thousands(",", sanitized):
             return float(sanitized.replace(",", ""))
+
         # 5,5556
         if (
             "," in sanitized
@@ -130,9 +133,11 @@ def convert_to_float(value):
         # 0.0.0.1
         if sanitized.count(".") > 1:
             return float(sanitized.replace(".", ""))
+
         # 0,0,0,1
         if sanitized.count(",") > 1:
             return float(sanitized.replace(",", ""))
+
         return float(sanitized)
 
     except ValueError:
@@ -149,6 +154,7 @@ def _normalize_float(answer):
         value = convert_to_float(answer)
         if isinstance(value, float) and math.isnan(value):
             return None
+
         return value
 
     except ValueError:
@@ -157,13 +163,7 @@ def _normalize_float(answer):
 
 def normalize_answers(answers):
 
-    normalized_answers = (_normalize_float(a) for a in answers)
-    normalized_answers = (a for a in normalized_answers if a is not None)
-    normalized_answers = (str(a) for a in normalized_answers)
-    normalized_answers = list(normalized_answers)
-    normalized_answers.sort()
-
-    return normalized_answers
+    return sorted(str(a).lower() for a in answers if _normalize_float(a) is not None)
 
 
 def get_all_spans(text, max_ngram_length):
@@ -193,7 +193,7 @@ def get_all_spans(text, max_ngram_length):
 
 
 def normalize_for_match(text):
-    return " ".join(text.split().lower())
+    return " ".join(text.lower().split())
 
 
 def format_text(text):
@@ -219,9 +219,6 @@ def tokenize_text(text):
 def format_and_tokenize_text(text):
     """Runs format_text and tokenizes."""
     return tokenize_text(format_text(text))
-
-
-DEFAULT_INTS_LENGTH = 64
 
 
 def str_to_ints(text, length):
@@ -313,6 +310,7 @@ def to_float32(v):
     """If v is a float reduce precision to that of a 32 bit float."""
     if not isinstance(v, float):
         return v
+
     return struct.unpack("!f", struct.pack("!f", v))[0]
 
 
@@ -339,7 +337,9 @@ def filter_invalid_unicode_from_table(table):
       table: table to clean.
     """
     for row_index, row in enumerate(table.rows):
+
         for col_index, cell in enumerate(row.cells):
+
             cell.text, is_invalid = filter_invalid_unicode(cell.text)
             if is_invalid:
                 logging.warning(
@@ -351,6 +351,7 @@ def filter_invalid_unicode_from_table(table):
                 )
 
     for col_index, column in enumerate(table.columns):
+
         column.text, is_invalid = filter_invalid_unicode(column.text)
         if is_invalid:
             logging.warning(

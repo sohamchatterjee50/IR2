@@ -4,10 +4,9 @@ import os
 import tensorflow._api.v2.compat.v1 as tf
 
 
-def _is_supported(filename):
+def _is_supported(filename: str):
 
-    extension = os.path.splitext(filename)[-1]
-    return extension in [
+    return os.path.splitext(filename)[-1] in [
         ".txtpb.gz",
         ".txtpb",
         ".tfrecord",
@@ -16,9 +15,9 @@ def _is_supported(filename):
 
 
 def _check_basename(
-    basenames,
-    basename,
-    input_dir,
+    basenames: set,
+    basename: str,
+    input_dir: str,
 ):
     if basename in basenames:
         raise ValueError(
@@ -27,7 +26,7 @@ def _check_basename(
     basenames.add(basename)
 
 
-def get_inputs_and_outputs(input_dir, output_dir):
+def get_inputs_outputs(input_dir: str, output_dir: str):
     """Reads files from 'input_dir' and creates corresponding paired outputs.
 
     Args:

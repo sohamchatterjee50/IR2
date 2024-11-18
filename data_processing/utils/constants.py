@@ -11,6 +11,48 @@ _MAX_INT = 2**32 - 1
 T = TypeVar("T")
 
 # For Number Utils
+# Some of the definitions here follow guidelines written in DynSp:
+# https://github.com/Microsoft/DynSP/blob/master/util.py#L414.
+_MAX_DATE_NGRAM_SIZE = 5
+
+_NUMBER_WORDS = [
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+]
+
+_ORDINAL_WORDS = [
+    "zeroth",
+    "first",
+    "second",
+    "third",
+    "fourth",
+    "fith",
+    "sixth",
+    "seventh",
+    "eighth",
+    "ninth",
+    "tenth",
+    "eleventh",
+    "twelfth",
+]
+
+_ORDINAL_SUFFIXES = ["st", "nd", "rd", "th"]
+_MIN_YEAR = 1700
+_MAX_YEAR = 2016
+_INF = float("INF")
+
+# For Number Annotation Utils
 _DATE_TUPLE_SIZE = 3
 
 # For Interpret Utils

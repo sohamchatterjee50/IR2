@@ -1,5 +1,7 @@
 # **[Re] On the Reproducibility of Open Domain Question Answering over Tables via Dense Retrieval**
 
+This is the repository for the reproduction of the **Open Domain Question Answering over Tables via Dense Retrieval** paper. Many parts of the code are taken/adapted directly from the original repository [here](https://github.com/google-research/tapas/blob/master/DENSE_TABLE_RETRIEVER.md).
+
 ## **Setup**
 
 For all the following steps, we highly suggest first entering the repository folder by doing:
@@ -34,26 +36,32 @@ Note that doing the above requires `gsutil` installed beforehand. Instructions o
 The model checkpoint can be downloaded via the following command:
 
 ```sh
-retrieval_model_name=tapas_dual_encoder_proj_256_large
+retrieval_model_name=tapas_nq_hn_retriever_medium
 gsutil cp "gs://tapas_models/2021_04_27/${retrieval_model_name}.zip" . && unzip "${retrieval_model_name}.zip"
+rmdir $retrieval_model_name
 
-# Alternatively, you can run this bash script:
-bash/download_ckpt.bash
+reader_model_name=tapas_nq_reader_larg
+gsutil cp "gs://tapas_models/2021_04_27/${reader_model_name}.zip" . && unzip "${reader_model_name}.zip"
+rmdir $reader_model_name
+
+# Alternatively, you can run these bash scripts:
+bash/download_retriever.bash
+bash/download_reader.bash
 ```
 
 You can change the retrieval model name to any one of the checkpoints listed [here](misc/model_list.md).
 
 ## **Running**
 
-To run the code, use the following script:
+To run the code, we must first create the data to use. This can be done with the following script:
+```sh
+python convert_data.py
+```
+
+Afterwards, we just need to do the following:
 
 ```sh
-python tapas/run_task_main.py \
-  --task="SQA" \
-  --output_dir="${output_dir}" \
-  --init_checkpoint="${tapas_data_dir}/model.ckpt" \
-  --bert_config_file="${tapas_data_dir}/bert_config.json" \
-  --mode="predict_and_evaluate"
+python main.py
 ```
 
 ## **Citations**

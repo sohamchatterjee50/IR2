@@ -5,7 +5,7 @@ import apache_beam as beam
 import tensorflow._api.v2.compat.v1 as tf
 from google.protobuf import text_format
 from data_processing.protos import interaction_pb2
-from data_processing.utils import tf_example_utils, number_utils
+from data_processing.utils import number_annot_utils, tf_example_utils
 from data_processing.utils.constants import _NS, _MAX_INT
 
 
@@ -87,7 +87,7 @@ def add_numeric_values_fn(element):
     key, interaction = element
     new_interaction = interaction_pb2.Interaction()
     new_interaction.CopyFrom(interaction)
-    number_utils.add_numeric_values(new_interaction)
+    number_annot_utils.add_numeric_values(new_interaction)
 
     return key, new_interaction
 

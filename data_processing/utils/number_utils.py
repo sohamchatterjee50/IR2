@@ -1,233 +1,245 @@
-## Helper Functions for handling numeric Quik annotations and relations
+## Numbers and Date Annotation Function
 
-import itertools, collections
-from absl import logging
+import re, math, datetime, collections
+from data_processing.utils import text_utils
 from data_processing.protos import interaction_pb2
-from data_processing.utils.constants import _DATE_TUPLE_SIZE
-from data_processing.utils import constants, text_utils, number_utils
+from data_processing.utils.constants import (
+    _MAX_DATE_NGRAM_SIZE,
+    _NUMBER_WORDS,
+    _ORDINAL_WORDS,
+    _ORDINAL_SUFFIXES,
+    _MIN_YEAR,
+    _MAX_YEAR,
+    _INF,
+)
+
+# Pattern for number text searching
+_NUMBER_PATTERN = re.compile(r"((^|\s)[+-])?((\.\d+)|(\d+(,\d\d\d)*(\.\d*)?))")
+
+# Constants for parsing date expressions.
+# Masks that specify (by a bool) which of (year, month, day) will be populated.
+_DateMask = collections.namedtuple("_DateMask", ["year", "month", "day"])
+
+_YEAR = _DateMask(True, False, False)
+_YEAR_MONTH = _DateMask(True, True, False)
+_YEAR_MONTH_DAY = _DateMask(True, True, True)
+_MONTH = _DateMask(False, True, False)
+_MONTH_DAY = _DateMask(False, True, True)
+
+# Pairs of patterns to pass to 'datetime.strptime' and masks specifying which
+# fields will be set by the corresponding pattern.
+_DATE_PATTERNS = (
+    ("%B", _MONTH),
+    ("%Y", _YEAR),
+    ("%Ys", _YEAR),
+    ("%b %Y", _YEAR_MONTH),
+    ("%B %Y", _YEAR_MONTH),
+    ("%B %d", _MONTH_DAY),
+    ("%b %d", _MONTH_DAY),
+    ("%d %b", _MONTH_DAY),
+    ("%d %B", _MONTH_DAY),
+    ("%B %d, %Y", _YEAR_MONTH_DAY),
+    ("%d %B %Y", _YEAR_MONTH_DAY),
+    ("%m-%d-%Y", _YEAR_MONTH_DAY),
+    ("%Y-%m-%d", _YEAR_MONTH_DAY),
+    ("%Y-%m", _YEAR_MONTH),
+    ("%B %Y", _YEAR_MONTH),
+    ("%d %b %Y", _YEAR_MONTH_DAY),
+    ("%Y-%m-%d", _YEAR_MONTH_DAY),
+    ("%b %d, %Y", _YEAR_MONTH_DAY),
+    ("%d.%m.%Y", _YEAR_MONTH_DAY),
+    ("%A, %b %d", _MONTH_DAY),
+    ("%A, %B %d", _MONTH_DAY),
+)
+
+# This mapping is used to convert date patterns to regex patterns.
+_FIELD_TO_REGEX = (
+    ("%A", r"\w+"),  # Weekday as locale’s full name.
+    ("%B", r"\w+"),  # Month as locale’s full name.
+    ("%Y", r"\d{4}"),  #  Year with century as a decimal number.
+    ("%b", r"\w{3}"),  # Month as locale’s abbreviated name.
+    ("%d", r"\d{1,2}"),  # Day of the month as a zero-padded decimal number.
+    ("%m", r"\d{1,2}"),  # Month as a zero-padded decimal number.
+)
 
 
-def _get_value_type(numeric_value):
+def _process_date_pattern(dp):
+    """Compute a regex for each date pattern to use as a prefilter."""
+    pattern, mask = dp
+    regex = pattern
+    regex = regex.replace(".", re.escape("."))
+    regex = regex.replace("-", re.escape("-"))
+    regex = regex.replace(" ", r"\s+")
+    for field, field_regex in _FIELD_TO_REGEX:
+        regex = regex.replace(field, field_regex)
 
-    if numeric_value.HasField("float_value"):
-        return constants.NUMBER_TYPE
-
-    elif numeric_value.HasField("date"):
-        return constants.DATE_TYPE
-
-    raise ValueError("Unknown type: %s" % numeric_value)
-
-
-def _get_value_as_primitive_value(numeric_value):
-    """Maps a NumericValue proto to a float or tuple of float."""
-    if numeric_value.HasField("float_value"):
-        return numeric_value.float_value
-
-    if numeric_value.HasField("date"):
-        date = numeric_value.date
-        value_tuple = [None, None, None]
-        # All dates fields are cased to float to produce a simple primitive value.
-        if date.HasField("year"):
-            value_tuple[0] = float(date.year)
-        if date.HasField("month"):
-            value_tuple[1] = float(date.month)
-        if date.HasField("day"):
-            value_tuple[2] = float(date.day)
-        return tuple(value_tuple)
-    raise ValueError("Unknown type: %s" % numeric_value)
+    # Make sure we didn't miss any of the fields.
+    assert "%" not in regex, regex
+    return pattern, mask, re.compile("^" + regex + "$")
 
 
-def _get_all_types(numeric_values):
-    return {_get_value_type(value) for value in numeric_values}
+def _process_date_patterns():
+    return tuple(_process_date_pattern(dp) for dp in _DATE_PATTERNS)
 
 
-def get_numeric_sort_key_fn(numeric_values):
-    """Creates a function that can be used as a sort key or to compare the values.
-
-    Maps to primitive types and finds the biggest common subset.
-
-    Consider the values "05/05/2010" and "August 2007".
-    With the corresponding primitive values (2010.,5.,5.) and (2007.,8., None).
-
-    These values can be compared by year and date so we map to the sequence
-    (2010., 5.), (2007., 8.).
-
-    If we added a third value "2006" with primitive value (2006., None, None),
-    we could only compare by the year so we would map to (2010.,), (2007.,)
-    and (2006.,).
-
-    Args:
-     numeric_values: Values to compare.
-
-    Returns:
-     A function that can be used as a sort key function (mapping numeric values
-     to a comparable tuple).
-
-    Raises:
-      ValueError if values don't have a common type or are not comparable.
-    """
-    value_types = _get_all_types(numeric_values)
-    if len(value_types) != 1:
-        raise ValueError("No common value type in %s" % numeric_values)
-
-    value_type = next(iter(value_types))
-    if value_type == constants.NUMBER_TYPE:
-        # Primitive values are simple floats, nothing to do here.
-        return _get_value_as_primitive_value
-
-    # The type can only be Date at this point which means the primitive type
-    # is a float triple.
-    valid_indexes = set(range(_DATE_TUPLE_SIZE))
-
-    for numeric_value in numeric_values:
-        value = _get_value_as_primitive_value(numeric_value)
-        assert isinstance(value, tuple)
-        for tuple_index, inner_value in enumerate(value):
-            if inner_value is None:
-                valid_indexes.discard(tuple_index)
-
-    if not valid_indexes:
-        raise ValueError("No common value in %s" % numeric_values)
-
-    def _sort_key_fn(numeric_value):
-        value = _get_value_as_primitive_value(numeric_value)
-        return tuple(value[index] for index in valid_indexes)
-
-    return _sort_key_fn
+_PROCESSED_DATE_PATTERNS = _process_date_patterns()
 
 
-def _consolidate_numeric_values(
-    row_index_to_values, min_consolidation_fraction, debug_info
-):
-    """Finds the most common numeric values in a column and returns them.
+def _get_numeric_value_from_date(date, mask):
+    """Converts date to a numeric value proto with a date value."""
+    if date.year < _MIN_YEAR or date.year > _MAX_YEAR:
+        raise ValueError("Invalid year: %d" % date.year)
 
-    Args:
-     row_index_to_values: For each row index all the values in that cell.
-     min_consolidation_fraction: Fraction of cells that need to have consolidated
-       value.
-     debug_info: Additional information only used for logging.
-
-    Returns:
-     For each row index the first value that matches the most common value.
-     Rows that don't have a matching value are dropped. Empty list if values can't
-     be consolidated.
-    """
-    type_counts = collections.Counter()
-    for numeric_values in row_index_to_values.values():
-        type_counts.update(_get_all_types(numeric_values))
-
-    if not type_counts:
-        return {}
-
-    max_count = max(type_counts.values())
-    if max_count < len(row_index_to_values) * min_consolidation_fraction:
-        logging.log_every_n(
-            logging.INFO,
-            "Can't consolidate types: %s %s %d",
-            100,
-            debug_info,
-            row_index_to_values,
-            max_count,
-        )
-        return {}
-
-    valid_types = set()
-    for value_type, count in type_counts.items():
-        if count == max_count:
-            valid_types.add(value_type)
-
-    if len(valid_types) > 1:
-        assert constants.DATE_TYPE in valid_types
-        max_type = constants.DATE_TYPE
-
-    else:
-        max_type = next(iter(valid_types))
-
-    new_row_index_to_value = {}
-
-    for index, values in row_index_to_values.items():
-        # Extract the first matching value.
-        for value in values:
-
-            if _get_value_type(value) == max_type:
-                new_row_index_to_value[index] = value
-                break
-
-    return new_row_index_to_value
+    new_date = interaction_pb2.Date()
+    if mask.year:
+        new_date.year = date.year
+    if mask.month:
+        new_date.month = date.month
+    if mask.day:
+        new_date.day = date.day
+    return interaction_pb2.NumericValue(date=new_date)
 
 
-def _get_numeric_values(text):
-    """Parses text and returns numeric values."""
-    numeric_spans = number_utils.parse_text(text)
-    return itertools.chain(*(span.values for span in numeric_spans))
+def _get_span_length_key(span):
+    """Sorts span by decreasing length first and incresing first index second."""
+    return span[1] - span[0], -span[0]
 
 
-def _get_column_values(table, col_index):
-    """Parses text in column and returns a dict mapping row_index to values."""
-    index_to_values = {}
-    for row_index, row in enumerate(table.rows):
-        text = text_utils.normalize_for_match(row.cells[col_index].text)
-        index_to_values[row_index] = list(_get_numeric_values(text))
-
-    return index_to_values
+def _get_numeric_value_from_float(value):
+    return interaction_pb2.NumericValue(float_value=value)
 
 
-def get_numeric_relation(value, other_value, sort_key_fn):
-    """Compares two values and returns their relation or None."""
-    value = sort_key_fn(value)
-    other_value = sort_key_fn(other_value)
-
-    if value == other_value:
-        return constants.Relation.EQ
-
-    if value < other_value:
-        return constants.Relation.LT
-
-    if value > other_value:
-        return constants.Relation.GT
-
+# Doesn't parse ordinal expressions such as '18th of february 1655'.
+def _parse_date(text):
+    """Attempts to format a text as a standard date string (yyyy-mm-dd)."""
+    text = re.sub(r"Sept\b", "Sep", text)
+    for in_pattern, mask, regex in _PROCESSED_DATE_PATTERNS:
+        if not regex.match(text):
+            continue
+        try:
+            date = datetime.datetime.strptime(text, in_pattern).date()
+        except ValueError:
+            continue
+        try:
+            return _get_numeric_value_from_date(date, mask)
+        except ValueError:
+            continue
     return None
 
 
-def add_numeric_table_values(table, min_consolidation_fraction=0.7, debug_info=None):
-    """Parses text in table column-wise and adds the consolidated values.
+def _parse_number(text):
+    """Parses simple cardinal and ordinals numbers."""
+    for suffix in _ORDINAL_SUFFIXES:
+        if text.endswith(suffix):
+            text = text[: -len(suffix)]
+            break
+    text = text.replace(",", "")
+    try:
+        value = float(text)
+    except ValueError:
+        return None
+    if math.isnan(value):
+        return None
+    if value == _INF:
+        return None
+    return value
 
-    Consolidation refers to finding values with a common types (date or number).
+
+def parse_text(text):
+    """Extracts longest number and date spans.
 
     Args:
-     table: Table to annotate.
-     min_consolidation_fraction: Fraction of cells in a column that need to have
-       consolidated value.
-     debug_info: Additional information used for logging.
+      text: text to annotate.
+
+    Returns:
+      List of longest numeric value spans.
     """
-    text_utils.filter_invalid_unicode_from_table(table)
-    for row_index, row in enumerate(table.rows):
-        for col_index, cell in enumerate(row.cells):
-            cell.ClearField("numeric_value")
+    span_dict = collections.defaultdict(list)
 
-    for col_index, column in enumerate(table.columns):
-        column_values = _consolidate_numeric_values(
-            _get_column_values(table, col_index),
-            min_consolidation_fraction=min_consolidation_fraction,
-            debug_info=(debug_info, column),
-        )
+    for match in _NUMBER_PATTERN.finditer(text):
 
-        for row_index, numeric_value in column_values.items():
-            table.rows[row_index].cells[col_index].numeric_value.CopyFrom(numeric_value)
+        span_text = text[match.start() : match.end()]
+        number = _parse_number(span_text)
 
+        if number is not None:
+            span_dict[match.span()].append(_get_numeric_value_from_float(number))
 
-def add_numeric_values_to_questions(interaction):
-    """Adds numeric value spans to all questions."""
-    for question in interaction.questions:
-        question.text = text_utils.normalize_for_match(question.original_text)
-        question.annotations.CopyFrom(
-            interaction_pb2.NumericValueSpans(
-                spans=number_utils.parse_text(question.text)
+    for begin_index, end_index in text_utils.get_all_spans(text, max_ngram_length=1):
+
+        if (begin_index, end_index) in span_dict:
+            continue
+        span_text = text[begin_index:end_index]
+
+        number = _parse_number(span_text)
+        if number is not None:
+            span_dict[begin_index, end_index].append(
+                _get_numeric_value_from_float(number)
+            )
+
+        for number, word in enumerate(_NUMBER_WORDS):
+
+            if span_text == word:
+                span_dict[begin_index, end_index].append(
+                    _get_numeric_value_from_float(float(number))
+                )
+                break
+
+        for number, word in enumerate(_ORDINAL_WORDS):
+
+            if span_text == word:
+                span_dict[begin_index, end_index].append(
+                    _get_numeric_value_from_float(float(number))
+                )
+                break
+
+    for begin_index, end_index in text_utils.get_all_spans(
+        text, max_ngram_length=_MAX_DATE_NGRAM_SIZE
+    ):
+        span_text = text[begin_index:end_index]
+        date = _parse_date(span_text)
+        if date is not None:
+            span_dict[begin_index, end_index].append(date)
+
+    spans = sorted(
+        span_dict.items(),
+        key=lambda span_value: _get_span_length_key(span_value[0]),
+        reverse=True,
+    )
+    selected_spans = []
+    for span, value in spans:
+
+        for selected_span, _ in selected_spans:
+
+            if selected_span[0] <= span[0] and span[1] <= selected_span[1]:
+                break
+
+        else:
+            selected_spans.append((span, value))
+
+    selected_spans.sort(key=lambda span_value: span_value[0][0])
+
+    numeric_value_spans = []
+    for span, values in selected_spans:
+
+        numeric_value_spans.append(
+            interaction_pb2.NumericValueSpan(
+                begin_index=span[0], end_index=span[1], values=values
             )
         )
 
+    return numeric_value_spans
 
-def add_numeric_values(interaction):
 
-    add_numeric_table_values(interaction.table)
-    add_numeric_values_to_questions(interaction)
+def is_ordinal(text):
+
+    if text in _ORDINAL_WORDS:
+        return True
+
+    if not _parse_number(text):
+        return False
+
+    for suffix in _ORDINAL_SUFFIXES:
+        if text.endswith(suffix):
+            return True
+
+    return False

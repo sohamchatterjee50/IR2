@@ -18,9 +18,9 @@ import tempfile
 from absl import logging
 from absl.testing import absltest
 from absl.testing import parameterized
-from tapas.experiments import prediction_utils
-from tapas.protos import interaction_pb2
-from tapas.retrieval import e2e_eval_utils
+from experiments import prediction_utils
+from protos import interaction_pb2
+from retrieval import e2e_eval_utils
 
 from google.protobuf import text_format
 from official.nlp.bert import tokenization

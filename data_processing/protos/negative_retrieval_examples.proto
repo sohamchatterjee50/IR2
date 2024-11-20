@@ -18,7 +18,7 @@ package language.tapas;
 import "data_processing/protos/interaction.proto";
 
 message NegativeRetrievalExamples {
-  extend language.tapas.Question {
+  extend language.Question {
     optional NegativeRetrievalExamples negative_retrieval_examples_ext =
         288888272;
   }

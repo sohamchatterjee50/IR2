@@ -17,7 +17,7 @@
 from absl import app
 from absl import flags
 
-from tapas.retrieval import e2e_eval_utils
+from retrieval import e2e_eval_utils
 
 flags.DEFINE_string("interaction_file", None, "TFRecord of interactions.")
 flags.DEFINE_string("prediction_file", None, "Predictions in TSV format.")

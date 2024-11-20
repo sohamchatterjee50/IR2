@@ -22,10 +22,10 @@ from absl.testing import absltest
 from absl.testing import parameterized
 import apache_beam as beam
 import mock
-from tapas.protos import interaction_pb2
-from tapas.protos import negative_retrieval_examples_pb2
-from tapas.retrieval import add_negative_tables_to_interactions
-from tapas.utils import beam_runner
+from protos import interaction_pb2
+from protos import negative_retrieval_examples_pb2
+from retrieval import add_negative_tables_to_interactions
+from utils import beam_runner
 import tensorflow._api.v2.compat.v1 as tf
 
 FLAGS = flags.FLAGS

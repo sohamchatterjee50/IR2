@@ -18,7 +18,7 @@ package language.tapas;
 import "data_processing/protos/interaction.proto";
 
 message RetrieverInfo {
-  extend language.tapas.Question {
+  extend language.Question {
     optional RetrieverInfo question_ext = 337075296;
   }
   optional int32 rank = 1;

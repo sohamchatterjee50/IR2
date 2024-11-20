@@ -18,17 +18,17 @@ package language.tapas;
 import "data_processing/protos/interaction.proto";
 
 message AnnotatedText {
-  extend language.tapas.Question {
+  extend language.Question {
     optional AnnotatedText annotated_question_ext = 304163798;
   }
-  extend language.tapas.Cell {
+  extend language.Cell {
     optional AnnotatedText annotated_cell_ext = 304163798;
   }
   repeated Annotation annotations = 1;
 }
 
 message AnnotationDescription {
-  extend language.tapas.Interaction {
+  extend language.Interaction {
     optional AnnotationDescription annotation_descriptions_ext = 319400515;
   }
   // For each entity that appears in the interaction, the map has a textual

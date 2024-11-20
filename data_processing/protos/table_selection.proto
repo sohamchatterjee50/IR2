@@ -18,7 +18,7 @@ package language.tapas;
 import "data_processing/protos/interaction.proto";
 
 message TableSelection {
-  extend language.tapas.Question {
+  extend language.Question {
     optional TableSelection table_selection_ext = 288888271;
   }
 

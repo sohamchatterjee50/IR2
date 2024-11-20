@@ -1,10 +1,8 @@
-import hydra
+import hydra, logging
 import pandas as pd
 from argparse import Namespace
 from omegaconf import DictConfig
 from retrieval.bm25_utils import create_bm25_index, iterate_tables, iterate_interactions
-
-import logging
 
 
 def _print(message):

@@ -57,7 +57,7 @@ def main(cfg: DictConfig):
         table_inputs, table_outputs = io_utils.get_inputs_outputs(
             args.input_tables_dir, args.output_dir
         )
-        run(table_inputs, table_outputs, create_utils.InputFormat.TABLE)
+        run(table_inputs, table_outputs, create_utils.InputFormat.TABLE, args)
 
 
 if __name__ == "__main__":

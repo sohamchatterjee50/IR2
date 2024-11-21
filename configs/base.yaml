@@ -18,10 +18,10 @@ conversion:
   max_row_id: 512
   cell_trim_length: -1
   use_document_title: True
-  converter_impl: 
+  converter_impl: PYTHON
   
 bm25: 
-  interaction_files: ["../data/interactions/dev.tfrecord"]
+  interaction_files: ["../data/tf_examples/dev.tfrecord"]
   table_file: ""
   max_table_rank: 50
   min_term_rank: 100

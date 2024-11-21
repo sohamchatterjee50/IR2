@@ -398,6 +398,7 @@ def _read_inputs_with_format(
 ):
     if input_format == InputFormat.INTERACTION:
         return read_interactions(root, input_file, name)
+
     elif input_format == InputFormat.TABLE:
         return read_tables(root, input_file, name)
 

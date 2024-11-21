@@ -53,7 +53,7 @@ You can change the retrieval model name to any one of the checkpoints listed [he
 
 ## **Running**
 
-To run the code, we must first create the data to use. This can be done with the following script:
+To run the code, we must first create the data to use. This can be done with the following scripts:
 ```sh
 python convert_data.py
 ```
@@ -61,8 +61,14 @@ python convert_data.py
 Afterwards, we just need to do the following:
 
 ```sh
+# For getting the BM25 results
+python bm25_retrieval.py
+
+# Running the main experiments
 python main.py
 ```
+You can adjust the configurations for each component [here](configs/base.yaml).
+
 
 ## **Citations**
 

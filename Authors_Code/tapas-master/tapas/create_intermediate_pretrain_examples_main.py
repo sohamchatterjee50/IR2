@@ -31,10 +31,10 @@
 
 from absl import app
 from absl import flags
-from tapas.utils import beam_runner
-from tapas.utils import intermediate_pretrain_utils
-from tapas.utils import synthesize_entablement
-from tapas.utils import tf_example_utils
+from utils import beam_runner
+from utils import intermediate_pretrain_utils
+from utils import synthesize_entablement
+from utils import tf_example_utils
 
 flags.DEFINE_string(
     "input_file",

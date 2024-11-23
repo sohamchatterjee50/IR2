@@ -1,9 +1,9 @@
 ## Numbers and Date Annotation Function
 
 import re, math, datetime, collections
-from data_processing.utils import text_utils
-from data_processing.protos import interaction_pb2
-from data_processing.utils.constants import (
+from tapas.utils import text_utils
+from tapas.protos import interaction_pb2
+from tapas.utils.constants import (
     _MAX_DATE_NGRAM_SIZE,
     _NUMBER_WORDS,
     _ORDINAL_WORDS,

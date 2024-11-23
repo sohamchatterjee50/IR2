@@ -1,8 +1,8 @@
 ## Heuristics for Finding Interpretations which Produce Float Answers
 
 import math, itertools, collections
-from data_processing.protos import interaction_pb2
-from data_processing.utils.constants import (
+from tapas.protos import interaction_pb2
+from tapas.utils.constants import (
     _MAX_NUM_TRIALS,
     _FLOAT_TOLERANCE,
     _MAX_NUM_CANDIDATES,

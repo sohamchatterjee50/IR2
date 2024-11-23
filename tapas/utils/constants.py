@@ -61,6 +61,16 @@ _FLOAT_TOLERANCE = 1.0e-2
 _MAX_NUM_CANDIDATES = 500
 _MAX_INDICES_TO_EXPLORE = 10
 
+# For Attention Utils
+_INFINITY = 10000  # Same value used in BERT
+
+# For Retriever Model
+# Used to mask the logits of the repeated elements
+_INF_RET = 10000.0
+
+# For Eval Retriever Utils
+_NUM_NEIGHBORS = 100
+
 # Constants for Dopa Tables Projects
 EMPTY_TEXT = "EMPTY"
 NUM_TYPE = "number"

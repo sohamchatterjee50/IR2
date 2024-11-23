@@ -2,9 +2,9 @@
 
 import itertools, collections
 from absl import logging
-from data_processing.protos import interaction_pb2
-from data_processing.utils.constants import _DATE_TUPLE_SIZE
-from data_processing.utils import constants, number_utils, text_utils
+from tapas.protos import interaction_pb2
+from tapas.utils.constants import _DATE_TUPLE_SIZE
+from tapas.utils import constants, number_utils, text_utils
 
 
 def _get_value_type(numeric_value):

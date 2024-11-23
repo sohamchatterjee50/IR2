@@ -25,7 +25,7 @@ from tapas.models import segmented_tensor
 from tapas.models import tapas_classifier_model_utils as utils
 from tapas.models.bert import modeling
 from tapas.models.bert import optimization
-from tapas.models.bert import table_bert
+from tapas.utils import table_bert
 from tapas.utils import attention_utils
 from tapas.utils import span_prediction_utils
 from tapas.utils import table_pruning

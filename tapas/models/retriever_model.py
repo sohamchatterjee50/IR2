@@ -1,38 +1,13 @@
-# coding=utf-8
-# Copyright 2019 The Google AI Language Team Authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""Table retireval model based on TAPAS instances."""
+## Table Retrieval Model Based on TAPAS Instances
 
-import collections
-import json
-import re
-from typing import Iterable, Text, Optional, List
-
-from absl import logging
-
-import dataclasses
-
-from tapas.datasets import dataset
-from tapas.datasets import table_dataset
-from tapas.models.bert import modeling
-from tapas.models.bert import optimization
-from tapas.utils import table_bert
+import re, json, collections, dataclasses
 import tensorflow._api.v2.compat.v1 as tf
+from absl import logging
+from typing import Iterable, Text, Optional, List
+from tapas.utils import table_bert, dataset_utils, table_utils
+from tapas.models.bert import modeling, optimization
+from tapas.utils.constants import _INF_RET
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
-
-# Used to mask the logits of the repeated elements
-_INF = 10000.0
 
 
 @dataclasses.dataclass
@@ -44,12 +19,10 @@ class RetrieverConfig:
     learning_rate: Optimizer learning rate.
     num_train_steps: Total number of training steps for optimizer schedule.
     num_warmup_steps: Number of training steps to warm up optimizer.
-    use_tpu: Use TPU for training.
     grad_clipping: If not None, clip the gradient norm to this value.
     down_projection_dim: If not None, project query/table representation.
     init_from_single_encoder: If true, a single encoder weights are duplicated.
     max_query_length: The query is capped to this length.
-    use_out_of_core_negatives: Use all the negatives when using many TPU cores.
     mask_repeated_tables: Mask tables that are repeated within a batch
     mask_repeated_questions: Mask texts that are repeated within a batch
     ignore_table_content: Only use title and header.
@@ -62,12 +35,10 @@ class RetrieverConfig:
     learning_rate: float
     num_train_steps: Optional[int]
     num_warmup_steps: Optional[int]
-    use_tpu: bool
     grad_clipping: Optional[float]
     down_projection_dim: int
     init_from_single_encoder: bool
     max_query_length: int
-    use_out_of_core_negatives: bool = False
     mask_repeated_tables: bool = False
     mask_repeated_questions: bool = False
     ignore_table_content: bool = False
@@ -193,7 +164,7 @@ def _apply_reapated_text_masking(
             )
         )
     with tf.control_dependencies(ops):
-        return tf.where(repeated_texts, tf.zeros_like(logits) - _INF, logits)
+        return tf.where(repeated_texts, tf.zeros_like(logits) - _INF_RET, logits)
 
 
 def _get_assignment_map_from_checkpoint(
@@ -222,6 +193,7 @@ def _get_assignment_map_from_checkpoint(
                 var_name,
             )
             return
+
         assignment_map[var_name_from_init] = var_name
         initialized_variable_names[var_name] = 1
         initialized_variable_names[var_name + ":0"] = 1
@@ -229,10 +201,13 @@ def _get_assignment_map_from_checkpoint(
     # Collect all computation graph variables.
     name_to_variable = collections.OrderedDict()
     for var in tvars:
+
         name = var.name
         m = re.match("^(.*):\\d+$", name)
+
         if m is not None:
             name = m.group(1)
+
         name_to_variable[name] = var
 
     # Assign checkpoint variables that match graph variables.
@@ -242,12 +217,14 @@ def _get_assignment_map_from_checkpoint(
     for x in init_vars:
         (name, var) = (x[0], x[1])
         _fill_assignments(assignment_map, initialized_variable_names, name, name)
+
     assignments = [assignment_map]
 
     # Load variables from init checkpoint to an additional encoder.
     if init_from_single_encoder:
         assignment_map_additional_encoder = collections.OrderedDict()
         for x in init_vars:
+
             (name, var) = (x[0], x[1])
             # Replace "varname/..." with "varname_1/... to get the name of the second
             # instance of the variable.
@@ -258,6 +235,7 @@ def _get_assignment_map_from_checkpoint(
                 name,
                 name_additional,
             )
+
         assignments.append(assignment_map_additional_encoder)
 
     return (assignments, initialized_variable_names)
@@ -273,13 +251,6 @@ class ModelBuilderData:
     question_hash: tf.Tensor
     # <float32>[batch_size, global_batch_size * num_tables]
     labels: tf.Tensor
-
-
-def get_updates_for_use_tpu_with_out_of_core_negatives(
-    data: ModelBuilderData,
-) -> ModelBuilderData:
-    """Recovers data in case use_tpu and out_of_core_negatives are used."""
-    raise NotImplementedError
 
 
 def model_fn_builder(config: RetrieverConfig):
@@ -332,6 +303,7 @@ def model_fn_builder(config: RetrieverConfig):
         ]
         features_table = {}
         for name in features_table_names:
+
             if config.use_mined_negatives:
                 # split each feature in half, and concat vertically.
                 feature_positive_table, feature_negative_table = tf.split(
@@ -340,11 +312,13 @@ def model_fn_builder(config: RetrieverConfig):
                 features_table[name] = tf.concat(
                     [feature_positive_table, feature_negative_table], axis=0
                 )
+
             else:
                 features_table[name] = features[name]
 
         tf.logging.info("*** Features table ***")
         for name in sorted(features_table):
+
             tf.logging.info("  name = %s, shape = %s", name, features[name].shape)
 
         table_model = table_bert.create_model(
@@ -394,6 +368,7 @@ def model_fn_builder(config: RetrieverConfig):
             query_rep = _get_type_representation(
                 query_hidden_representation, query_projection
             )
+
         else:
             table_rep = table_hidden_representation
             query_rep = query_hidden_representation
@@ -406,6 +381,7 @@ def model_fn_builder(config: RetrieverConfig):
             labels = tf.concat(
                 [labels_single_table, tf.zeros_like(labels_single_table)], axis=1
             )
+
         else:
             labels = labels_single_table
 
@@ -419,14 +395,7 @@ def model_fn_builder(config: RetrieverConfig):
 
         # <int64>[1, batch_size]
         question_hash_transposed = tf.transpose(question_hash)
-        if config.use_tpu and config.use_out_of_core_negatives:
-            data = get_updates_for_use_tpu_with_out_of_core_negatives(
-                ModelBuilderData(table_rep, table_id_hash, question_hash, labels)
-            )
-            table_rep = data.table_rep
-            table_id_hash = data.table_id_hash
-            question_hash = data.question_hash
-            labels = data.labels
+
         # <float32>[batch_size, batch_size|global_batch_size * num_tables]
         logits = tf.matmul(query_rep, table_rep, transpose_b=True)
         if config.mask_repeated_tables:
@@ -435,7 +404,7 @@ def model_fn_builder(config: RetrieverConfig):
             repeated_tables = tf.math.equal(
                 tf.expand_dims(table_id_hash, axis=0), table_id_hash_transposed
             ) & tf.math.equal(labels, 0)
-            logits = tf.where(repeated_tables, tf.zeros_like(logits) - _INF, logits)
+            logits = tf.where(repeated_tables, tf.zeros_like(logits) - _INF_RET, logits)
 
         if config.mask_repeated_questions:
             logits = _apply_reapated_text_masking(
@@ -461,17 +430,8 @@ def model_fn_builder(config: RetrieverConfig):
                 )
             )
 
-            if config.use_tpu:
-
-                def tpu_scaffold():
-                    for assignment_map in assignment_maps:
-                        tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
-                    return tf.train.Scaffold()
-
-                scaffold_fn = tpu_scaffold
-            else:
-                for assignment_map in assignment_maps:
-                    tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
+            for assignment_map in assignment_maps:
+                tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
         tf.logging.info("**** Trainable Variables ****")
         for var in tvars:
@@ -489,13 +449,13 @@ def model_fn_builder(config: RetrieverConfig):
                 config.learning_rate,
                 config.num_train_steps,
                 config.num_warmup_steps,
-                config.use_tpu,
                 grad_clipping=config.grad_clipping,
             )
 
             output_spec = tf_estimator.tpu.TPUEstimatorSpec(
                 mode=mode, loss=total_loss, train_op=train_op, scaffold_fn=scaffold_fn
             )
+
         elif mode == tf_estimator.ModeKeys.EVAL:
             eval_metrics = (_calculate_eval_metrics_fn, [total_loss, logits, labels])
             output_spec = tf_estimator.tpu.TPUEstimatorSpec(
@@ -504,9 +464,12 @@ def model_fn_builder(config: RetrieverConfig):
                 eval_metrics=eval_metrics,
                 scaffold_fn=scaffold_fn,
             )
+
         else:
+
             if config.use_mined_negatives:
                 table_rep_gold, _ = tf.split(table_rep, num_or_size_splits=2, axis=0)
+
             else:
                 table_rep_gold = table_rep
 
@@ -517,11 +480,14 @@ def model_fn_builder(config: RetrieverConfig):
             # Only available when predicting on GPU.
             if "table_id" in features:
                 predictions["table_id"] = features["table_id"]
+
             if "question_id" in features:
                 predictions["query_id"] = features["question_id"]
+
             output_spec = tf_estimator.tpu.TPUEstimatorSpec(
                 mode=mode, predictions=predictions, scaffold_fn=scaffold_fn
             )
+
         return output_spec
 
     return model_fn
@@ -540,11 +506,11 @@ def input_fn(
 ):
     """Returns an input_fn compatible with the tf.estimator API."""
     task_type = (
-        table_dataset.TableTask.RETRIEVAL_NEGATIVES
+        table_utils.TableTask.RETRIEVAL_NEGATIVES
         if use_mined_negatives
-        else table_dataset.TableTask.RETRIEVAL
+        else table_utils.TableTask.RETRIEVAL
     )
-    parse_example_fn = table_dataset.parse_table_examples(
+    parse_example_fn = table_utils.parse_table_examples(
         max_seq_length=max_seq_length,
         max_predictions_per_seq=None,
         task_type=task_type,
@@ -556,7 +522,7 @@ def input_fn(
         max_num_candidates=0,
         params=params,
     )
-    ds = dataset.read_dataset(
+    ds = dataset_utils.read_dataset(
         parse_example_fn,
         name=name,
         file_patterns=file_patterns,
@@ -565,4 +531,5 @@ def input_fn(
         compression_type=compression_type,
         params=dict(params, max_eval_count=None),
     )
+
     return ds

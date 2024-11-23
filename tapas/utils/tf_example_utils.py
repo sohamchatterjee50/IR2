@@ -6,8 +6,8 @@ from absl import logging
 from official.nlp.bert import tokenization
 from typing import List, Mapping, Text, Tuple
 from apache_beam import metrics as beam_metrics
-from data_processing.protos import interaction_pb2, annotated_text_pb2, table_selection_pb2
-from data_processing.utils import constants, number_annot_utils, tokenizer, text_index, text_utils, interpret_utils
+from tapas.protos import interaction_pb2, annotated_text_pb2, table_selection_pb2
+from tapas.utils import constants, number_annot_utils, tokenizer, text_index, text_utils, interpret_utils
 
 
 

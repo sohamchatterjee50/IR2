@@ -2,7 +2,7 @@
 
 import enum, heapq, dataclasses
 from typing import Generic
-from data_processing.utils.constants import T
+from tapas.utils.constants import T
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 

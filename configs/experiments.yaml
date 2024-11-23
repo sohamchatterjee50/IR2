@@ -1,0 +1,30 @@
+base:
+  model_dir: null
+  session_master: null
+  master: null
+  tf_random_seed: null
+  train_batch_size: 128
+  eval_batch_size: 32
+  predict_batch_size: 32
+  gradient_accumulation_steps: 1
+
+  # Training parameters
+  num_train_examples: null
+  learning_rate: 5e-5
+  warmup_ratio: 0.01
+
+  # Evaluation parameters
+  num_eval_steps: null
+  eval_throttle_secs: 600
+  eval_start_delay_secs: 120
+
+  bert_config_file: null
+  bert_config_attention_probs_dropout_prob: null
+  bert_config_hidden_dropout_prob: null
+  bert_config_initializer_range: null
+  bert_config_softmax_temperature: null
+
+  # Checkpointing
+  save_checkpoints_steps: 1000
+  keep_checkpoint_max: 5
+  keep_checkpoint_every_n_hours: 4.0

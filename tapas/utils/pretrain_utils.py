@@ -4,9 +4,9 @@ import os, random
 import apache_beam as beam
 import tensorflow._api.v2.compat.v1 as tf
 from google.protobuf import text_format
-from data_processing.protos import interaction_pb2
-from data_processing.utils import number_annot_utils, tf_example_utils
-from data_processing.utils.constants import _NS, _MAX_INT
+from tapas.protos import interaction_pb2
+from tapas.utils import number_annot_utils, tf_example_utils
+from tapas.utils.constants import _NS, _MAX_INT
 
 
 def fingerprint(key):

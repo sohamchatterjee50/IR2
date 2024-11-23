@@ -2,7 +2,11 @@ import hydra, logging
 import pandas as pd
 from argparse import Namespace
 from omegaconf import DictConfig
-from retrieval.bm25_utils import create_bm25_index, iterate_tables, iterate_interactions
+from tapas.utils.bm25_utils import (
+    create_bm25_index,
+    iterate_tables,
+    iterate_interactions,
+)
 
 
 def _print(message):
@@ -37,6 +41,7 @@ def evaluate(index, max_table_rank, thresholds, interactions, rows):
 
 
 def create_index(tables, title_multiplicator):
+
     return create_bm25_index(
         tables,
         title_multiplicator=title_multiplicator,
@@ -44,6 +49,7 @@ def create_index(tables, title_multiplicator):
 
 
 def get_hparams():
+
     hparams = []
     for multiplier in [1, 2]:
         hparams.append({"multiplier": multiplier, "use_bm25": False})

@@ -2,7 +2,7 @@
 
 import re, six, math, struct, unicodedata
 from absl import logging
-from data_processing.utils import constants
+from tapas.utils import constants
 
 _TOKENIZER = re.compile(r"\w+|[^\w\s]+", re.UNICODE)
 DEFAULT_INTS_LENGTH = 64
@@ -209,7 +209,6 @@ def format_text(text):
         return text
 
     return constants.EMPTY_TEXT
-
 
 def tokenize_text(text):
     """Splits tokens by white-space."""

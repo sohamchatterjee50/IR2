@@ -1,8 +1,8 @@
 ## Conversion Code for Table Retrieval
 
 import tensorflow._api.v2.compat.v1 as tf
-from data_processing.utils.constants import _SEP, _MAX_INT
-from data_processing.utils import text_utils, tf_example_utils
+from tapas.utils.constants import _SEP, _MAX_INT
+from tapas.utils import text_utils, tf_example_utils
 
 
 RetrievalConversionConfig = tf_example_utils.RetrievalConversionConfig

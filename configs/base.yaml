@@ -27,3 +27,33 @@ bm25:
   min_term_rank: 100
   drop_term_frequency: True
 
+dtr:
+  data_format: "tfrecord"  # The input data format.
+  input_files:
+    train: null  # Input TF example files (can be a glob or comma-separated).
+    eval: null
+    predict: null
+  prediction_output_dir: null  # Output directory for predictions.
+  init_checkpoint: null  # Initial checkpoint (e.g., pre-trained BERT model).
+  max_seq_length: 128  # Max input sequence length after tokenization.
+  minutes_to_sleep_before_predictions: 5  # Time in minutes to sleep before predicting.
+  modes:
+    do_train: false  # Whether to run training.
+    do_eval: false   # Whether to evaluate the dev set.
+    do_predict: false  # Whether to run inference.
+  eval_name: "default"  # Name for TensorBoard evaluations.
+  grad_clipping: null  # Gradient clipping threshold.
+  down_projection_dim: 0  # Down-projection representation dimension.
+  init_from_single_encoder: true  # Whether to initialize from a single encoder.
+  max_query_length: 128  # Max length for queries.
+  compression_type: ""  # Compression for TFRecords.
+  evaluated_checkpoint:
+    step: null  # Specific checkpoint step to evaluate.
+    metric: null  # Metric to select checkpoint for evaluation.
+  use_out_of_core_negatives: false  # Use all negatives when using many TPU cores.
+  mask_repeated:
+    tables: false  # Mask repeated tables within a batch.
+    questions: false  # Mask repeated questions within a batch.
+  ignore_table_content: false  # Use only table headers for representation.
+  use_mined_negatives: false  # Use mined negatives as additional features.
+  disabled_features: []  # Features to disable (for ablation studies)

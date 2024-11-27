@@ -14,11 +14,11 @@ base:
   warmup_ratio: 0.01
 
   # Evaluation parameters
-  num_eval_steps: null
+  num_eval_steps: 1000
   eval_throttle_secs: 600
   eval_start_delay_secs: 120
 
-  bert_config_file: null
+  bert_config_file: ../tapas_nq_hn_retriever_tiny/bert_config.json
   bert_config_attention_probs_dropout_prob: null
   bert_config_hidden_dropout_prob: null
   bert_config_initializer_range: null
@@ -28,3 +28,5 @@ base:
   save_checkpoints_steps: 1000
   keep_checkpoint_max: 5
   keep_checkpoint_every_n_hours: 4.0
+
+  max_eval_count: 100

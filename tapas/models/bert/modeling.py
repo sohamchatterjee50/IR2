@@ -3,7 +3,7 @@
 import re, six, math, copy, json, tf_slim, collections
 import numpy as np
 import tensorflow._api.v2.compat.v1 as tf
-from absl import logging
+import logging
 from tapas.models import segmented_tensor
 
 

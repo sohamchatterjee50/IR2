@@ -20,7 +20,7 @@ import math
 import random
 
 from typing import List, Any
-from tapas.protos import interaction_pb2
+from protos import interaction_pb2
 
 
 _MAX_INDICES_TO_EXPLORE = 10

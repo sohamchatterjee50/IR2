@@ -23,12 +23,12 @@ from typing import Mapping, Optional, Text
 from absl import app
 from absl import flags
 import numpy as np
-from tapas.experiments import prediction_utils
-from tapas.models import tapas_classifier_model
-from tapas.scripts import calc_metrics_utils
-from tapas.scripts import prediction_utils as pred_utils
-from tapas.utils import attention_utils
-from tapas.utils import experiment_utils  # pylint: disable=unused-import
+from experiments import prediction_utils
+from models import tapas_classifier_model
+from scripts import calc_metrics_utils
+from scripts import prediction_utils as pred_utils
+from utils import attention_utils
+from utils import experiment_utils  # pylint: disable=unused-import
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 

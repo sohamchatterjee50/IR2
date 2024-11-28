@@ -27,8 +27,8 @@ from typing import Callable, List, Text, Optional
 import frozendict
 import numpy as np
 import scipy.optimize
-from tapas.protos import interaction_pb2
-from tapas.utils import text_utils
+from protos import interaction_pb2
+from utils import text_utils
 
 
 class SupervisionMode(enum.Enum):

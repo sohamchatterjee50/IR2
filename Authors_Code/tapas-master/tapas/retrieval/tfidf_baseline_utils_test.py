@@ -15,8 +15,8 @@
 
 from absl.testing import absltest
 from absl.testing import parameterized
-from tapas.protos import interaction_pb2
-from tapas.retrieval import tfidf_baseline_utils
+from protos import interaction_pb2
+from retrieval import tfidf_baseline_utils
 
 
 class TfIdfBaselineUtilsTest(parameterized.TestCase):

@@ -32,10 +32,10 @@ from typing import List, Text
 from absl import app
 from absl import flags
 import dataclasses
-from tapas.retrieval.add_negative_tables_to_interactions import (
+from retrieval.add_negative_tables_to_interactions import (
     add_negative_tables_to_interactions,
 )
-from tapas.utils import beam_runner
+from utils import beam_runner
 import tensorflow._api.v2.compat.v1 as tf
 
 

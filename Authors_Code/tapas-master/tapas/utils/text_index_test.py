@@ -15,7 +15,7 @@
 """Tests for tapas.utils.google.text_index."""
 
 from absl.testing import absltest
-from tapas.utils import text_index
+from utils import text_index
 
 
 class TextIndexTest(absltest.TestCase):

@@ -22,7 +22,7 @@ from typing import Any, Iterable, Set, Text, Tuple, MutableMapping
 import numpy as np
 import pandas as pd
 
-from tapas.protos import interaction_pb2
+from protos import interaction_pb2
 import tensorflow._api.v2.compat.v1 as tf
 
 

@@ -23,8 +23,8 @@ import unicodedata
 
 from absl import logging
 import six
-from tapas.protos import interaction_pb2
-from tapas.utils import constants
+from protos import interaction_pb2
+from utils import constants
 
 
 def wtq_normalize(x):

@@ -20,12 +20,12 @@ from absl import flags
 from absl.testing import absltest
 from absl.testing import parameterized
 
-from tapas.protos import interaction_pb2
-from tapas.utils import beam_runner
-from tapas.utils import contrastive_statements_test_utils
-from tapas.utils import intermediate_pretrain_utils
-from tapas.utils import synthesize_entablement
-from tapas.utils import tf_example_utils
+from protos import interaction_pb2
+from utils import beam_runner
+from utils import contrastive_statements_test_utils
+from utils import intermediate_pretrain_utils
+from utils import synthesize_entablement
+from utils import tf_example_utils
 
 import tensorflow._api.v2.compat.v1 as tf
 from google.protobuf import text_format

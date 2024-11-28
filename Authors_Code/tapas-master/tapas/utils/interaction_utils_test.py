@@ -17,8 +17,8 @@ import os
 
 from absl import flags
 from absl.testing import absltest
-from tapas.protos import interaction_pb2
-from tapas.utils import interaction_utils
+from protos import interaction_pb2
+from utils import interaction_utils
 from google.protobuf import text_format
 
 

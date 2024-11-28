@@ -18,11 +18,11 @@ import collections
 import itertools
 from typing import Text, Union, Tuple, Iterable, List, Any, Dict, Callable, Optional, Set
 from absl import logging
-from tapas.protos import interaction_pb2
+from protos import interaction_pb2
 
-from tapas.utils import constants
-from tapas.utils import number_utils
-from tapas.utils import text_utils
+from utils import constants
+from utils import number_utils
+from utils import text_utils
 
 
 _PrimitiveNumericValue = Union[

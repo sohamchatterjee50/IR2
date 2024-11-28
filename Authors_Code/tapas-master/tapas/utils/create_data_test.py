@@ -22,11 +22,11 @@ from absl.testing import absltest
 from absl.testing import parameterized
 import apache_beam as beam
 import mock
-from tapas.protos import interaction_pb2
-from tapas.retrieval import tf_example_utils as retrieval_utils
-from tapas.utils import beam_runner
-from tapas.utils import create_data
-from tapas.utils import tf_example_utils
+from protos import interaction_pb2
+from retrieval import tf_example_utils as retrieval_utils
+from utils import beam_runner
+from utils import create_data
+from utils import tf_example_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 from google.protobuf import text_format

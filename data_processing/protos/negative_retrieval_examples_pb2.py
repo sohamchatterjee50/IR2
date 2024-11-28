@@ -14,7 +14,11 @@ _sym_db = _symbol_database.Default()
 from data_processing.protos import interaction_pb2 as data__processing_dot_protos_dot_interaction__pb2
 
 
+<<<<<<< HEAD
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n8data_processing/protos/negative_retrieval_examples.proto\x12\x0elanguage.tapas\x1a(data_processing/protos/interaction.proto\"\xc9\x01\n\x19NegativeRetrievalExamples\x12:\n\x08\x65xamples\x18\x01 \x03(\x0b\x32(.language.NegativeRetrievalExample2p\n\x1fnegative_retrieval_examples_ext\x12\x18.language.Question\x18\xd0\xab\xe0\x89\x01 \x01(\x0b\x32).language.NegativeRetrievalExamples\"\xcd\x01\n\x18NegativeRetrievalExample\x12$\n\x05table\x18\x01 \x01(\x0b\x32\x15.language.Table\x12;\n\x04type\x18\x02 \x01(\x0e\x32-.language.NegativeRetrievalExample.Type\x12\x0c\n\x04rank\x18\x03 \x01(\x05\x12\r\n\x05score\x18\x04 \x01(\x02\"1\n\x04Type\x12\x0c\n\x08\x42\x41SELINE\x10\x01\x12\x0c\n\x08\x44OCUMENT\x10\x02\x12\r\n\tCORRUPTED\x10\x03')
+=======
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n8data_processing/protos/negative_retrieval_examples.proto\x12\x0elanguage.  x1a(data_processing/protos/interaction.proto\"\xc9\x01\n\x19NegativeRetrievalExamples\x12:\n\x08\x65xamples\x18\x01 \x03(\x0b\x32(.language. NegativeRetrievalExample2p\n\x1fnegative_retrieval_examples_ext\x12\x18.language. Question\x18\xd0\xab\xe0\x89\x01 \x01(\x0b\x32).language. NegativeRetrievalExamples\"\xcd\x01\n\x18NegativeRetrievalExample\x12$\n\x05table\x18\x01 \x01(\x0b\x32\x15.language. Table\x12;\n\x04type\x18\x02 \x01(\x0e\x32-.language. NegativeRetrievalExample.Type\x12\x0c\n\x04rank\x18\x03 \x01(\x05\x12\r\n\x05score\x18\x04 \x01(\x02\"1\n\x04Type\x12\x0c\n\x08\x42\x41SELINE\x10\x01\x12\x0c\n\x08\x44OCUMENT\x10\x02\x12\r\n\tCORRUPTED\x10\x03')
+>>>>>>> cb6d373 (Working code)
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'data_processing.protos.negative_retrieval_examples_pb2', globals())

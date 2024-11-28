@@ -24,7 +24,7 @@ from typing import Any, Iterable, List, Mapping, Set, Text, Tuple
 
 from absl import logging
 import six
-from tapas.protos import interaction_pb2
+from protos import interaction_pb2
 import tensorflow._api.v2.compat.v1 as tf
 
 

@@ -19,8 +19,8 @@ from typing import Optional, Text
 from absl import logging
 from absl.testing import absltest
 from absl.testing import parameterized
-from tapas.utils import constants
-from tapas.utils import text_utils
+from utils import constants
+from utils import text_utils
 
 
 def _get_all_spans_as_text(text, max_ngram_length):

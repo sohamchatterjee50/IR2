@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tapas.models.bert import optimization
+from models.bert import optimization
 import tensorflow._api.v2.compat.v1 as tf
 
 tf.disable_v2_behavior()

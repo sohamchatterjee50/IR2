@@ -15,9 +15,9 @@
 
 import tempfile
 from absl.testing import absltest
-from tapas.protos import interaction_pb2
-from tapas.scripts import calc_metrics_utils
-from tapas.scripts import prediction_utils
+from protos import interaction_pb2
+from scripts import calc_metrics_utils
+from scripts import prediction_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 

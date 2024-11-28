@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from absl import logging
-from tapas.utils import span_prediction_utils
+from utils import span_prediction_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 tf.disable_v2_behavior()

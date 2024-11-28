@@ -14,7 +14,11 @@ _sym_db = _symbol_database.Default()
 from data_processing.protos import interaction_pb2 as data__processing_dot_protos_dot_interaction__pb2
 
 
+<<<<<<< HEAD
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+data_processing/protos/retriever_info.proto\x12\x0elanguage.tapas\x1a(data_processing/protos/interaction.proto\"\x7f\n\rRetrieverInfo\x12\x0c\n\x04rank\x18\x01 \x01(\x05\x12\r\n\x05score\x18\x02 \x01(\x01\x32Q\n\x0cquestion_ext\x12\x18.language.Question\x18\xe0\xb8\xdd\xa0\x01 \x01(\x0b\x32\x1d.language.RetrieverInfo')
+=======
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+data_processing/protos/retriever_info.proto\x12\x0elanguage.  x1a(data_processing/protos/interaction.proto\"\x7f\n\rRetrieverInfo\x12\x0c\n\x04rank\x18\x01 \x01(\x05\x12\r\n\x05score\x18\x02 \x01(\x01\x32Q\n\x0cquestion_ext\x12\x18.language. Question\x18\xe0\xb8\xdd\xa0\x01 \x01(\x0b\x32\x1d.language. RetrieverInfo')
+>>>>>>> cb6d373 (Working code)
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'data_processing.protos.retriever_info_pb2', globals())

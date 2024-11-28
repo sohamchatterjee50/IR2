@@ -15,7 +15,7 @@
 """TAPAS BERT model utils for classification."""
 
 from typing import Dict, Text, Tuple, Optional
-from tapas.models import segmented_tensor
+from models import segmented_tensor
 import tensorflow._api.v2.compat.v1 as tf
 
 EPSILON_ZERO_DIVISION = 1e-10

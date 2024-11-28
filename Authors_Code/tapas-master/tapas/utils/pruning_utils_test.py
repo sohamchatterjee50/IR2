@@ -18,10 +18,10 @@ import tempfile
 
 from absl.testing import absltest
 from absl.testing import parameterized
-from tapas.protos import interaction_pb2
-from tapas.protos import table_selection_pb2
-from tapas.utils import pruning_utils
-from tapas.utils import tf_example_utils
+from protos import interaction_pb2
+from protos import table_selection_pb2
+from utils import pruning_utils
+from utils import tf_example_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 from google.protobuf import text_format

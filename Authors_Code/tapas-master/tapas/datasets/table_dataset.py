@@ -16,8 +16,8 @@
 import enum
 from typing import Optional
 
-from tapas.datasets import dataset
-from tapas.utils import text_utils
+from datasets import dataset
+from utils import text_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 

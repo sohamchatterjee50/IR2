@@ -18,8 +18,8 @@ from absl import flags
 from absl import logging
 from absl.testing import absltest
 from absl.testing import parameterized
-from tapas.protos import interaction_pb2
-from tapas.scripts import preprocess_nq_utils
+from protos import interaction_pb2
+from scripts import preprocess_nq_utils
 
 FLAGS = flags.FLAGS
 TEST_PATH = 'tapas/scripts/testdata/'

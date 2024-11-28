@@ -16,7 +16,7 @@ import os
 import tempfile
 
 from absl.testing import absltest
-from tapas.utils import experiment_utils
+from utils import experiment_utils
 
 import tensorflow._api.v2.compat.v1 as tf
 from google.protobuf import text_format

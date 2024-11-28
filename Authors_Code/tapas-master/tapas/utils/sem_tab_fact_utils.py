@@ -20,8 +20,8 @@ from typing import Text, Mapping, Iterable, List
 from absl import logging
 import bs4
 import numpy as np
-from tapas.protos import interaction_pb2
-from tapas.scripts import prediction_utils
+from protos import interaction_pb2
+from scripts import prediction_utils
 import tensorflow._api.v2.compat.v1 as tf
 import tqdm
 

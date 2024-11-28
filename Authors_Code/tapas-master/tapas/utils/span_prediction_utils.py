@@ -19,8 +19,8 @@ from typing import Text, Tuple
 
 from absl import logging
 
-from tapas.models import tapas_classifier_model_utils as utils
-from tapas.models.bert import modeling
+from models import tapas_classifier_model_utils as utils
+from models.bert import modeling
 
 import tensorflow._api.v2.compat.v1 as tf
 

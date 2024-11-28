@@ -25,12 +25,12 @@ from typing import Iterable, List, Mapping, Optional, Set, Text, Tuple
 
 from absl import app
 from absl import flags
-from tapas.protos import interaction_pb2
-from tapas.protos import retriever_info_pb2
-from tapas.retrieval import tfidf_baseline_utils
-from tapas.scripts import prediction_utils
-from tapas.scripts import preprocess_nq_utils
-from tapas.utils import text_utils
+from protos import interaction_pb2
+from protos import retriever_info_pb2
+from retrieval import tfidf_baseline_utils
+from scripts import prediction_utils
+from scripts import preprocess_nq_utils
+from utils import text_utils
 import tensorflow._api.v2.compat.v1 as tf
 import tqdm
 

@@ -23,8 +23,8 @@ from typing import Mapping, Text, Tuple, Iterable, List, Any
 from absl import logging
 import dataclasses
 import numpy as np
-from tapas.models import tapas_classifier_model
-from tapas.utils import text_utils
+from models import tapas_classifier_model
+from utils import text_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 

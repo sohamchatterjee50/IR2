@@ -16,8 +16,8 @@
 
 from typing import Iterable, List, Tuple
 
-from tapas.protos import interaction_pb2
-from tapas.utils import pretrain_utils
+from protos import interaction_pb2
+from utils import pretrain_utils
 
 to_numpy_seed = pretrain_utils.to_numpy_seed
 split_by_table_id_and_write = pretrain_utils.split_by_table_id_and_write

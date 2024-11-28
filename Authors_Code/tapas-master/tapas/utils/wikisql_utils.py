@@ -25,8 +25,8 @@ from typing import Iterable, Tuple, Text, Any, Mapping, MutableMapping, List, Op
 
 from absl import logging
 import dataclasses
-from tapas.utils import file_utils
-from tapas.utils import text_utils
+from utils import file_utils
+from utils import text_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 _TABLE_DIR_NAME = "table_csv"  # Name that the table folder has in SQA.

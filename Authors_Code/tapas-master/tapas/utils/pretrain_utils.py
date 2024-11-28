@@ -19,9 +19,9 @@ import random
 from typing import Iterable, Tuple, Text, Optional, Union
 
 import apache_beam as beam
-from tapas.protos import interaction_pb2
-from tapas.utils import number_annotation_utils
-from tapas.utils import tf_example_utils
+from protos import interaction_pb2
+from utils import number_annotation_utils
+from utils import tf_example_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 from google.protobuf import text_format

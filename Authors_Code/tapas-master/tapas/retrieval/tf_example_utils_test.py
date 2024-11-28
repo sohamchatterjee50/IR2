@@ -20,10 +20,10 @@ import tempfile
 from absl import flags
 from absl import logging
 from absl.testing import absltest
-from tapas.protos import interaction_pb2
-from tapas.protos import negative_retrieval_examples_pb2
-from tapas.retrieval import tf_example_utils
-from tapas.utils import number_annotation_utils
+from protos import interaction_pb2
+from protos import negative_retrieval_examples_pb2
+from retrieval import tf_example_utils
+from utils import number_annotation_utils
 
 from google.protobuf import text_format
 

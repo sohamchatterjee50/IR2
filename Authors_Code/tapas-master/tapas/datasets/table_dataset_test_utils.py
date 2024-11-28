@@ -18,7 +18,7 @@ import random
 import string
 
 import numpy as np
-from tapas.datasets import table_dataset
+from datasets import table_dataset
 import tensorflow._api.v2.compat.v1 as tf
 
 

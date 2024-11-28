@@ -15,12 +15,12 @@
 """TAPAS bert model."""
 
 from typing import Iterable, Text, Optional, Set
-from tapas.datasets import dataset
-from tapas.datasets import table_dataset
-from tapas.models.bert import modeling
-from tapas.models.bert import optimization
-from tapas.models.bert import table_bert
-from tapas.utils import attention_utils
+from datasets import dataset
+from datasets import table_dataset
+from models.bert import modeling
+from models.bert import optimization
+from models.bert import table_bert
+from utils import attention_utils
 
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator

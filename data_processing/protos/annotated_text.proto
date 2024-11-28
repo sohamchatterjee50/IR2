@@ -13,22 +13,33 @@
 // limitations under the License.
 syntax = "proto2";
 
-package language.tapas;
+package language.  
 
 import "data_processing/protos/interaction.proto";
 
 message AnnotatedText {
+<<<<<<< HEAD
   extend language.Question {
     optional AnnotatedText annotated_question_ext = 304163798;
   }
   extend language.Cell {
+=======
+  extend language. Question {
+    optional AnnotatedText annotated_question_ext = 304163798;
+  }
+  extend language. Cell {
+>>>>>>> cb6d373 (Working code)
     optional AnnotatedText annotated_cell_ext = 304163798;
   }
   repeated Annotation annotations = 1;
 }
 
 message AnnotationDescription {
+<<<<<<< HEAD
   extend language.Interaction {
+=======
+  extend language. Interaction {
+>>>>>>> cb6d373 (Working code)
     optional AnnotationDescription annotation_descriptions_ext = 319400515;
   }
   // For each entity that appears in the interaction, the map has a textual

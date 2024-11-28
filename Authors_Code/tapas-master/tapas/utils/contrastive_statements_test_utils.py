@@ -17,8 +17,8 @@
 import re
 from typing import List, Mapping
 
-from tapas.protos import annotated_text_pb2
-from tapas.protos import interaction_pb2
+from protos import annotated_text_pb2
+from protos import interaction_pb2
 
 _AnnotatedText = annotated_text_pb2.AnnotatedText
 

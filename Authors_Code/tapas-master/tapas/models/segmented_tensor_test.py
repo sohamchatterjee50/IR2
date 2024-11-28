@@ -15,7 +15,7 @@
 
 from absl.testing import absltest
 import numpy as np
-from tapas.models import segmented_tensor
+from models import segmented_tensor
 import tensorflow._api.v2.compat.v1 as tf
 
 

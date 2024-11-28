@@ -15,10 +15,10 @@
 
 from absl.testing import parameterized
 import numpy as np
-from tapas.datasets import table_dataset
-from tapas.datasets import table_dataset_test_utils
-from tapas.models import table_retriever_model
-from tapas.models.bert import modeling
+from datasets import table_dataset
+from datasets import table_dataset_test_utils
+from models import table_retriever_model
+from models.bert import modeling
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 

@@ -20,11 +20,11 @@ import os
 from typing import Iterable, Mapping, Text, Optional
 
 from absl import logging
-from tapas.protos import interaction_pb2
-from tapas.utils import file_utils
-from tapas.utils import interaction_utils
-from tapas.utils import interaction_utils_parser
-from tapas.utils import pruning_utils
+from protos import interaction_pb2
+from utils import file_utils
+from utils import interaction_utils
+from utils import interaction_utils_parser
+from utils import pruning_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 

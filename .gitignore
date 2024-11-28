@@ -6,8 +6,8 @@ data
 outputs
 
 # Models
-tapas_reader
-tapas_retriever
+  reader
+  retriever
 
 # Original Code
 Authors_Code

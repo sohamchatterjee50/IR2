@@ -21,13 +21,13 @@ from typing import Iterable, List, Optional, Sequence, Text, Tuple
 
 from absl import logging
 import apache_beam as beam
-from tapas.protos import annotated_text_pb2
-from tapas.protos import interaction_pb2
-from tapas.protos import negative_retrieval_examples_pb2
-from tapas.retrieval import tf_example_utils as retrieval_utils
-from tapas.utils import pretrain_utils
-from tapas.utils import text_utils
-from tapas.utils import tf_example_utils
+from protos import annotated_text_pb2
+from protos import interaction_pb2
+from protos import negative_retrieval_examples_pb2
+from retrieval import tf_example_utils as retrieval_utils
+from utils import pretrain_utils
+from utils import text_utils
+from utils import tf_example_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 

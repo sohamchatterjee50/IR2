@@ -24,8 +24,8 @@ import math
 import re
 from typing import Text, Tuple, List, Optional
 
-from tapas.protos import interaction_pb2
-from tapas.utils import text_utils
+from protos import interaction_pb2
+from utils import text_utils
 
 
 # Constants for parsing date expressions.

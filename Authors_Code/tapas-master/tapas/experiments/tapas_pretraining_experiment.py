@@ -20,9 +20,9 @@ import time
 
 from absl import app
 from absl import flags
-from tapas.models import tapas_pretraining_model
-from tapas.utils import attention_utils
-from tapas.utils import experiment_utils  # pylint: disable=unused-import
+from models import tapas_pretraining_model
+from utils import attention_utils
+from utils import experiment_utils  # pylint: disable=unused-import
 import tensorflow._api.v2.compat.v1 as tf
 
 FLAGS = flags.FLAGS

@@ -16,7 +16,7 @@
 
 from absl import app
 from absl import flags
-from tapas.scripts import convert_predictions_utils
+from scripts import convert_predictions_utils
 
 FLAGS = flags.FLAGS
 

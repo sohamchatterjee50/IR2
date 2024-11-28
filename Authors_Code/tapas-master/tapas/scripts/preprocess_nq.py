@@ -23,9 +23,9 @@ from absl import app
 from absl import flags
 from absl import logging
 import apache_beam as beam
-from tapas.protos import interaction_pb2
-from tapas.scripts import preprocess_nq_utils
-from tapas.utils import beam_runner
+from protos import interaction_pb2
+from scripts import preprocess_nq_utils
+from utils import beam_runner
 import tensorflow._api.v2.compat.v1 as tf
 
 

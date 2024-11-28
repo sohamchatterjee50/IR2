@@ -19,9 +19,9 @@ import tempfile
 from absl.testing import absltest
 from absl.testing import parameterized
 import numpy as np
-from tapas.models.bert import modeling
-from tapas.protos import table_pruning_pb2
-from tapas.utils import table_pruning
+from models.bert import modeling
+from protos import table_pruning_pb2
+from utils import table_pruning
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 

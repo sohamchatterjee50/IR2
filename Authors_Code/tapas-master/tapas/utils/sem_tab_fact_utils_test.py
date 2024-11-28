@@ -18,8 +18,8 @@ from absl import flags
 from absl import logging
 from absl.testing import absltest
 from absl.testing import parameterized
-from tapas.protos import interaction_pb2
-from tapas.utils import sem_tab_fact_utils
+from protos import interaction_pb2
+from utils import sem_tab_fact_utils
 
 from google.protobuf import text_format
 

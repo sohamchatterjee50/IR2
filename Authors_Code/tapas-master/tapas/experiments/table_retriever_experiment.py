@@ -22,9 +22,9 @@ from typing import Text, Optional
 
 from absl import app
 from absl import flags
-from tapas.models import table_retriever_model
-from tapas.scripts import eval_table_retriever_utils
-from tapas.utils import experiment_utils  # pylint: disable=unused-import
+from models import table_retriever_model
+from scripts import eval_table_retriever_utils
+from utils import experiment_utils  # pylint: disable=unused-import
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 
@@ -275,7 +275,7 @@ def main(_):
         tf.io.gfile.makedirs(FLAGS.model_dir)
         bert_config.to_json_file(os.path.join(FLAGS.model_dir, "bert_config.json"))
         retriever_config.to_json_file(
-            os.path.join(FLAGS.model_dir, "tapas_config.json")
+            os.path.join(FLAGS.model_dir, "  config.json")
         )
         train_input_fn = functools.partial(
             table_retriever_model.input_fn,

@@ -13,7 +13,7 @@
 // limitations under the License.
 syntax = "proto2";
 
-package language.tapas;
+package language.  
 
 // The loss used to learn the weights.
 message Loss {
@@ -54,7 +54,7 @@ message Loss {
 
   optional HardSelection train = 400;
   optional HardSelection eval = 500;
-  // Enables the pruning model to use a loss similar to the tapas model.
+  // Enables the pruning model to use a loss similar to the   model.
   optional bool add_classification_loss = 600 [default = false];
 }
 
@@ -84,7 +84,7 @@ message TAPAS {
 }
 
 // Select the k first tokens up to max_num_tokens.
-// If max_num_tokens = tapas_max_num_tokens no table pruing is used.
+// If max_num_tokens =   max_num_tokens no table pruing is used.
 message FirstTokens {}
 
 // Options for table pruning models.
@@ -92,7 +92,7 @@ message TablePruningModel {
   optional int32 max_num_tokens = 1;
   oneof table_pruning_model {
     AvgCosSimilarity avg_cos_similarity = 2;
-    TAPAS tapas = 3;
+    TAPAS   = 3;
     FirstTokens first_tokens = 4;
   }
 }

@@ -28,11 +28,11 @@ from typing import Any, Iterable, List, Mapping, Optional, Set, Text, Tuple
 
 from absl import logging
 import numpy as np
-from tapas.experiments import prediction_utils as xprediction_utils
-from tapas.protos import interaction_pb2
-from tapas.scripts import prediction_utils
-from tapas.utils import hybridqa_utils
-from tapas.utils import text_utils
+from experiments import prediction_utils as xprediction_utils
+from protos import interaction_pb2
+from scripts import prediction_utils
+from utils import hybridqa_utils
+from utils import text_utils
 
 from official.nlp.bert import tokenization
 

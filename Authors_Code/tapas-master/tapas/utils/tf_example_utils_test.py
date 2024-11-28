@@ -19,12 +19,12 @@ import tempfile
 
 from absl import logging
 from absl.testing import absltest
-from tapas.protos import annotated_text_pb2
-from tapas.protos import interaction_pb2
-from tapas.protos import table_selection_pb2
-from tapas.utils import number_annotation_utils
-from tapas.utils import text_utils
-from tapas.utils import tf_example_utils
+from protos import annotated_text_pb2
+from protos import interaction_pb2
+from protos import table_selection_pb2
+from utils import number_annotation_utils
+from utils import text_utils
+from utils import tf_example_utils
 
 _RESERVED_SYMBOLS = ('[PAD]', '[UNK]', '[CLS]', '[SEP]', '[MASK]', '[EMPTY]')
 _NAN = float('nan')

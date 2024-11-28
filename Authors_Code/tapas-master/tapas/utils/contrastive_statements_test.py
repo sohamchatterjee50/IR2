@@ -19,8 +19,8 @@ from absl import flags
 from absl import logging
 from absl.testing import absltest
 from absl.testing import parameterized
-from tapas.utils import contrastive_statements
-from tapas.utils import contrastive_statements_test_utils
+from utils import contrastive_statements
+from utils import contrastive_statements_test_utils
 
 FLAGS = flags.FLAGS
 

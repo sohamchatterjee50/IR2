@@ -18,7 +18,7 @@ import json
 
 from absl import app
 from absl import flags
-from tapas.utils import text_utils
+from utils import text_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 FLAGS = flags.FLAGS

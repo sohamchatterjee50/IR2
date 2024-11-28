@@ -23,7 +23,7 @@ import re
 from absl import logging
 import numpy as np
 import six
-from tapas.models import segmented_tensor
+from models import segmented_tensor
 import tensorflow._api.v2.compat.v1 as tf
 import tf_slim
 

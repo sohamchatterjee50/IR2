@@ -21,8 +21,8 @@ from typing import Text, Iterable, List, Tuple, Mapping, Optional
 from absl import logging
 import dataclasses
 from gensim.summarization import bm25
-from tapas.protos import interaction_pb2
-from tapas.utils import text_utils
+from protos import interaction_pb2
+from utils import text_utils
 import tensorflow._api.v2.compat.v1 as tf
 import tqdm
 

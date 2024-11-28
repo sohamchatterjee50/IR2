@@ -21,12 +21,12 @@ import random
 from typing import Text, Iterable, Tuple, Any, Optional
 import apache_beam as beam
 import numpy as np
-from tapas.protos import interaction_pb2
-from tapas.utils import beam_utils
-from tapas.utils import contrastive_statements
-from tapas.utils import pretrain_utils
-from tapas.utils import synthesize_entablement
-from tapas.utils import tf_example_utils
+from protos import interaction_pb2
+from utils import beam_utils
+from utils import contrastive_statements
+from utils import pretrain_utils
+from utils import synthesize_entablement
+from utils import tf_example_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 _KeyInteraction = Tuple[Text, interaction_pb2.Interaction]

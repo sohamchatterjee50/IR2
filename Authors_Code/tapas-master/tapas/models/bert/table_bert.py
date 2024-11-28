@@ -17,9 +17,9 @@ import dataclasses
 import functools
 from typing import Any, Optional
 
-from tapas.models.bert import modeling
-from tapas.utils import attention_utils
-from tapas.utils import tableformer_utils
+from models.bert import modeling
+from utils import attention_utils
+from utils import tableformer_utils
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 

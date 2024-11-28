@@ -18,17 +18,17 @@ import collections
 import os
 from typing import Iterable, Mapping, Optional, Text
 
-from tapas.protos import interaction_pb2
-from tapas.utils import hybridqa_rc_utils
-from tapas.utils import hybridqa_utils
-from tapas.utils import interaction_utils_parser
-from tapas.utils import pruning_utils
-from tapas.utils import sem_tab_fact_utils
-from tapas.utils import sqa_utils
-from tapas.utils import tabfact_utils
-from tapas.utils import tasks
-from tapas.utils import wikisql_utils
-from tapas.utils import wtq_utils
+from protos import interaction_pb2
+from utils import hybridqa_rc_utils
+from utils import hybridqa_utils
+from utils import interaction_utils_parser
+from utils import pruning_utils
+from utils import sem_tab_fact_utils
+from utils import sqa_utils
+from utils import tabfact_utils
+from utils import tasks
+from utils import wikisql_utils
+from utils import wtq_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 _Mode = interaction_utils_parser.SupervisionMode

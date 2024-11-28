@@ -37,14 +37,14 @@ import urllib.parse
 
 from absl import logging
 import numpy as np
-from tapas.experiments.prediction_utils import token_answers_from_text
-from tapas.experiments.prediction_utils import TokenAnswer
-from tapas.protos import annotated_text_pb2
-from tapas.protos import interaction_pb2
-from tapas.scripts import prediction_utils
-from tapas.utils import hybridqa_utils
-from tapas.utils import pretrain_utils
-from tapas.utils import text_utils
+from experiments.prediction_utils import token_answers_from_text
+from experiments.prediction_utils import TokenAnswer
+from protos import annotated_text_pb2
+from protos import interaction_pb2
+from scripts import prediction_utils
+from utils import hybridqa_utils
+from utils import pretrain_utils
+from utils import text_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 

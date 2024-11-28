@@ -23,11 +23,11 @@ from typing import Callable, Dict, Iterable, Optional, Set, Text, Tuple
 
 from absl import logging
 import nltk
-from tapas.protos import annotated_text_pb2
-from tapas.protos import interaction_pb2
-from tapas.utils import number_utils
-from tapas.utils import sentence_tokenizer
-from tapas.utils import text_utils
+from protos import annotated_text_pb2
+from protos import interaction_pb2
+from utils import number_utils
+from utils import sentence_tokenizer
+from utils import text_utils
 
 
 class ReferenceType(enum.Enum):

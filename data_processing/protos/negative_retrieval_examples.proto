@@ -13,12 +13,16 @@
 // limitations under the License.
 syntax = "proto2";
 
-package language.tapas;
+package language.  
 
 import "data_processing/protos/interaction.proto";
 
 message NegativeRetrievalExamples {
+<<<<<<< HEAD
   extend language.Question {
+=======
+  extend language. Question {
+>>>>>>> cb6d373 (Working code)
     optional NegativeRetrievalExamples negative_retrieval_examples_ext =
         288888272;
   }

@@ -17,7 +17,7 @@ import os
 import tempfile
 
 from absl.testing import parameterized
-from tapas.datasets import dataset
+from datasets import dataset
 import tensorflow._api.v2.compat.v1 as tf
 
 

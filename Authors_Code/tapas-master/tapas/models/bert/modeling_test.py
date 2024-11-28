@@ -19,7 +19,7 @@ import random
 import re
 
 import six
-from tapas.models.bert import modeling
+from models.bert import modeling
 import tensorflow._api.v2.compat.v1 as tf
 
 

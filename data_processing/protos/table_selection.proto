@@ -13,12 +13,16 @@
 // limitations under the License.
 syntax = "proto2";
 
-package language.tapas;
+package language.  
 
 import "data_processing/protos/interaction.proto";
 
 message TableSelection {
+<<<<<<< HEAD
   extend language.Question {
+=======
+  extend language. Question {
+>>>>>>> cb6d373 (Working code)
     optional TableSelection table_selection_ext = 288888271;
   }
 

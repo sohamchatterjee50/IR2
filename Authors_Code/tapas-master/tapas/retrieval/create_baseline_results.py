@@ -20,9 +20,9 @@ import os
 
 from absl import app
 from absl import flags
-from tapas.retrieval import tfidf_baseline_utils
-from tapas.scripts import prediction_utils
-from tapas.scripts import preprocess_nq_utils
+from retrieval import tfidf_baseline_utils
+from scripts import prediction_utils
+from scripts import preprocess_nq_utils
 import tensorflow._api.v2.compat.v1 as tf
 import tqdm
 

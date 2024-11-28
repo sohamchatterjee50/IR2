@@ -15,8 +15,8 @@
 
 from absl.testing import absltest
 from absl.testing import parameterized
-from tapas.protos import interaction_pb2
-from tapas.utils import interaction_utils_parser
+from protos import interaction_pb2
+from utils import interaction_utils_parser
 from google.protobuf import text_format
 
 

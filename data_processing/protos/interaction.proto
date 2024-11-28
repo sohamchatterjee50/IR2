@@ -13,7 +13,7 @@
 // limitations under the License.
 syntax = "proto2";
 
-package language.tapas;
+package language.  
 
 // An interaction represents a sequences of question answerable from a single
 // table.

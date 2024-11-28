@@ -15,7 +15,7 @@
 """Tests for tableformer_utils."""
 
 from absl.testing import parameterized
-from tapas.utils import tableformer_utils
+from utils import tableformer_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 tf.disable_v2_behavior()

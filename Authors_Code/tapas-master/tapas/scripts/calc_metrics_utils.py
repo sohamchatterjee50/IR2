@@ -22,9 +22,9 @@ from absl import logging
 import dataclasses
 import pandas as pd
 import sklearn.metrics
-from tapas.protos import interaction_pb2
-from tapas.scripts import prediction_utils
-from tapas.utils import text_utils
+from protos import interaction_pb2
+from scripts import prediction_utils
+from utils import text_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 

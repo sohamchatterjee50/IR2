@@ -17,8 +17,8 @@ import tempfile
 
 from absl.testing import absltest
 import pandas as pd
-from tapas.protos import interaction_pb2
-from tapas.scripts import convert_predictions_utils
+from protos import interaction_pb2
+from scripts import convert_predictions_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 Cell = interaction_pb2.Cell

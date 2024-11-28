@@ -35,7 +35,7 @@ module load Anaconda3/2023.07-2
 #conda info --envs
 
 
-cd /home/scur2840/IR2/Authors_Code/tapas-master
+cd /home/scur2840/IR2/Authors_Code/  master
 
 virtualenv venv_ir
 source venv_ir/bin/activate

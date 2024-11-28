@@ -20,7 +20,7 @@ import tempfile
 
 from absl import logging
 from absl.testing import absltest
-from tapas.utils import wikisql_utils
+from utils import wikisql_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 

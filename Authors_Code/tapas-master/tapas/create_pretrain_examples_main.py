@@ -40,9 +40,9 @@ python3 tapas/create_pretrain_examples_main.py \
 from absl import app
 from absl import flags
 
-from tapas.utils import beam_runner
-from tapas.utils import create_data
-from tapas.utils import tf_example_utils
+from utils import beam_runner
+from utils import create_data
+from utils import tf_example_utils
 
 FLAGS = flags.FLAGS
 

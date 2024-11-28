@@ -16,10 +16,10 @@
 
 from absl import app
 from absl import flags
-from tapas.retrieval import tf_example_utils
-from tapas.utils import beam_runner
-from tapas.utils import create_data
-from tapas.utils import create_data_file_io
+from retrieval import tf_example_utils
+from utils import beam_runner
+from utils import create_data
+from utils import create_data_file_io
 
 
 flags.DEFINE_string("input_interactions_dir", None, "Directory with inputs.")

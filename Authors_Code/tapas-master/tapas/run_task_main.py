@@ -25,19 +25,19 @@ from typing import Mapping, Optional, Text
 from absl import app
 from absl import flags
 from absl import logging
-from tapas.experiments import prediction_utils as exp_prediction_utils
-from tapas.models import tapas_classifier_model
-from tapas.models.bert import modeling
-from tapas.retrieval import e2e_eval_utils
-from tapas.scripts import calc_metrics_utils
-from tapas.scripts import prediction_utils
-from tapas.utils import file_utils
-from tapas.utils import hparam_utils
-from tapas.utils import number_annotation_utils
-from tapas.utils import pruning_utils
-from tapas.utils import task_utils
-from tapas.utils import tasks
-from tapas.utils import tf_example_utils
+from experiments import prediction_utils as exp_prediction_utils
+from models import tapas_classifier_model
+from models.bert import modeling
+from retrieval import e2e_eval_utils
+from scripts import calc_metrics_utils
+from scripts import prediction_utils
+from utils import file_utils
+from utils import hparam_utils
+from utils import number_annotation_utils
+from utils import pruning_utils
+from utils import task_utils
+from utils import tasks
+from utils import tf_example_utils
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 

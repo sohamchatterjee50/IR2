@@ -15,7 +15,7 @@
 """Contains the best hyper-parameter configurations for different tasks."""
 
 from typing import Mapping, Any, Text
-from tapas.utils import tasks
+from utils import tasks
 
 
 def get_sqa_hparams():

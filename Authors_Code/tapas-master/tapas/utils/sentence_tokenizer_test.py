@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from absl.testing import absltest
-from tapas.utils import sentence_tokenizer
+from utils import sentence_tokenizer
 
 
 class SentenceTokenizerTest(absltest.TestCase):

@@ -22,15 +22,15 @@ from typing import Iterable, List, Mapping, Optional, Text, Tuple
 
 from absl import logging
 from apache_beam import metrics as beam_metrics
-from tapas.protos import annotated_text_pb2
-from tapas.protos import interaction_pb2
-from tapas.protos import table_selection_pb2
-from tapas.utils import constants
-from tapas.utils import interpretation_utils
-from tapas.utils import number_annotation_utils
-from tapas.utils import sentence_tokenizer
-from tapas.utils import text_index
-from tapas.utils import text_utils
+from protos import annotated_text_pb2
+from protos import interaction_pb2
+from protos import table_selection_pb2
+from utils import constants
+from utils import interpretation_utils
+from utils import number_annotation_utils
+from utils import sentence_tokenizer
+from utils import text_index
+from utils import text_utils
 import tensorflow._api.v2.compat.v1 as tf
 
 from official.nlp.bert import tokenization

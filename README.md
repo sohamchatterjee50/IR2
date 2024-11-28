@@ -1,6 +1,6 @@
 # **[Re] On the Reproducibility of Open Domain Question Answering over Tables via Dense Retrieval**
 
-This is the repository for the reproduction of the **Open Domain Question Answering over Tables via Dense Retrieval** paper. Many parts of the code are taken/adapted directly from the original repository [here](https://github.com/google-research/tapas/blob/master/DENSE_TABLE_RETRIEVER.md).
+This is the repository for the reproduction of the **Open Domain Question Answering over Tables via Dense Retrieval** paper. Many parts of the code are taken/adapted directly from the original repository [here](https://github.com/google-research/  blob/master/DENSE_TABLE_RETRIEVER.md).
 
 ## **Setup**
 
@@ -22,7 +22,7 @@ The dataset can be downloaded via the following command:
 
 ```sh
 mkdir -p "data"
-gsutil -m cp -R gs://tapas_models/2021_07_22/nq_tables/* "data"
+gsutil -m cp -R gs://  models/2021_07_22/nq_tables/* "data"
 
 # Alternatively, you can run this bash script:
 bash/download_data.bash
@@ -36,12 +36,12 @@ Note that doing the above requires `gsutil` installed beforehand. Instructions o
 The model checkpoint can be downloaded via the following command:
 
 ```sh
-retrieval_model_name=tapas_nq_hn_retriever_medium
-gsutil cp "gs://tapas_models/2021_04_27/${retrieval_model_name}.zip" . && unzip "${retrieval_model_name}.zip"
+retrieval_model_name=  nq_hn_retriever_medium
+gsutil cp "gs://  models/2021_04_27/${retrieval_model_name}.zip" . && unzip "${retrieval_model_name}.zip"
 rmdir $retrieval_model_name
 
-reader_model_name=tapas_nq_reader_larg
-gsutil cp "gs://tapas_models/2021_04_27/${reader_model_name}.zip" . && unzip "${reader_model_name}.zip"
+reader_model_name=  nq_reader_larg
+gsutil cp "gs://  models/2021_04_27/${reader_model_name}.zip" . && unzip "${reader_model_name}.zip"
 rmdir $reader_model_name
 
 # Alternatively, you can run these bash scripts:

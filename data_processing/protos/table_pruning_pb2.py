@@ -13,7 +13,11 @@ _sym_db = _symbol_database.Default()
 
 
 
+<<<<<<< HEAD
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*data_processing/protos/table_pruning.proto\x12\x0elanguage.tapas\"\xf7\x03\n\x04Loss\x12:\n\x0cunsupervised\x18\xc8\x01 \x01(\x0b\x32!.language.Loss.UnsupervisedH\x00\x12\x32\n\x05train\x18\x90\x03 \x01(\x0b\x32\".language.Loss.HardSelection\x12\x31\n\x04\x65val\x18\xf4\x03 \x01(\x0b\x32\".language.Loss.HardSelection\x12\'\n\x17\x61\x64\x64_classification_loss\x18\xd8\x04 \x01(\x08:\x05\x66\x61lse\x1a\x88\x01\n\rHardSelection\x12\x44\n\x0cselection_fn\x18\x01 \x01(\x0e\x32..language.Loss.HardSelection.SelectionFn\"1\n\x0bSelectionFn\x12\x07\n\x03\x41LL\x10\x00\x12\t\n\x05TOP_K\x10\x01\x12\x0e\n\nMASK_TOP_K\x10\x02\x1a\x8f\x01\n\x0cUnsupervised\x12H\n\x0eregularization\x18\x05 \x01(\x0e\x32\x30.language.Loss.Unsupervised.Regularization\"5\n\x0eRegularization\x12\x08\n\x04NONE\x10\x00\x12\x06\n\x02L1\x10\x01\x12\x06\n\x02L2\x10\x02\x12\t\n\x05L1_L2\x10\x03\x42\x06\n\x04loss\"`\n\x10\x41vgCosSimilarity\x12(\n\x19use_positional_embeddings\x18\x02 \x01(\x08:\x05\x66\x61lse\x12\"\n\x04loss\x18\x03 \x01(\x0b\x32\x14.language.Loss\"\xeb\x01\n\x05TAPAS\x12\x32\n\tselection\x18\x02 \x01(\x0e\x32\x1f.language.Selection\x12\x18\n\x10\x62\x65rt_config_file\x18\x03 \x01(\t\x12\x1c\n\x14\x62\x65rt_init_checkpoint\x18\x04 \x01(\t\x12,\n\x1dreset_position_index_per_cell\x18\x06 \x01(\x08:\x05\x66\x61lse\x12\"\n\x04loss\x18\x05 \x01(\x0b\x32\x14.language.Loss\"$\n\tSelection\x12\x0b\n\x07\x43OLUMNS\x10\x00\x12\n\n\x06TOKENS\x10\x01\"\r\n\x0b\x46irstTokens\"\xdf\x01\n\x11TablePruningModel\x12\x16\n\x0emax_num_tokens\x18\x01 \x01(\x05\x12>\n\x12\x61vg_cos_similarity\x18\x02 \x01(\x0b\x32 .language.AvgCosSimilarityH\x00\x12&\n\x05tapas\x18\x03 \x01(\x0b\x32\x15.language.TAPASH\x00\x12\x33\n\x0c\x66irst_tokens\x18\x04 \x01(\x0b\x32\x1b.language.FirstTokensH\x00\x42\x15\n\x13table_pruning_model')
+=======
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*data_processing/protos/table_pruning.proto\x12\x0elanguage.  "\xf7\x03\n\x04Loss\x12:\n\x0cunsupervised\x18\xc8\x01 \x01(\x0b\x32!.language. Loss.UnsupervisedH\x00\x12\x32\n\x05train\x18\x90\x03 \x01(\x0b\x32\".language. Loss.HardSelection\x12\x31\n\x04\x65val\x18\xf4\x03 \x01(\x0b\x32\".language. Loss.HardSelection\x12\'\n\x17\x61\x64\x64_classification_loss\x18\xd8\x04 \x01(\x08:\x05\x66\x61lse\x1a\x88\x01\n\rHardSelection\x12\x44\n\x0cselection_fn\x18\x01 \x01(\x0e\x32..language. Loss.HardSelection.SelectionFn\"1\n\x0bSelectionFn\x12\x07\n\x03\x41LL\x10\x00\x12\t\n\x05TOP_K\x10\x01\x12\x0e\n\nMASK_TOP_K\x10\x02\x1a\x8f\x01\n\x0cUnsupervised\x12H\n\x0eregularization\x18\x05 \x01(\x0e\x32\x30.language. Loss.Unsupervised.Regularization\"5\n\x0eRegularization\x12\x08\n\x04NONE\x10\x00\x12\x06\n\x02L1\x10\x01\x12\x06\n\x02L2\x10\x02\x12\t\n\x05L1_L2\x10\x03\x42\x06\n\x04loss\"`\n\x10\x41vgCosSimilarity\x12(\n\x19use_positional_embeddings\x18\x02 \x01(\x08:\x05\x66\x61lse\x12\"\n\x04loss\x18\x03 \x01(\x0b\x32\x14.language. Loss\"\xeb\x01\n\x05TAPAS\x12\x32\n\tselection\x18\x02 \x01(\x0e\x32\x1f.language.  Selection\x12\x18\n\x10\x62\x65rt_config_file\x18\x03 \x01(\t\x12\x1c\n\x14\x62\x65rt_init_checkpoint\x18\x04 \x01(\t\x12,\n\x1dreset_position_index_per_cell\x18\x06 \x01(\x08:\x05\x66\x61lse\x12\"\n\x04loss\x18\x05 \x01(\x0b\x32\x14.language. Loss\"$\n\tSelection\x12\x0b\n\x07\x43OLUMNS\x10\x00\x12\n\n\x06TOKENS\x10\x01\"\r\n\x0b\x46irstTokens\"\xdf\x01\n\x11TablePruningModel\x12\x16\n\x0emax_num_tokens\x18\x01 \x01(\x05\x12>\n\x12\x61vg_cos_similarity\x18\x02 \x01(\x0b\x32 .language. AvgCosSimilarityH\x00\x12&\n\x05  x18\x03 \x01(\x0b\x32\x15.language. TAPASH\x00\x12\x33\n\x0c\x66irst_tokens\x18\x04 \x01(\x0b\x32\x1b.language. FirstTokensH\x00\x42\x15\n\x13table_pruning_model')
+>>>>>>> cb6d373 (Working code)
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'data_processing.protos.table_pruning_pb2', globals())
@@ -32,8 +36,13 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _LOSS_UNSUPERVISED_REGULARIZATION._serialized_end=558
   _AVGCOSSIMILARITY._serialized_start=568
   _AVGCOSSIMILARITY._serialized_end=664
+<<<<<<< HEAD
   __serialized_start=667
   __serialized_end=902
+=======
+  _ _serialized_start=667
+  _ _serialized_end=902
+>>>>>>> cb6d373 (Working code)
   _TAPAS_SELECTION._serialized_start=866
   _TAPAS_SELECTION._serialized_end=902
   _FIRSTTOKENS._serialized_start=904

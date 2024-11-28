@@ -16,7 +16,7 @@
 from absl import app
 from absl import flags
 
-from tapas.scripts import eval_table_retriever_utils
+from scripts import eval_table_retriever_utils
 
 FLAGS = flags.FLAGS
 

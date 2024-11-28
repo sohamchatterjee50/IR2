@@ -20,11 +20,11 @@ from absl import app
 from absl import flags
 import apache_beam as beam
 import nltk
-from tapas.protos import interaction_pb2
-from tapas.utils import beam_runner
-from tapas.utils import beam_utils
-from tapas.utils import create_data
-from tapas.utils import sentence_tokenizer
+from protos import interaction_pb2
+from utils import beam_runner
+from utils import beam_utils
+from utils import create_data
+from utils import sentence_tokenizer
 
 
 flags.DEFINE_string("inputs", None, "Interaction tables.")

@@ -46,10 +46,10 @@ import os
 from typing import Any, Dict, Iterable, List, Optional, Text, Tuple
 
 import apache_beam as beam
-from tapas.protos import interaction_pb2
-from tapas.protos import negative_retrieval_examples_pb2
-from tapas.scripts import preprocess_nq_utils
-from tapas.utils import pretrain_utils
+from protos import interaction_pb2
+from protos import negative_retrieval_examples_pb2
+from scripts import preprocess_nq_utils
+from utils import pretrain_utils
 
 _NS = "main"
 _NegativeRetrievalExamples = negative_retrieval_examples_pb2.NegativeRetrievalExamples

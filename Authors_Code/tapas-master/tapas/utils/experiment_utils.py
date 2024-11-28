@@ -22,8 +22,8 @@ from typing import Iterable, Optional, Text, Tuple, Mapping
 
 from absl import flags
 from absl import logging
-from tapas.models.bert import modeling
-from tapas.scripts import calc_metrics_utils
+from models.bert import modeling
+from scripts import calc_metrics_utils
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 

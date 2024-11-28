@@ -31,7 +31,7 @@ import bs4
 import dataclasses
 import numpy as np
 import pandas as pd
-from tapas.protos import interaction_pb2
+from protos import interaction_pb2
 import tensorflow._api.v2.compat.v1 as tf
 
 _NS = "main"

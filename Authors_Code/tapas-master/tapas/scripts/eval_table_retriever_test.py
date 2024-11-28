@@ -18,7 +18,7 @@ import tempfile
 from absl.testing import absltest
 import numpy as np
 
-from tapas.scripts import eval_table_retriever_utils
+from scripts import eval_table_retriever_utils
 
 
 class EvalTableRetrieverTest(absltest.TestCase):

@@ -20,9 +20,9 @@ from absl import app
 from absl import flags
 from absl import logging
 import pandas as pd
-from tapas.protos import interaction_pb2
-from tapas.retrieval import tfidf_baseline_utils
-from tapas.scripts import prediction_utils
+from protos import interaction_pb2
+from retrieval import tfidf_baseline_utils
+from scripts import prediction_utils
 
 FLAGS = flags.FLAGS
 

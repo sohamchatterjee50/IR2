@@ -18,11 +18,11 @@ from typing import Any, Callable, Dict, List, Optional, Text
 
 import dataclasses
 
-from tapas.models import segmented_tensor
-from tapas.models import tapas_classifier_model_utils as utils
-from tapas.models.bert import modeling
-from tapas.models.bert import table_bert
-from tapas.protos import table_pruning_pb2
+from models import segmented_tensor
+from models import tapas_classifier_model_utils as utils
+from models.bert import modeling
+from models.bert import table_bert
+from protos import table_pruning_pb2
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 

@@ -17,8 +17,8 @@
 import ast
 import csv
 from typing import Text, Iterable, List
-from tapas.protos import interaction_pb2
-from tapas.utils import text_utils
+from protos import interaction_pb2
+from utils import text_utils
 
 _AggregationFunction = interaction_pb2.Answer.AggregationFunction
 

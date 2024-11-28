@@ -22,10 +22,10 @@ from typing import Dict, Tuple, Text, Set, Optional, List, Iterable
 import apache_beam as beam
 import dataclasses
 from nltk.stem.porter import PorterStemmer
-from tapas.protos import interaction_pb2
-from tapas.protos import table_selection_pb2
-from tapas.utils import text_utils
-from tapas.utils import tf_example_utils
+from protos import interaction_pb2
+from protos import table_selection_pb2
+from utils import text_utils
+from utils import tf_example_utils
 
 _NS = "main"
 _Coordinates = tf_example_utils.TokenCoordinates

@@ -19,16 +19,16 @@ import enum
 import json
 from typing import Iterable, List, Mapping, Optional, Set, Text
 
-from tapas.datasets import dataset
-from tapas.datasets import table_dataset
-from tapas.models import segmented_tensor
-from tapas.models import tapas_classifier_model_utils as utils
-from tapas.models.bert import modeling
-from tapas.models.bert import optimization
-from tapas.models.bert import table_bert
-from tapas.utils import attention_utils
-from tapas.utils import span_prediction_utils
-from tapas.utils import table_pruning
+from datasets import dataset
+from datasets import table_dataset
+from models import segmented_tensor
+from models import tapas_classifier_model_utils as utils
+from models.bert import modeling
+from models.bert import optimization
+from models.bert import table_bert
+from utils import attention_utils
+from utils import span_prediction_utils
+from utils import table_pruning
 import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 import tensorflow_probability as tfp

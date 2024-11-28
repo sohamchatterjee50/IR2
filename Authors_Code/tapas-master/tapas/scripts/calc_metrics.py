@@ -18,7 +18,7 @@ import os
 
 from absl import app
 from absl import flags
-from tapas.scripts import calc_metrics_utils
+from scripts import calc_metrics_utils
 
 FLAGS = flags.FLAGS
 

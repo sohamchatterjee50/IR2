@@ -18,8 +18,8 @@ import random
 
 from absl.testing import absltest
 from absl.testing import parameterized
-from tapas.protos import interaction_pb2
-from tapas.utils import interpretation_utils
+from protos import interaction_pb2
+from utils import interpretation_utils
 
 _Candidate = interpretation_utils.Candidate
 _AggFun = interaction_pb2.Answer.AggregationFunction

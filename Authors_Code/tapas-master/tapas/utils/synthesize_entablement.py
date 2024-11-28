@@ -22,8 +22,8 @@ from typing import List, Text, Optional, Tuple, Set, Iterable, Union, Mapping, C
 
 import dataclasses
 import numpy as np
-from tapas.protos import interaction_pb2
-from tapas.utils import text_utils
+from protos import interaction_pb2
+from utils import text_utils
 
 
 Number = Union[int, float]

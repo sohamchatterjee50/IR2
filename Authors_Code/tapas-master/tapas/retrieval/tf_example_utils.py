@@ -16,10 +16,10 @@
 
 from typing import Optional
 
-from tapas.protos import interaction_pb2
-from tapas.protos import negative_retrieval_examples_pb2
-from tapas.utils import text_utils
-from tapas.utils import tf_example_utils as base
+from protos import interaction_pb2
+from protos import negative_retrieval_examples_pb2
+from utils import text_utils
+from utils import tf_example_utils as base
 import tensorflow._api.v2.compat.v1 as tf
 
 _SEP = base._SEP  # pylint:disable=protected-access

@@ -118,7 +118,7 @@ python3   tapas/retrieval/create_retrieval_data_main.py \
 model_dir=~/models/nq
 python3   tapas/experiments/table_retriever_experiment.py \
    --do_train \
-   --use_tpu \
+  # --use_tpu \
    --keep_checkpoint_max=40 \
    --model_dir="${model_dir}" \
    --input_file_train="${nq_data_dir}/tf_examples/train.tfrecord" \

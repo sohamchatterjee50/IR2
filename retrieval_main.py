@@ -18,7 +18,7 @@ def _get_test_input_fn(name, input_file, args):
     """Gets input_fn for eval/predict modes."""
     if input_file is None:
         return None
-
+    
     input_fn = functools.partial(
         retriever_model.input_fn,
         name=name,
@@ -30,7 +30,6 @@ def _get_test_input_fn(name, input_file, args):
         use_mined_negatives=args.use_mined_negatives,
         include_id=True,
     )
-
     return input_fn
 
 
@@ -40,7 +39,10 @@ def _predict_and_export_metrics(
     """Exports model predictions and calculates precision@k."""
     tf.logging.info("Running predictor for step %d.", step)
     result = estimator.predict(input_fn=input_fn, checkpoint_path=checkpoint_path)
+    print("greg")
+    print(result)
     output_predict_file = os.path.join(output_dir, f"{mode}_results_{step}.tsv")
+    print(output_predict_file)
     write_predictions(result, output_predict_file)
 
     # Compute precision@k.
@@ -72,6 +74,8 @@ def write_predictions(predictions, output_predict_file):
         writer.writeheader()
 
         for prediction in predictions:
+            print("somesting")
+            print(prediction)
             query_id = prediction["query_id"]
             table_id = prediction["table_id"]
             query_rep = prediction["query_rep"]
@@ -94,6 +98,7 @@ def main(cfg: DictConfig):
 
     bert_config = experiment_utils.bert_config_from_flags()
     total_steps = experiment_utils.num_train_steps()
+    
     retriever_config = retriever_model.RetrieverConfig(
         bert_config=bert_config,
         init_checkpoint=args.init_checkpoint,
@@ -137,7 +142,7 @@ def main(cfg: DictConfig):
 
         if eval_input_fn is None:
             raise ValueError("No input_file_eval specified!")
-
+        
         for _, checkpoint in experiment_utils.iterate_checkpoints(
             model_dir=estimator.model_dir,
             total_steps=total_steps,
@@ -187,12 +192,13 @@ def main(cfg: DictConfig):
                 estimator.model_dir, args.evaluated_checkpoint_metric
             )
 
-        for current_step, checkpoint in experiment_utils.iterate_checkpoints(
-            model_dir=estimator.model_dir,
-            total_steps=total_steps,
-            marker_file_prefix=marker_file_prefix,
-            single_step=single_step,
-        ):
+        # for current_step, checkpoint in experiment_utils.iterate_checkpoints(
+        #     model_dir=estimator.model_dir,
+        #     total_steps=total_steps,
+        #     marker_file_prefix=marker_file_prefix,
+        #     single_step=single_step,
+        # ):
+        for current_step, checkpoint in [(1, "/media/stefan/My Passport/University/Courses/IR2/tapas_nq_hn_retriever_tiny/model.ckpt")]:
             try:
                 if predict_input_fn is not None:
                     _predict_and_export_metrics(

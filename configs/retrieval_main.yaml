@@ -2,15 +2,15 @@ base:
   data_format: "tfrecord"
   input_file_train: []
   input_file_eval: ['/media/stefan/My Passport/NQ-Tables/nq-tables2/tf_examples/nq_tables_interactions_dev.tfrecord']
-  input_file_predict: []
+  input_file_predict: '/media/stefan/My Passport/NQ-Tables/nq-tables2/tf_examples/nq_tables_interactions_test.tfrecord'
   prediction_output_dir: null
   init_checkpoint: null
   max_seq_length: 128
   minutes_to_sleep_before_predictions: 5
   do_train: false
-  do_eval: true
+  do_eval: false
+  do_predict: true
   eval_name: "default"
-  do_predict: false
   grad_clipping: null
   down_projection_dim: 0
   init_from_single_encoder: true

@@ -273,8 +273,8 @@ def model_fn_builder(config: RetrieverConfig):
 
         # TODO(thomasmueller) Add support for this.
         if (
-            config.use_out_of_core_negatives
-            and config.use_mined_negatives
+            #config.use_out_of_core_negatives
+            config.use_mined_negatives
             and config.mask_repeated_questions
         ):
             raise ValueError("Unsupported combination of options.")

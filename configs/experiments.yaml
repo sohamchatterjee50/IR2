@@ -1,7 +1,7 @@
 base:
-  model_dir: null
   session_master: null
   master: null
+  model_dir: null
   tf_random_seed: null
   train_batch_size: 128
   eval_batch_size: 32
@@ -28,5 +28,5 @@ base:
   save_checkpoints_steps: 1000
   keep_checkpoint_max: 5
   keep_checkpoint_every_n_hours: 4.0
-
+  init_checkpoint: ../tapas_nq_hn_retriever_tiny/model.ckpt
   max_eval_count: 100

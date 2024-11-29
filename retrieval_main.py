@@ -39,10 +39,7 @@ def _predict_and_export_metrics(
     """Exports model predictions and calculates precision@k."""
     tf.logging.info("Running predictor for step %d.", step)
     result = estimator.predict(input_fn=input_fn, checkpoint_path=checkpoint_path)
-    print("greg")
-    print(result)
     output_predict_file = os.path.join(output_dir, f"{mode}_results_{step}.tsv")
-    print(output_predict_file)
     write_predictions(result, output_predict_file)
 
     # Compute precision@k.
@@ -74,8 +71,6 @@ def write_predictions(predictions, output_predict_file):
         writer.writeheader()
 
         for prediction in predictions:
-            print("somesting")
-            print(prediction)
             query_id = prediction["query_id"]
             table_id = prediction["table_id"]
             query_rep = prediction["query_rep"]

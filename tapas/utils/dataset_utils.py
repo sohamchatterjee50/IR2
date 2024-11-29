@@ -62,6 +62,7 @@ def read_dataset(
                 drop_remainder=params.get("drop_remainder", False) or is_training,
             )
         )
+
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
         return dataset
@@ -80,6 +81,7 @@ def build_parser_function(feature_types, params):
             if t.dtype == tf.int64:
                 t = tf.cast(t, tf.int32)
                 features[name] = t
+        
 
         return features
 

@@ -127,12 +127,9 @@ def iterate_checkpoints(
 
     done = set()
     while True:
-        print("model_dir ", model_dir)
         state = tf.train.get_checkpoint_state(model_dir)
-        print(state)
         checkpoints = state.all_model_checkpoint_paths if state is not None else []
         found_pending_checkpoint = False
-        print("s ", checkpoints)
         for checkpoint in checkpoints:
 
             step = int(os.path.basename(checkpoint).split("-")[1])

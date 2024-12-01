@@ -44,12 +44,17 @@ def _predict_and_export_metrics(
 
     # Compute precision@k.
     if not args.evaluated_checkpoint_step or not args.evaluated_checkpoint_metric:
-        p_at_k = eval_retriever_utils.eval_precision_at_k(
+        # p_at_k = eval_retriever_utils.eval_precision_at_k(
+        #     query_prediction_files=output_predict_file,
+        #     table_prediction_files=output_predict_file,
+        #     make_tables_unique=True,
+        # )
+        p_and_ndcg = eval_retriever_utils.eval_precision_and_ndcg_at_k(
             query_prediction_files=output_predict_file,
             table_prediction_files=output_predict_file,
             make_tables_unique=True,
         )
-        experiment_utils.save_metrics(output_dir, mode, step, p_at_k)
+        experiment_utils.save_metrics(output_dir, mode, step, p_and_ndcg)
 
 
 def write_predictions(predictions, output_predict_file):

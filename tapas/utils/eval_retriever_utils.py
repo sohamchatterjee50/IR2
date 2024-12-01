@@ -366,3 +366,78 @@ def eval_precision_at_k(
     index = build_table_index(tables)
 
     return process_predictions(queries, tables, index, retrieval_results_file_path)
+
+
+def _get_ndcg_at_k(neighbors, gold_indices):
+    """Calculates NDCG@k from the nearest neighbors.
+
+    Args:
+        neighbors: <int32>[NUM_QUERIES, _NUM_NEIGHBORS], where NUM_QUERIES is the
+        total number of queries.
+        gold_indices: <int32>[NUM_QUERIES, _MAX_NUM_TABLES_PER_QUERY],
+        matrix containing the indices for the gold tables that should be
+        retrieved, for queries of size NUM_QUERIES.
+
+    Returns:
+        ndcg_at_k: NDCG@k results for different k values.
+    """
+    def dcg_at_k(r, k):
+        r = np.asfarray(r)[:k]
+        if r.size:
+            return np.sum(r / np.log2(np.arange(2, r.size + 2)))
+        return 0.0
+
+    def ndcg_at_k(r, k):
+        dcg_max = dcg_at_k(sorted(r, reverse=True), k)
+        if not dcg_max:
+            return 0.0
+        return dcg_at_k(r, k) / dcg_max
+
+    if gold_indices.shape[0] != neighbors.shape[0]:
+        raise ValueError(
+            f"Difference in shapes: {gold_indices.shape} {neighbors.shape[0]}"
+        )
+
+    # <int32>[num_queries, num_neigbors, 1]
+    neighbors = np.expand_dims(neighbors, axis=-1)
+    # <int32>[num_queries, 1, _MAX_NUM_TABLES_PER_QUERY]
+    gold_indices = np.expand_dims(gold_indices, axis=-2)
+
+    # <bool>[num_queries, num_neigbors, _MAX_NUM_TABLES_PER_QUERY]
+    correct = np.equal(neighbors, gold_indices)
+    # <bool>[num_queries, num_neigbors]
+    correct = np.any(correct, axis=-1)
+
+    ndcg_at = [k for k in [1, 5, 10, 15, 50, 100] if k <= _NUM_NEIGHBORS]
+    ndcg_at_k = {
+        "ndcg_at_{}".format(k): np.mean([ndcg_at_k(correct[i], k) for i in range(correct.shape[0])])
+        for k in ndcg_at
+    }
+    logging.info(ndcg_at_k)
+
+    return ndcg_at_k
+
+
+def eval_precision_and_ndcg_at_k(
+    query_prediction_files,
+    table_prediction_files,
+    make_tables_unique,
+    retrieval_results_file_path=None,
+):
+    """Reads queries and tables, processes them to produce precision@k and NDCG@k metrics."""
+    queries = read_queries(query_prediction_files)
+    tables = read_tables(table_prediction_files, make_tables_unique)
+    index = build_table_index(tables)
+
+    similarities, neighbors = _retrieve(queries, index)
+
+    if retrieval_results_file_path:
+        _save_neighbors_to_file(
+            queries, tables, similarities, neighbors, retrieval_results_file_path
+        )
+
+    gold_indices = _get_gold_ids_in_global_indices(queries, tables)
+    precision_at_k = _get_precision_at_k(neighbors, gold_indices=gold_indices)
+    ndcg_at_k = _get_ndcg_at_k(neighbors, gold_indices=gold_indices)
+
+    return {**precision_at_k, **ndcg_at_k}

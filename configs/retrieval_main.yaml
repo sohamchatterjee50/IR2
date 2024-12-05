@@ -1,3 +1,4 @@
+# This config is used for the retrieval_main file
 base:
   data_format: "tfrecord"
   input_file_train: []

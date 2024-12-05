@@ -1,5 +1,6 @@
 # This config is based on the initial parameters and decisions made
 # by the original authors
+# It is used for data conversion
 base:
   input_interactions_dir: ../data/interactions
   input_tables_dir: ../data/tables

@@ -1,3 +1,12 @@
+# This config is for the BM25 ranking baseline
+bm25: 
+  interaction_files: ["../data/tf_examples/dev.tfrecord"]
+  table_file: ""
+  max_table_rank: 50
+  min_term_rank: 100
+  drop_term_frequency: True
+
+# Currently unused
 general:
   seed: 42
   use_bert: False
@@ -6,10 +15,3 @@ general:
   use_bm25: False
   use_hnbm25: False
   
-bm25: 
-  interaction_files: ["../data/tf_examples/dev.tfrecord"]
-  table_file: ""
-  max_table_rank: 50
-  min_term_rank: 100
-  drop_term_frequency: True
-

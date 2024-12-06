@@ -2,7 +2,6 @@
 
 import os, csv, hydra, functools, traceback
 import tensorflow._api.v2.compat.v1 as tf
-from absl import app
 from argparse import Namespace
 from omegaconf import DictConfig
 from tapas.models import retriever_model
@@ -18,7 +17,7 @@ def _get_test_input_fn(name, input_file, args):
     """Gets input_fn for eval/predict modes."""
     if input_file is None:
         return None
-    
+
     input_fn = functools.partial(
         retriever_model.input_fn,
         name=name,
@@ -30,6 +29,7 @@ def _get_test_input_fn(name, input_file, args):
         use_mined_negatives=args.use_mined_negatives,
         include_id=True,
     )
+
     return input_fn
 
 
@@ -98,7 +98,7 @@ def main(cfg: DictConfig):
 
     bert_config = experiment_utils.bert_config_from_flags()
     total_steps = experiment_utils.num_train_steps()
-    
+
     retriever_config = retriever_model.RetrieverConfig(
         bert_config=bert_config,
         init_checkpoint=args.init_checkpoint,
@@ -111,7 +111,7 @@ def main(cfg: DictConfig):
         max_query_length=args.max_query_length,
         mask_repeated_tables=args.mask_repeated_tables,
         mask_repeated_questions=args.mask_repeated_questions,
-        #use_out_of_core_negatives=args.use_out_of_core_negatives,
+        # use_out_of_core_negatives=args.use_out_of_core_negatives,
         ignore_table_content=args.ignore_table_content,
         disabled_features=args.disabled_features,
         use_mined_negatives=args.use_mined_negatives,
@@ -142,7 +142,7 @@ def main(cfg: DictConfig):
 
         if eval_input_fn is None:
             raise ValueError("No input_file_eval specified!")
-        
+
         for _, checkpoint in experiment_utils.iterate_checkpoints(
             model_dir=estimator.model_dir,
             total_steps=total_steps,
@@ -198,7 +198,12 @@ def main(cfg: DictConfig):
         #     marker_file_prefix=marker_file_prefix,
         #     single_step=single_step,
         # ):
-        for current_step, checkpoint in [(1, "/media/stefan/My Passport/University/Courses/IR2/tapas_nq_hn_retriever_tiny/model.ckpt")]:
+        for current_step, checkpoint in [
+            (
+                1,
+                "/media/stefan/My Passport/University/Courses/IR2/tapas_nq_hn_retriever_tiny/model.ckpt",
+            )
+        ]:
             try:
                 if predict_input_fn is not None:
                     _predict_and_export_metrics(

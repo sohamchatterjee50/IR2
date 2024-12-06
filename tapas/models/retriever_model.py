@@ -53,8 +53,10 @@ class RetrieverConfig:
             def default(self, o):
                 if dataclasses.is_dataclass(o):
                     return dataclasses.asdict(o)
+                
                 if isinstance(o, modeling.BertConfig):
                     return o.to_dict()
+                
                 return super().default(o)
 
         return json.dumps(self, indent=2, sort_keys=True, cls=EnhancedJSONEncoder)
@@ -62,6 +64,7 @@ class RetrieverConfig:
     def to_json_file(self, json_file):
         """Serializes this instance to a JSON file."""
         with tf.io.gfile.GFile(json_file, "w") as writer:
+
             writer.write(self.to_json_string() + "\n")
 
     @classmethod
@@ -73,9 +76,9 @@ class RetrieverConfig:
             json_object["bert_config"]
         )
         # Delete deprecated option, if present.
-        # TODO See of we can filter everything that's not an argument.
         if "restrict_attention" in json_object:
             del json_object["restrict_attention"]
+
         return RetrieverConfig(**json_object)
 
     @classmethod
@@ -271,7 +274,6 @@ def model_fn_builder(config: RetrieverConfig):
 
         del labels, params  # Unused.
 
-        # TODO(thomasmueller) Add support for this.
         if (
             #config.use_out_of_core_negatives
             config.use_mined_negatives
@@ -281,6 +283,7 @@ def model_fn_builder(config: RetrieverConfig):
 
         tf.logging.info("*** Features ***")
         for name in sorted(features):
+            
             tf.logging.info("  name = %s, shape = %s", name, features[name].shape)
 
         if config.ignore_table_content:

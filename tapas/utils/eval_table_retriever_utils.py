@@ -1,5 +1,6 @@
-## Utilities for Evaluating the precision@k Scores for Table Retriever Predictions
-import abc, ast, csv, json, datetime, dataclasses, itertools, collections
+## Utils for Evaluating precision@k scores for Table Retriever Predictions
+
+import abc, ast, csv, json, datetime, itertools, collections, dataclasses
 import numpy as np
 import tensorflow._api.v2.compat.v1 as tf
 from absl import logging
@@ -74,9 +75,12 @@ class TableExample(Example):
 
 
 def iterate_predictions(prediction_file):
+
     with tf.io.gfile.GFile(prediction_file, "r") as f:
+
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
+
             yield row
 
 
@@ -189,12 +193,14 @@ def _get_gold_ids_in_global_indices(
             table_indexes = {
                 table_id_to_index[table_id] for table_id in query.table_ids
             }
+
         except KeyError:
             raise ValueError(
                 f"Query with table_id not found in tables: {query.query_id}"
             )
 
         for i, table_index in enumerate(sorted(table_indexes)):
+
             indexes[query_index, i] = table_index
 
     return indexes
@@ -243,6 +249,7 @@ def _save_neighbors_to_file(
     with tf.io.gfile.GFile(retrieval_results_file_path, "w") as f:
 
         for i, example in enumerate(queries):
+
             query_id = example.query_id
             table_ids = [tables[int(index)].table_id for index in neighbors[i, :]]
             # Negate similarities for backwards compatibility
@@ -346,7 +353,9 @@ def read_queries(
     # Make queries unique.
     query_id_to_queries = collections.defaultdict(list)
     for query in queries:
+
         query_id_to_queries[query.query_id].append(query)
+
     queries = [merge_queries(query_list) for query_list in query_id_to_queries.values()]
     logging.info("Made queries unique.")
 
@@ -365,130 +374,3 @@ def eval_precision_at_k(
     index = build_table_index(tables)
 
     return process_predictions(queries, tables, index, retrieval_results_file_path)
-
-
-def _get_ndcg_at_k(neighbors, gold_indices):
-    """Calculates NDCG@k from the nearest neighbors.
-
-    Args:
-        neighbors: <int32>[NUM_QUERIES, _NUM_NEIGHBORS], where NUM_QUERIES is the
-        total number of queries.
-        gold_indices: <int32>[NUM_QUERIES, _MAX_NUM_TABLES_PER_QUERY],
-        matrix containing the indices for the gold tables that should be
-        retrieved, for queries of size NUM_QUERIES.
-
-    Returns:
-        ndcg_at_k: NDCG@k results for different k values.
-    """
-
-    def dcg_at_k(r, k):
-        r = np.asfarray(r)[:k]
-        if r.size:
-            return np.sum(r / np.log2(np.arange(2, r.size + 2)))
-        return 0.0
-
-    def ndcg_at_k(r, k):
-        dcg_max = dcg_at_k(sorted(r, reverse=True), k)
-        if not dcg_max:
-            return 0.0
-        return dcg_at_k(r, k) / dcg_max
-
-    if gold_indices.shape[0] != neighbors.shape[0]:
-        raise ValueError(
-            f"Difference in shapes: {gold_indices.shape} {neighbors.shape[0]}"
-        )
-
-    # <int32>[num_queries, num_neigbors, 1]
-    neighbors = np.expand_dims(neighbors, axis=-1)
-    # <int32>[num_queries, 1, _MAX_NUM_TABLES_PER_QUERY]
-    gold_indices = np.expand_dims(gold_indices, axis=-2)
-
-    # <bool>[num_queries, num_neigbors, _MAX_NUM_TABLES_PER_QUERY]
-    correct = np.equal(neighbors, gold_indices)
-    # <bool>[num_queries, num_neigbors]
-    correct = np.any(correct, axis=-1)
-
-    ndcg_at = [k for k in [1, 5, 10, 15, 50, 100] if k <= _NUM_NEIGHBORS]
-    ndcg_at_k = {
-        "ndcg_at_{}".format(k): np.mean(
-            [ndcg_at_k(correct[i], k) for i in range(correct.shape[0])]
-        )
-        for k in ndcg_at
-    }
-    logging.info(ndcg_at_k)
-
-    return ndcg_at_k
-
-
-def eval_metrics_at_k(
-    query_prediction_files,
-    table_prediction_files,
-    make_tables_unique,
-    retrieval_results_file_path=None,
-):
-    """Reads queries and tables, processes them to produce precision@k, NDCG@k, and mAP metrics."""
-    queries = read_queries(query_prediction_files)
-    tables = read_tables(table_prediction_files, make_tables_unique)
-    index = build_table_index(tables)
-
-    similarities, neighbors = _retrieve(queries, index)
-
-    if retrieval_results_file_path:
-        _save_neighbors_to_file(
-            queries, tables, similarities, neighbors, retrieval_results_file_path
-        )
-
-    gold_indices = _get_gold_ids_in_global_indices(queries, tables)
-    precision_at_k = _get_precision_at_k(neighbors, gold_indices=gold_indices)
-    ndcg_at_k = _get_ndcg_at_k(neighbors, gold_indices=gold_indices)
-    map_at_k = _get_map_at_k(neighbors, gold_indices=gold_indices)
-
-    return {**precision_at_k, **ndcg_at_k, **map_at_k}
-
-
-def _get_map_at_k(neighbors, gold_indices):
-    """Calculates mean average precision (mAP) from the nearest neighbors.
-
-    Args:
-        neighbors: <int32>[NUM_QUERIES, _NUM_NEIGHBORS], where NUM_QUERIES is the
-        total number of queries.
-        gold_indices: <int32>[NUM_QUERIES, _MAX_NUM_TABLES_PER_QUERY],
-        matrix containing the indices for the gold tables that should be
-        retrieved, for queries of size NUM_QUERIES.
-
-    Returns:
-        map_at_k: mAP results for different k values.
-    """
-
-    def average_precision(r):
-        r = np.asarray(r) != 0
-        out = [np.mean(r[: i + 1]) for i in range(len(r)) if r[i]]
-        if not out:
-            return 0.0
-        return np.mean(out)
-
-    if gold_indices.shape[0] != neighbors.shape[0]:
-        raise ValueError(
-            f"Difference in shapes: {gold_indices.shape} {neighbors.shape[0]}"
-        )
-
-    # <int32>[num_queries, num_neigbors, 1]
-    neighbors = np.expand_dims(neighbors, axis=-1)
-    # <int32>[num_queries, 1, _MAX_NUM_TABLES_PER_QUERY]
-    gold_indices = np.expand_dims(gold_indices, axis=-2)
-
-    # <bool>[num_queries, num_neigbors, _MAX_NUM_TABLES_PER_QUERY]
-    correct = np.equal(neighbors, gold_indices)
-    # <bool>[num_queries, num_neigbors]
-    correct = np.any(correct, axis=-1)
-
-    map_at = [k for k in [1, 5, 10, 15, 50, 100] if k <= _NUM_NEIGHBORS]
-    map_at_k = {
-        "map_at_{}".format(k): np.mean(
-            [average_precision(correct[i, :k]) for i in range(correct.shape[0])]
-        )
-        for k in map_at
-    }
-    logging.info(map_at_k)
-
-    return map_at_k

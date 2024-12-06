@@ -188,7 +188,6 @@ class BM25Index:
 
     def retrieve(self, question):
         q_tokens = _tokenize(question)
-        # TODO This is slow maybe we can improve efficiency.
         scores = self._model.get_scores(q_tokens)
         table_scores = [
             (self._table_ids[index], score)

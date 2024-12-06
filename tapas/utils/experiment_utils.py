@@ -1,17 +1,17 @@
 ## Utilities to help with Experimentation
 
-import os, json, hydra, time, datetime
+import os, json, time, datetime
 import tensorflow._api.v2.compat.v1 as tf
 from absl import logging
 from argparse import Namespace
-from omegaconf import DictConfig
 from tapas.models.bert import modeling
 from tapas.utils import calc_metric_utils
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 import omegaconf
 
+
 # To get arguments from .yaml configuration
-#@hydra.main(version_base=None, config_path="configs", config_name="experiments")
+# @hydra.main(version_base=None, config_path="configs", config_name="experiments")
 def get_args():
     cfg = omegaconf.OmegaConf.load("configs/experiments.yaml")
     general = cfg.get("base")
@@ -77,7 +77,7 @@ def build_estimator(model_fn):
             per_host_input_for_training=is_per_host,
         ),
     )
-    # If TPU is not available, this will fall back to normal Estimator on CPU
+    # As TPU is not available, this will fall back to normal Estimator on CPU
     # or GPU.
     return tf_estimator.tpu.TPUEstimator(
         params={

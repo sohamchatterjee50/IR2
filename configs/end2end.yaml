@@ -1,0 +1,9 @@
+# This config is for the end-to-end (reader) experiment
+base:
+  input_dir: null
+  output_dir: null
+  index_files_pattern: null
+  max_rank: 10
+  title_multiplicator: 15
+  oracle_retrieval: false
+  add_negatives: true

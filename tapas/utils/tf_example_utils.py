@@ -7,8 +7,14 @@ from official.nlp.bert import tokenization
 from typing import List, Mapping, Text, Tuple
 from apache_beam import metrics as beam_metrics
 from tapas.protos import interaction_pb2, annotated_text_pb2, table_selection_pb2
-from tapas.utils import constants, number_annot_utils, tokenizer, text_index, text_utils, interpret_utils
-
+from tapas.utils import (
+    constants,
+    number_annot_utils,
+    tokenizer,
+    text_index,
+    text_utils,
+    interpret_utils,
+)
 
 
 _NS = "main"
@@ -105,8 +111,6 @@ class TrimmedConversionConfig(ConversionConfig):
     # if > 0: Trim cells so that the length is <= this value.
     # Also disables further cell trimming should thus be used with
     # 'drop_rows_to_fit' below.
-    # TODO(thomasmueller) Make this a parameter of the base config.
-    # TODO(thomasmueller) Consider giving this a better name.
     cell_trim_length: int = -1
 
 
@@ -125,7 +129,7 @@ class ClassifierConversionConfig(TrimmedConversionConfig):
     drop_rows_to_fit: bool = False
     # If true adds the context heading of the table to the question.
     use_context_title: bool = False
-    # For TPU prediction we serialize strings into a fix length.
+    # For TPU prediction (not used) we serialize strings into a fix length.
     trim_question_ids: bool = False
     # For each data split how to up/down sample the dataset.
     label_sampling_rate: Mapping[Tuple[Text, int], float] = dataclasses.field(
@@ -518,7 +522,7 @@ class ToTensorflowExampleBase:
             # First row is header row.
             if tc.row_index >= num_rows + 1:
                 continue
-            
+
             if tc.column_index >= num_columns:
                 continue
 
@@ -686,7 +690,7 @@ class ToTensorflowExampleBase:
         all_values.append(value)
         try:
             return number_annot_utils.get_numeric_sort_key_fn(all_values)
-        
+
         except ValueError:
             return None
 
@@ -1327,10 +1331,10 @@ class ToClassifierTensorflowExample(ToTrimmedTensorflowExample):
         question_tokens = self._tokenizer.tokenize(question.text)
         text_tokens = list(question_tokens)
         if self._use_document_title and table.document_title:
-            # TODO(thomasmueller) Consider adding a different segment id.
             document_title_tokens = self._tokenizer.tokenize(table.document_title)
             text_tokens.append(Token(_SEP, _SEP))
             text_tokens.extend(document_title_tokens)
+
         context_heading = table.context_heading
 
         if self._use_context_title and context_heading:

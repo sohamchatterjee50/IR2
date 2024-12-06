@@ -34,7 +34,7 @@ def parse_table_examples(
         predict an aggregation function.
       add_classification_labels: bool: True if the model does classification.
       add_answer: bool: True to add features for the weakly supervised setting.
-      include_id: bool: False if TPU is used.
+      include_id: bool: False if TPU is used (here it should be True).
       add_candidate_answers: bool,
       max_num_candidates: int: Should be set when add_candidate_answers is true.
       params: The parameters to pass to the dataset parser function
@@ -170,7 +170,7 @@ def parse_table_examples(
                 ),
             }
         )
-        
+
         if include_id:
             feature_types.update(
                 {

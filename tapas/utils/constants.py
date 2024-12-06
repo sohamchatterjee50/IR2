@@ -76,6 +76,25 @@ EMPTY_TEXT = "EMPTY"
 NUM_TYPE = "number"
 DATE_TYPE = "date"
 
+# For End-to-End Utils
+_NEG_INFINITY = -10000.0
+
+# For Classifier Model Utils
+EPSILON_ZERO_DIVISION = 1e-10
+CLOSE_ENOUGH_TO_LOG_ZERO = -10000.0
+
+# For Table Pruning
+PRUNING_SCOPE = "pruning"
+_SEQUENCE_OUTPUT_KEEP_PROB = 0.9
+
+# For Table Retriever Eval
+_NUM_NEIGHBORS = 100
+
+# For the Main Reader Script
+_MAX_TABLE_ID = 512
+_MAX_PREDICTIONS_PER_SEQ = 20
+_CELL_CLASSIFICATION_THRESHOLD = 0.5
+
 
 class Relation(enum.Enum):
     HEADER_TO_CELL = 1  # Header -> cell

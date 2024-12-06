@@ -64,8 +64,21 @@ cd /home/scur2840/IR2/Authors_Code
 python --version
 
 
-source activate /home/scur2840/conda_local
+#source activate /home/scur2840/conda_local
+source activate /home/scur2840/.conda/envs/env_ir4
+#export LD_LIBRARY_PATH=/home/scur2840/.conda/envs/env_ir4/lib:$LD_LIBRARY_PATH
+# export PATH=/home/scur2840/.conda/envs/env_ir4/lib${PATH:+:${PATH}}
+# export LD_LIBRARY_PATH=/home/scur2840/.conda/envs/env_ir4/lib:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 conda info --envs
 python --version
-
-#python /home/scur2840/IR2/Authors_Code/tapas-master/run_file.py
+#conda install conda-forge::tensorflow
+#conda uninstall cudatoolkit=10.0
+#conda install cudatoolkit=10.1
+# conda uninstall anaconda::cudnn
+# conda install anaconda::cudnn
+#conda install nvidia::libcublas 
+#pip show tensorflow
+#pip install tensorflow
+#pip install nvidia-pyindex
+#pip install nvidia-cudnn
+python /home/scur2840/IR2/Authors_Code/tapas-master/run_file.py

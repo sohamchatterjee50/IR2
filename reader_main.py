@@ -786,6 +786,7 @@ def main(cfg: DictConfig):
             args.test_mode,
             test_batch_size=args.test_batch_size,
             output_dir=output_dir,
+            args=args
         )
 
     elif mode in (Mode.TRAIN, Mode.PREDICT_AND_EVALUATE, Mode.PREDICT):

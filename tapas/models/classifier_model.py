@@ -1202,7 +1202,7 @@ def model_fn_builder(
                 config.learning_rate,
                 config.num_train_steps,
                 config.num_warmup_steps,
-                False,
+                optimizer="adamw",
                 gradient_accumulation_steps=params.get(
                     "gradient_accumulation_steps", 1
                 ),
@@ -1320,7 +1320,7 @@ def input_fn(
     params,
 ):
     """Returns an input_fn compatible with the tf.estimator API."""
-    parse_example_fn = dataset_utils.parse_table_examples(
+    parse_example_fn = table_utils.parse_table_examples(
         max_seq_length=max_seq_length,
         max_predictions_per_seq=max_predictions_per_seq,
         task_type=table_utils.TableTask.CLASSIFICATION,

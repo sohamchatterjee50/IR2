@@ -5,8 +5,9 @@ import tensorflow._api.v2.compat.v1 as tf
 from absl import logging
 from tapas.models.bert import modeling
 from tapas.utils.constants import _NEG_INFINITY
+from tapas.utils import classifier_model_utils
 
-_classification_initializer = tf.truncated_normal_initializer(stddev=0.02)
+_classification_initializer = classifier_model_utils.classification_initializer
 
 
 class SpanPredictionMode(str, enum.Enum):

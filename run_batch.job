@@ -2,44 +2,87 @@
 
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=9
+#SBATCH --cpus-per-task=18
 #SBATCH --gpus=1
 #SBATCH --job-name=IR2
 #SBATCH --ntasks=1
-#SBATCH --time=00:10:00
-#SBATCH --mem=32000M
-#SBATCH --output=Setup1.out
-pip cache purge
+#SBATCH --time=03:00:00
+#SBATCH --mem-per-cpu=9000M
+#SBATCH --output=Finetune_DualEnc_5000___%A.out
+
 #module avail
 
 
-#module avail Python
+module avail Python
 
 
 # module purge 
 # module load 2021
-# module avail Python
-# # module load Python/3.9.5-GCCcore-10.3.0
+# module load Python/3.9.5-GCCcore-10.3.0
 
 # module load Python/2.7.18-GCCcore-10.3.0-bare
-# module purge
-# module load 2022
-# module load Anaconda3/2022.05
-
-
 module purge
-module load 2023
-module load Anaconda3/2023.07-2
+module load 2022
+module load Anaconda3/2022.05
 
+
+# module purge
+# module load 2023
+# module load Anaconda3/2023.07-2
+python --version
+
+cd /home/scur2840/IR2/Authors_Code
+
+
+
+#conda init bash
 # Run your code
 #conda info --envs
 
+#source /home/scur2840/IR2/Authors_Code/tapas-master/venv/bin/activate
+#pip install --upgrade pip setuptools wheel
+#pip install tf-models-official
 
-cd /home/scur2840/IR2/Authors_Code/tapas-master
+#source pip_env_ir_today/bin/activate
+#python --version
+#pip install tf-models-official==2.11.3
 
-virtualenv venv_ir
-source venv_ir/bin/activate
-pip install -r requirements.txt
+#conda activate env_ir5
+#echo "export PYTHONPATH=\$PYTHONPATH:/gpfs/home5/scur2840/IR2/Authors_Code/tapas-master/tapas" >> ~/.bashrc
 
 
+#nvidia-smi
+# conda install anaconda::cudnn
+# pip install nvidia-pyindex
+# pip install nvidia-cudnn
+#export PYTHONPATH="${PYTHONPATH}:/home/scur2840/.localpython/bin/python3.6/site-packages/"
+# pip --version
+# pip show tensorflow | grep Version
+# pip install tensorflow
 
+#source test_env/bin/activate
+python --version
+
+
+#source activate /home/scur2840/conda_local
+source activate /home/scur2840/.conda/envs/env_ir4
+#export LD_LIBRARY_PATH=/home/scur2840/.conda/envs/env_ir4/lib:$LD_LIBRARY_PATH
+export PATH=/home/scur2840/.conda/envs/env_ir4/lib${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/home/scur2840/.conda/envs/env_ir4/lib:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+conda info --envs
+python --version
+#conda install conda-forge::tensorflow
+# conda uninstall cudatoolkit=12.0
+# conda install cudatoolkit=11.0
+# conda uninstall anaconda::cudnn
+# conda install anaconda::cudnn
+# conda install nvidia::libcublas 
+#pip show tensorflow
+#pip install tensorflow
+#pip install nvidia-pyindex
+#pip install nvidia-cudnn
+#pip uninstall tensorflow
+#pip install tensorflow==2.4.1
+
+cd /home/scur2840/IR2/Authors_Code/tapas-master/
+python run_file.py

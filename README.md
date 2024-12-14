@@ -37,6 +37,9 @@ It is possible to generate the data manually via the following script:
 python nq_preprocess.py
 ```
 
+However, it is not recommended as it will take a long time.
+
+
 ### **Model Checkpoints**
 
 The model checkpoint can be downloaded via the following command:

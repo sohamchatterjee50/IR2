@@ -1,0 +1,3 @@
+base:
+  input_path: gs://natural_questions/v1.0
+  output_path: data

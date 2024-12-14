@@ -16,6 +16,8 @@ First, we need the environment. To set it up, please run the following:
 conda env create -f environment.yml
 ```
 
+Also, before we continue, do note that you can adjust the configurations for each script listed below in their respective config files. They can be found [here](configs) and are named based on which file uses them.
+
 ### **Dataset**
 
 The dataset can be downloaded via the following command:
@@ -30,6 +32,10 @@ bash/download_data.bash
 
 Note that doing the above requires `gsutil` installed beforehand. Instructions on how to do so can be found [here](https://cloud.google.com/storage/docs/gsutil_install).
 
+It is possible to generate the data manually via the following script:
+```sh
+python nq_preprocess.py
+```
 
 ### **Model Checkpoints**
 
@@ -52,8 +58,6 @@ bash/download_reader.bash
 You can change the retrieval model name to any one of the checkpoints listed [here](misc/model_list.md). Currently, the above lines install the versions used in the original paper.
 
 ## **Running**
-
-Before we continue, do note that you can adjust the configurations for each script listed below in their respective config files. They can be found [here](configs) and are named based on which file uses them.
 
 ### **Retrieval**
 
@@ -97,7 +101,7 @@ python create_e2e.py
 python reader_main.py 
 ```
 
-Now we can run the main experiment script, which can be achieved by changing the mode to `predict_and_evaluate` in the `.yaml`:
+Now we can run the main experiment script, which can be achieved by changing the mode to `predict_and_evaluate` in the `reader_main.yaml`:
 ```sh
 python reader_main.py 
 ```

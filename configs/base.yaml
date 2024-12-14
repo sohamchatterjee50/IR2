@@ -1,11 +1,3 @@
-general:
-  seed: 42
-  use_bert: False
-  schema: True
-  pretraining: False
-  use_bm25: False
-  use_hnbm25: False
-
 # This config is based on the initial parameters and decisions made
 # by the original authors
 conversion:
@@ -57,3 +49,12 @@ dtr:
   ignore_table_content: false  # Use only table headers for representation.
   use_mined_negatives: false  # Use mined negatives as additional features.
   disabled_features: []  # Features to disable (for ablation studies)
+
+# Currently unused
+general:
+  seed: 42
+  use_bert: False
+  schema: True
+  pretraining: False
+  use_bm25: False
+  use_hnbm25: False

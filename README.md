@@ -40,7 +40,7 @@ retrieval_model_name=tapas_nq_hn_retriever_medium
 gsutil cp "gs://tapas_models/2021_04_27/${retrieval_model_name}.zip" . && unzip "${retrieval_model_name}.zip"
 rmdir $retrieval_model_name
 
-reader_model_name=tapas_nq_reader_larg
+reader_model_name=tapas_nq_reader_large
 gsutil cp "gs://tapas_models/2021_04_27/${reader_model_name}.zip" . && unzip "${reader_model_name}.zip"
 rmdir $reader_model_name
 
@@ -49,26 +49,58 @@ bash/download_retriever.bash
 bash/download_reader.bash
 ```
 
-You can change the retrieval model name to any one of the checkpoints listed [here](misc/model_list.md).
+You can change the retrieval model name to any one of the checkpoints listed [here](misc/model_list.md). Currently, the above lines install the versions used in the original paper.
 
 ## **Running**
 
-To run the code, we must first create the data to use. This can be done with the following scripts:
+Before we continue, do note that you can adjust the configurations for each script listed below in their respective config files. They can be found [here](configs) and are named based on which file uses them.
+
+### **Retrieval**
+
+There are several steps present to run all the experiments, which are outlined below:
+
+1.  Model pre-training.
+2.  Model fine-tuning.
+3.  The selection of the best checkpoint w.r.t a retrieval metric (i.e., `eval_precision_at_1`) in the local setting (which considers all tables that appear in the dev set as the corpus). These metrics are printed to XM.
+4.  Produce global predictions for the selected best checkpoint - these consist of representations for all tables in the corpus.
+5.  Generate retrieval metrics w.r.t to the global setting, and write KNN tables ids and scores for each query to a JSON file (to be used for negatives mining or E2E QA).
+
+We must thus first create the data to use. This can be done with the following script (note that running the below script is very time-consuming and resource intensive due to the sheer data size):
 ```sh
 python convert_data.py
 ```
 
-Afterwards, we just need to do the following:
+Then we can run the dual encoder experiment:
+```sh
+python retrieval_main.py
+```
+
+By default, the above script only performs prediction, as training the model fully is outside the scope of this study.
+
+Now, all that needs to be done is to run the evaluation to print recall@k scores in the global setting given the best
+model (e.g., 5K checkpoint in this case). This process generates the KNN of the most similar tables per query and their similarity scores to a `jsonl` file.
+
+*   Set `prediction_files_local` to the best model output. This file holds the query ids, their representations, and the ids for the gold table.
+*   Set `prediction_files_global` to the output path of the last step.
 
 ```sh
-# For getting the BM25 results
-python bm25_retrieval.py
-
-# Running the main experiments
-python main.py
+# Set the step parameter value according to the best dev results. The train and tables predictions generated in the previous step will only exist for this step.
+python eval_retriever.py
 ```
-You can adjust the configurations for each component [here](configs/base.yaml).
 
+### **Reading**
+
+We now move on to the reading phase. 
+First, we create the training data:
+```sh
+python create_e2e.py
+python reader_main.py 
+```
+
+Now we can run the main experiment script, which can be achieved by changing the mode to `predict_and_evaluate` in the `.yaml`:
+```sh
+python reader_main.py 
+```
 
 ## **Citations**
 

@@ -1,0 +1,29 @@
+# This config is used for the retrieval_main file
+base:
+  data_format: "tfrecord"
+  input_file_train: []
+  input_file_eval: null #'/media/stefan/My Passport/NQ-Tables/nq-tables2/tf_examples/nq_tables_interactions_dev.tfrecord'
+  input_file_predict: '/media/stefan/My Passport/NQ-Tables/nq-tables2/tf_examples/nq_tables_interactions_test.tfrecord'
+  prediction_output_dir: null
+  init_checkpoint: null
+  max_seq_length: 512
+  minutes_to_sleep_before_predictions: 5
+  do_train: false
+  do_eval: false
+  do_predict: true
+  eval_name: "default"
+  grad_clipping: null
+  down_projection_dim: 0
+  init_from_single_encoder: true
+  max_query_length: 128
+  compression_type: ""
+  evaluated_checkpoint_step: null
+  evaluated_checkpoint_metric: null
+  use_out_of_core_negatives: false
+  mask_repeated_tables: false
+  mask_repeated_questions: false
+  ignore_table_content: false
+  use_mined_negatives: false
+  disabled_features: []
+  learning_rate: 1e-5
+  use_tpu: false

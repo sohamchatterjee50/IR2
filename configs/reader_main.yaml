@@ -1,0 +1,27 @@
+# This config is for the main reader script
+base:
+  input_dir: null
+  output_dir: ../
+  model_dir: null
+  task: NQ_RETRIEVAL
+  bert_vocab_file: ../tapas_nq_hn_retriever_tiny/vocab.txt # "this is equal to {reader_model_name}/vocab.txt. Example of the name: `tapas_masklm_large`"
+  bert_config_file: ../tapas_nq_hn_retriever_tiny/bert_config.json
+  init_checkpoint: null
+  tapas_verbosity: null
+  test_batch_size: 32
+  train_batch_size: null
+  gradient_accumulation_steps: 1
+  iterations_per_loop: 1000
+  test_mode: false
+  tf_random_seed: null
+  max_seq_length: 512
+  mode: "train" # create_data, train, predict_and_evaluate, evaluate, predict
+  loop_predict: true
+  compression_type: "GZIP"
+  reset_position_index_per_cell: false
+  prune_columns: false
+  reset_output_cls: false
+  use_document_title: false
+  update_answer_coordinates: false
+  drop_rows_to_fit: false
+  table_pruning_config_file: null

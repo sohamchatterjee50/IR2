@@ -19,7 +19,7 @@ from tapas.datasets import dataset
 from tapas.datasets import table_dataset
 from tapas.models.bert import modeling
 from tapas.models.bert import optimization
-from tapas.models.bert import table_bert
+from tapas.utils import table_bert
 from tapas.utils import attention_utils
 
 import tensorflow._api.v2.compat.v1 as tf

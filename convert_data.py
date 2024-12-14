@@ -4,7 +4,7 @@ import hydra
 from argparse import Namespace
 from omegaconf import DictConfig
 from apache_beam.runners.direct import direct_runner
-from data_processing.utils import io_utils, base_utils, create_utils
+from tapas.utils import io_utils, base_utils, create_utils
 
 
 # Extra utility to convert from string to ConverterImplType
@@ -39,10 +39,10 @@ def run(inputs, outputs, input_format, args):
     ).wait_until_finish()
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="base")
+@hydra.main(version_base=None, config_path="configs", config_name="conversion")
 def main(cfg: DictConfig):
 
-    hydra_args = cfg.get("conversion")
+    hydra_args = cfg.get("base")
     args = Namespace(**hydra_args)
 
     inputs, outputs = io_utils.get_inputs_outputs(

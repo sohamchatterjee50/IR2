@@ -1,43 +1,25 @@
-# coding=utf-8
-# Copyright 2019 The Google AI Language Team Authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""TAPAS BERT model for classification."""
+## TAPAS BERT model used for Classification
 
-import dataclasses
-import enum
-import json
-from typing import Iterable, List, Mapping, Optional, Set, Text
-
-from tapas.datasets import dataset
-from tapas.datasets import table_dataset
-from tapas.models import segmented_tensor
-from tapas.models import tapas_classifier_model_utils as utils
-from tapas.models.bert import modeling
-from tapas.models.bert import optimization
-from tapas.utils import table_bert
-from tapas.utils import attention_utils
-from tapas.utils import span_prediction_utils
-from tapas.utils import table_pruning
-import tensorflow._api.v2.compat.v1 as tf
-from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
+import enum, json, dataclasses
 import tensorflow_probability as tfp
+import tensorflow._api.v2.compat.v1 as tf
+from typing import List, Mapping, Optional, Text
+from tapas.utils import (
+    table_bert,
+    table_utils,
+    table_pruning,
+    dataset_utils,
+    attention_utils,
+    classifier_model_utils,
+    span_prediction_utils,
+)
+from tapas.models import segmented_tensor
+from tapas.models.bert import modeling, optimization
+from tapas.utils.constants import EPSILON_ZERO_DIVISION, CLOSE_ENOUGH_TO_LOG_ZERO
+from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 
 SpanPredictionMode = span_prediction_utils.SpanPredictionMode
-
-_EPSILON_ZERO_DIVISION = utils.EPSILON_ZERO_DIVISION
-_CLOSE_ENOUGH_TO_LOG_ZERO = utils.CLOSE_ENOUGH_TO_LOG_ZERO
-_classification_initializer = utils.classification_initializer
+_classification_initializer = classifier_model_utils.classification_initializer
 
 
 class AverageApproximationFunction(str, enum.Enum):
@@ -55,7 +37,6 @@ class TapasClassifierConfig:
     learning_rate: Optimizer learning rate.
     num_train_steps: Total number of training steps for optimizer schedule.
     num_warmup_steps: Number of training steps to warm up optimizer.
-    use_tpu: Use TPU for training.
     positive_weight: Weight for positive labels.
     num_aggregation_labels: The number of aggregation classes to predict.
     num_classification_labels: The number of classes to predict.
@@ -123,7 +104,6 @@ class TapasClassifierConfig:
     learning_rate: float
     num_train_steps: Optional[int]
     num_warmup_steps: Optional[int]
-    use_tpu: bool
     positive_weight: float
     num_aggregation_labels: int
     num_classification_labels: int
@@ -175,8 +155,10 @@ class TapasClassifierConfig:
             def default(self, o):
                 if dataclasses.is_dataclass(o):
                     return dataclasses.asdict(o)
+                
                 if isinstance(o, modeling.BertConfig):
                     return o.to_dict()
+                
                 return super().default(o)
 
         return json.dumps(self, indent=2, sort_keys=True, cls=EnhancedJSONEncoder)
@@ -195,13 +177,14 @@ class TapasClassifierConfig:
             json_object["bert_config"]
         )
         # Delete deprecated option, if present.
-        # TODO See of we can filter everything that's not an argument.
         if "restrict_attention" in json_object:
             del json_object["restrict_attention"]
+
         if for_prediction:
             # Disable training-only option to reduce input requirements.
             json_object["use_answer_as_supervision"] = False
             json_object["init_checkpoint"] = None
+
         return TapasClassifierConfig(**json_object)
 
     @classmethod
@@ -217,6 +200,7 @@ def _get_probs(dist):
     # In tensorflow_probabiliy 0.7 this attribute was filled on __init__ method
     if dist.probs is not None:
         return dist.probs
+
     # From 0.8 onwards the probs is not filled and a function should be used
     return dist.probs_parameter()
 
@@ -238,6 +222,7 @@ def _calculate_aggregation_logits(
         output_layer_aggregation, output_weights_agg, transpose_b=True
     )
     logits_aggregation = tf.nn.bias_add(logits_aggregation, output_bias_agg)
+
     return logits_aggregation
 
 
@@ -264,6 +249,7 @@ def _calculate_aggregation_loss_known(
     if config.use_answer_as_supervision:
         # Prepare "no aggregation" targets for cell selection examples.
         target_aggregation = tf.zeros_like(aggregate_mask, dtype=tf.int32)
+
     else:
         # Use aggregation supervision as the target.
         target_aggregation = aggregation_function_id
@@ -280,6 +266,7 @@ def _calculate_aggregation_loss_known(
         # Accumulate loss only for examples requiring cell selection
         # (no aggregation).
         return per_example_aggregation_intermediate * (1 - aggregate_mask)
+
     else:
         return per_example_aggregation_intermediate
 
@@ -311,6 +298,7 @@ def _calculate_aggregation_loss(
         per_example_aggregation_loss += _calculate_aggregation_loss_unknown(
             logits_aggregation, aggregate_mask
         )
+
     return config.aggregation_loss_importance * per_example_aggregation_loss
 
 
@@ -331,6 +319,7 @@ def _calculate_expected_result(
             logits=dist_per_cell.logits_parameter() * config.temperature,
         )
         scaled_probability_per_cell = gumbel_dist.sample()
+
     else:
         scaled_probability_per_cell = _get_probs(dist_per_cell)
 
@@ -347,7 +336,8 @@ def _calculate_expected_result(
     )
     avg_approximation = config.average_approximation_function
     if avg_approximation == AverageApproximationFunction.RATIO:
-        average_result = sum_result / (count_result + _EPSILON_ZERO_DIVISION)
+        average_result = sum_result / (count_result + EPSILON_ZERO_DIVISION)
+
     elif avg_approximation == AverageApproximationFunction.FIRST_ORDER:
         # The sum of all probabilities exept that correspond to other cells
         ex = (
@@ -358,6 +348,7 @@ def _calculate_expected_result(
         average_result = tf.reduce_sum(
             numeric_values_masked * scaled_probability_per_cell / ex, axis=1
         )
+
     elif avg_approximation == AverageApproximationFunction.SECOND_ORDER:
         # The sum of all probabilities exept that correspond to other cells
         ex = (
@@ -371,6 +362,7 @@ def _calculate_expected_result(
         average_result = tf.reduce_sum(
             numeric_values_masked * scaled_probability_per_cell * multiplier, axis=1
         )
+
     else:
         tf.logging.error(
             "Invalid average_approximation_function: %s",
@@ -383,6 +375,7 @@ def _calculate_expected_result(
         )
         # <float32>[batch_size, num_aggregation_labels - 1]
         aggregation_op_only_probs = gumbel_dist.sample()
+
     else:
         # <float32>[batch_size, num_aggregation_labels - 1]
         aggregation_op_only_probs = tf.nn.softmax(
@@ -397,6 +390,7 @@ def _calculate_expected_result(
         axis=1,
     )
     expected_result = tf.reduce_sum(all_results * aggregation_op_only_probs, axis=1)
+
     return expected_result
 
 
@@ -444,7 +438,7 @@ def _calculate_regression_loss(
     if config.use_normalized_answer_loss:
         normalizer = tf.stop_gradient(
             tf.math.maximum(tf.math.abs(expected_result), tf.math.abs(answer_masked))
-            + _EPSILON_ZERO_DIVISION
+            + EPSILON_ZERO_DIVISION
         )
         normalized_answer_masked = answer_masked / normalizer
         normalized_expected_result = expected_result / normalizer
@@ -454,6 +448,7 @@ def _calculate_regression_loss(
             delta=tf.cast(config.huber_loss_delta, tf.float32),
             reduction=tf.losses.Reduction.NONE,
         )
+
     else:
         per_example_answer_loss = tf.losses.huber_loss(
             answer_masked * aggregate_mask,
@@ -463,6 +458,7 @@ def _calculate_regression_loss(
         )
     if config.answer_loss_cutoff is None:
         large_answer_loss_mask = tf.ones_like(per_example_answer_loss, dtype=tf.float32)
+
     else:
         large_answer_loss_mask = tf.where(
             per_example_answer_loss > config.answer_loss_cutoff,
@@ -472,6 +468,7 @@ def _calculate_regression_loss(
     per_example_answer_loss_scaled = config.answer_loss_importance * (
         per_example_answer_loss * aggregate_mask
     )
+
     return per_example_answer_loss_scaled, large_answer_loss_mask
 
 
@@ -526,6 +523,7 @@ def _calculate_aggregate_mask(
         aggregate_mask_init,
     )
     aggregate_mask = tf.stop_gradient(aggregate_mask)
+
     return aggregate_mask
 
 
@@ -552,6 +550,7 @@ def compute_classification_logits(num_classification_labels, output_layer):
     )
     logits_cls = tf.matmul(output_layer, output_weights_cls, transpose_b=True)
     logits_cls = tf.nn.bias_add(logits_cls, output_bias_cls)
+
     return logits_cls
 
 
@@ -613,7 +612,7 @@ def _single_column_cell_selection_loss(
     cell_log_prob = cell_dist.log_prob(labels_per_cell)
     cell_loss = -tf.reduce_sum(cell_log_prob * column_mask * cell_mask, axis=1)
     # We need to normalize the loss by the number of cells in the column.
-    cell_loss /= tf.reduce_sum(column_mask * cell_mask, axis=1) + _EPSILON_ZERO_DIVISION
+    cell_loss /= tf.reduce_sum(column_mask * cell_mask, axis=1) + EPSILON_ZERO_DIVISION
 
     selection_loss_per_example = column_loss_per_example
     selection_loss_per_example += tf.where(
@@ -634,7 +633,7 @@ def _single_column_cell_selection_loss(
         tf.zeros_like(selected_column_mask),
         selected_column_mask,
     )
-    logits_per_cell += _CLOSE_ENOUGH_TO_LOG_ZERO * (
+    logits_per_cell += CLOSE_ENOUGH_TO_LOG_ZERO * (
         1.0 - cell_mask * selected_column_mask
     )
     logits = segmented_tensor.gather(logits_per_cell, cell_index)
@@ -728,7 +727,7 @@ def _get_classification_outputs(
     cell_mask, _ = segmented_tensor.reduce_mean(input_mask_float, cell_index)
 
     # Compute logits per token. These are used to select individual cells.
-    logits = utils.compute_token_logits(
+    logits = classifier_model_utils.compute_token_logits(
         output_layer=output_layer,
         temperature=config.temperature,
         init_cell_selection_weights_to_zero=(
@@ -738,7 +737,7 @@ def _get_classification_outputs(
 
     # Compute logits per column. These are used to select a column.
     if config.select_one_column:
-        column_logits = utils.compute_column_logits(
+        column_logits = classifier_model_utils.compute_column_logits(
             output_layer=output_layer,
             cell_index=cell_index,
             cell_mask=cell_mask,
@@ -748,7 +747,6 @@ def _get_classification_outputs(
             allow_empty_column_selection=config.allow_empty_column_selection,
         )
 
-    # TODO(pawelnow): Extract this into a function.
     # Compute aggregation function logits.
     do_model_aggregation = config.num_aggregation_labels > 0
     if do_model_aggregation:
@@ -825,7 +823,7 @@ def _get_classification_outputs(
             selection_loss_per_token = -dist_per_token.log_prob(label_ids) * weight
             selection_loss_per_example = tf.reduce_sum(
                 selection_loss_per_token * input_mask_float, axis=1
-            ) / (tf.reduce_sum(input_mask_float, axis=1) + _EPSILON_ZERO_DIVISION)
+            ) / (tf.reduce_sum(input_mask_float, axis=1) + EPSILON_ZERO_DIVISION)
 
         ### Logits for the aggregation function
         #########################################
@@ -1107,7 +1105,7 @@ def model_fn_builder(
         )
 
         answer, numeric_values, numeric_values_scale = (
-            utils.extract_answer_from_features(
+            classifier_model_utils.extract_answer_from_features(
                 features=features,
                 use_answer_as_supervision=config.use_answer_as_supervision,
             )
@@ -1161,6 +1159,7 @@ def model_fn_builder(
         def add_init_checkpoint(init_checkpoint, scope=None):
             if not init_checkpoint:
                 return
+
             (assignment_map, initialized_variables) = (
                 modeling.get_assignment_map_from_checkpoint(
                     tvars, init_checkpoint, scope=scope
@@ -1176,26 +1175,19 @@ def model_fn_builder(
         )
 
         if init_from_checkpoints:
-            if config.use_tpu:
-
-                def tpu_scaffold():
-                    for init_checkpoint, assignment_map in init_from_checkpoints:
-                        tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
-                    return tf.train.Scaffold()
-
-                scaffold_fn = tpu_scaffold
-            else:
-                for init_checkpoint, assignment_map in init_from_checkpoints:
-                    tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
+            for init_checkpoint, assignment_map in init_from_checkpoints:
+                tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
         fail_if_missing = init_from_checkpoints and params.get(
             "fail_if_missing_variables_in_checkpoint", False
         )
         tf.logging.info("**** Trainable Variables ****")
         for var in tvars:
+
             init_string = ""
             if var.name in initialized_variable_names:
                 init_string = ", *INIT_FROM_CKPT*"
+
             elif fail_if_missing:
                 if "layer_norm" not in var.name and "LayerNorm" not in var.name:
                     tf.logging.fatal("Variable not found in checkpoint: %s", var.name)
@@ -1210,7 +1202,7 @@ def model_fn_builder(
                 config.learning_rate,
                 config.num_train_steps,
                 config.num_warmup_steps,
-                config.use_tpu,
+                optimizer="adamw",
                 gradient_accumulation_steps=params.get(
                     "gradient_accumulation_steps", 1
                 ),
@@ -1220,6 +1212,7 @@ def model_fn_builder(
             output_spec = tf_estimator.tpu.TPUEstimatorSpec(
                 mode=mode, loss=total_loss, train_op=train_op, scaffold_fn=scaffold_fn
             )
+
         elif mode == tf_estimator.ModeKeys.EVAL:
             eval_metrics = (
                 _calculate_eval_metrics_fn,
@@ -1252,12 +1245,15 @@ def model_fn_builder(
             }
             if column_scores is not None:
                 predictions["column_scores"] = column_scores
+
             if table_selector_output.token_scores is not None:
                 predictions["token_scores"] = table_selector_output.token_scores
+
             if "question_id" in features:
                 # Only available when predicting on GPU.
                 predictions["question_id"] = features["question_id"]
                 del predictions["question_id_ints"]
+
             if do_model_aggregation:
                 predictions.update(
                     {
@@ -1269,6 +1265,7 @@ def model_fn_builder(
                         ),
                     }
                 )
+
             if do_model_classification:
                 predictions.update(
                     {
@@ -1280,6 +1277,7 @@ def model_fn_builder(
                         ),
                     }
                 )
+
                 if config.num_classification_labels == 2:
                     predictions.update(
                         {
@@ -1287,17 +1285,21 @@ def model_fn_builder(
                             - outputs.logits_cls[:, 0]
                         }
                     )
+
                 else:
                     predictions.update({"logits_cls": outputs.logits_cls})
+
             if outputs.span_indexes is not None and outputs.span_logits is not None:
                 predictions.update({"span_indexes": outputs.span_indexes})
                 predictions.update({"span_logits": outputs.span_logits})
 
             if custom_prediction_keys:
                 predictions = {key: predictions[key] for key in custom_prediction_keys}
+
             output_spec = tf_estimator.tpu.TPUEstimatorSpec(
                 mode=mode, predictions=predictions, scaffold_fn=scaffold_fn
             )
+
         return output_spec
 
     return model_fn
@@ -1318,10 +1320,10 @@ def input_fn(
     params,
 ):
     """Returns an input_fn compatible with the tf.estimator API."""
-    parse_example_fn = table_dataset.parse_table_examples(
+    parse_example_fn = table_utils.parse_table_examples(
         max_seq_length=max_seq_length,
         max_predictions_per_seq=max_predictions_per_seq,
-        task_type=table_dataset.TableTask.CLASSIFICATION,
+        task_type=table_utils.TableTask.CLASSIFICATION,
         add_aggregation_function_id=add_aggregation_function_id,
         add_classification_labels=add_classification_labels,
         add_answer=add_answer,
@@ -1330,7 +1332,8 @@ def input_fn(
         max_num_candidates=0,
         params=params,
     )
-    ds = dataset.read_dataset(
+
+    ds = dataset_utils.read_dataset(
         parse_example_fn,
         name=name,
         file_patterns=file_patterns,
@@ -1339,4 +1342,5 @@ def input_fn(
         is_training=is_training,
         params=params,
     )
+
     return ds

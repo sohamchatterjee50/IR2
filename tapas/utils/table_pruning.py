@@ -1,35 +1,19 @@
-# coding=utf-8
-# Copyright 2019 The Google AI Language Team Authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""Defines the methods to use for table pruning."""
+## Defines the Table Pruning Methods
 
-from typing import Any, Callable, Dict, List, Optional, Text
 
 import dataclasses
+import tensorflow._api.v2.compat.v1 as tf
 
+from typing import Callable, Dict, Optional, Text
+from google.protobuf import text_format
+from tapas.utils import table_bert
+from tapas.utils.constants import PRUNING_SCOPE, _SEQUENCE_OUTPUT_KEEP_PROB
 from tapas.models import segmented_tensor
 from tapas.models import tapas_classifier_model_utils as utils
 from tapas.models.bert import modeling
-from tapas.utils import table_bert
 from tapas.protos import table_pruning_pb2
-import tensorflow._api.v2.compat.v1 as tf
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 
-from google.protobuf import text_format
-
-PRUNING_SCOPE = "pruning"
-_SEQUENCE_OUTPUT_KEEP_PROB = 0.9
 
 _Loss = table_pruning_pb2.Loss
 _TablePruningModel = table_pruning_pb2.TablePruningModel
@@ -146,7 +130,9 @@ class ModelPruningSelector(TablePruningSelector):
             input_shape = modeling.get_shape_list(input_mask, expected_rank=2)
             seq_len = input_shape[1]
             reduced_features = {}
+
             for k, v in features.items():
+
                 if v is not None:
                     v_shape = v.shape.as_list()
                     if len(v_shape) == 2 and v_shape[1] == seq_len:
@@ -154,8 +140,10 @@ class ModelPruningSelector(TablePruningSelector):
                         reduced_features[k] = tf.gather_nd(
                             params=v, indices=indexes, batch_dims=1
                         )
+
                     else:
                         reduced_features[k] = v
+
             return reduced_features
 
         return gather_top_k
@@ -169,6 +157,7 @@ class ModelPruningSelector(TablePruningSelector):
         # <int32>[batch_size, max_num_tokens]
         sorted_indexes = tf.math.top_k(scores_mask, self._max_num_tokens)[1]
         # <int32>[batch_size, max_num_tokens, 1]
+
         return tf.expand_dims(sorted_indexes, -1)
 
     def _gather_scores(self, scores, input_mask):
@@ -216,8 +205,7 @@ class ModelPruningSelector(TablePruningSelector):
 
     def _computes_column_and_token_scores(self, mode, features):
         """Computes column_scores, column_probs, column_score_mask, token_scores."""
-        column_ids = features["column_ids"]
-        input_mask = features["input_mask"]
+        column_ids, input_mask = features["column_ids"], features["input_mask"]
         # <float32>[batch_size, max_num_columns]
         column_scores = self.select_columns(mode, features)
         column_stats = self._compute_columns_stats(column_scores, column_ids)
@@ -229,6 +217,7 @@ class ModelPruningSelector(TablePruningSelector):
             input_mask=input_mask,
             max_num_columns=self._max_num_columns,
         )
+
         return Scores(
             column_scores=column_stats.column_scores,
             column_probs=column_probs,
@@ -289,13 +278,17 @@ class TapasPruningSelector(ModelPruningSelector):
     def _compute_column_scores_from_token_scores(self, mode, output_layer, features):
         """Gets the columns scores by avereging the tokens scores."""
         with tf.variable_scope(PRUNING_SCOPE, reuse=tf.AUTO_REUSE):
+
             if mode == tf_estimator.ModeKeys.TRAIN:
                 output_layer = tf.nn.dropout(
                     output_layer, keep_prob=_SEQUENCE_OUTPUT_KEEP_PROB
                 )
-            input_mask = features["input_mask"]
-            row_ids = features["row_ids"]
-            column_ids = features["column_ids"]
+
+            input_mask, row_ids, column_ids = (
+                features["input_mask"],
+                features["row_ids"],
+                features["column_ids"],
+            )
 
             # Construct indices for the table.
             row_index = segmented_tensor.IndexMap(
@@ -303,6 +296,7 @@ class TapasPruningSelector(ModelPruningSelector):
                 num_segments=self._max_num_rows,
                 batch_dims=1,
             )
+
             col_index = segmented_tensor.IndexMap(
                 indices=tf.minimum(column_ids, self._max_num_columns),
                 num_segments=self._max_num_columns + 1,
@@ -328,10 +322,12 @@ class TapasPruningSelector(ModelPruningSelector):
             column_scores = tf.debugging.assert_all_finite(
                 column_scores, "column_scores contains nan values."
             )
+
             return column_scores
 
     def _select_columns(self, mode, features):
         with tf.variable_scope(PRUNING_SCOPE, reuse=tf.AUTO_REUSE):
+
             model = table_bert.create_model(
                 features=features,
                 mode=mode,
@@ -341,14 +337,17 @@ class TapasPruningSelector(ModelPruningSelector):
             output_layer = model.get_sequence_output()
             self._output_layer = model.get_sequence_output()
             self._pooled_output = model.get_pooled_output()
+
         column_scores = self._compute_column_scores_from_token_scores(
             mode=mode, output_layer=output_layer, features=features
         )
+
         return column_scores
 
     def _compute_token_scores(self, mode, features):
         """Computes the token probabilities using the pruning tapas outputlayer."""
         with tf.variable_scope(PRUNING_SCOPE, reuse=tf.AUTO_REUSE):
+
             model = table_bert.create_model(
                 features=features,
                 mode=mode,
@@ -358,10 +357,12 @@ class TapasPruningSelector(ModelPruningSelector):
             output_layer = model.get_sequence_output()
             self._output_layer = model.get_sequence_output()
             self._pooled_output = model.get_pooled_output()
+
             if mode == tf_estimator.ModeKeys.TRAIN:
                 output_layer = tf.nn.dropout(
                     output_layer, keep_prob=_SEQUENCE_OUTPUT_KEEP_PROB
                 )
+
             # No temperature is used.
             token_logits = utils.compute_token_logits(
                 output_layer=output_layer,
@@ -372,8 +373,7 @@ class TapasPruningSelector(ModelPruningSelector):
                 token_logits, "token_logits contains nan values."
             )
             proba_tokens = tf.sigmoid(token_logits)
-            input_mask = features["input_mask"]
-            column_ids = features["column_ids"]
+            input_mask, column_ids = features["input_mask"], features["column_ids"]
             question_mask_proba_tokens = tf.where(
                 column_ids <= tf.zeros_like(column_ids),
                 tf.ones_like(proba_tokens),
@@ -382,13 +382,16 @@ class TapasPruningSelector(ModelPruningSelector):
             input_mask_proba_tokens = question_mask_proba_tokens * tf.cast(
                 input_mask, dtype=tf.float32
             )
+
             return input_mask_proba_tokens
 
     def _computes_column_and_token_scores(self, mode, features):
+
         if self._config.selection == _Tapas.Selection.COLUMNS:
             return super(TapasPruningSelector, self)._computes_column_and_token_scores(
                 mode, features
             )
+
         elif self._config.selection == _Tapas.Selection.TOKENS:
             # <float32>[batch_size, seq_length]
             token_scores = self._compute_token_scores(mode, features)
@@ -398,12 +401,14 @@ class TapasPruningSelector(ModelPruningSelector):
             )
             column_ids = features["column_ids"]
             columns_stats = self._compute_columns_stats(column_scores, column_ids)
+
             return Scores(
                 column_scores=columns_stats.column_scores,
                 column_probs=columns_stats.column_probs,
                 column_score_mask=columns_stats.column_score_mask,
                 token_scores=token_scores,
             )
+
         else:
             raise NotImplementedError(
                 f"Tapas.Selection not implemented {self._config.selection}"
@@ -451,10 +456,11 @@ class AverageCosineSimilaritySelector(ModelPruningSelector):
         self._use_positional_embeddings = config.use_positional_embeddings
 
     def _select_columns(self, mode, features):
-        input_mask = features["input_mask"]
-        column_ids = features["column_ids"]
+        input_mask, column_ids = features["input_mask"], features["column_ids"]
         with tf.variable_scope("bert"):
+
             with tf.variable_scope("embeddings", reuse=tf.compat.v1.AUTO_REUSE):
+
                 input_embeddings, _ = modeling.embedding_lookup(
                     input_ids=features["input_ids"],
                     vocab_size=self._vocab_size,
@@ -462,6 +468,7 @@ class AverageCosineSimilaritySelector(ModelPruningSelector):
                     initializer_range=self._initializer_range,
                     word_embedding_name="word_embeddings",
                 )
+
                 if self._use_positional_embeddings:
                     token_type_ids = []
                     token_type_features = [
@@ -474,13 +481,16 @@ class AverageCosineSimilaritySelector(ModelPruningSelector):
                         "numeric_relations",
                     ]
                     for key in token_type_features:
+
                         if (
                             self._disabled_features is not None
                             and key in self._disabled_features
                         ):
                             token_type_ids.append(tf.zeros_like(features[key]))
+
                         else:
                             token_type_ids.append(features[key])
+
                     input_embeddings = modeling.embedding_postprocessor(
                         input_tensor=input_embeddings,
                         use_token_type=True,
@@ -522,6 +532,7 @@ class AverageCosineSimilaritySelector(ModelPruningSelector):
                 column_scores = tf.math.reduce_sum(
                     multiply, axis=-1, name="column_scores"
                 )
+
                 return column_scores
 
     def should_add_classification_loss(self):
@@ -543,6 +554,7 @@ def create_selector(
     """Activates the scoring model according to table pruning config."""
     if not table_pruning_config_file:
         return NoTablePruning()
+
     config = table_pruning_pb2.TablePruningModel()
     with tf.gfile.Open(table_pruning_config_file) as input_file:
         # ParseLines
@@ -551,6 +563,7 @@ def create_selector(
         )
     model = config.WhichOneof("table_pruning_model")
     max_num_tokens = config.max_num_tokens
+
     if model == "avg_cos_similarity":
         return AverageCosineSimilaritySelector(
             vocab_size=vocab_size,
@@ -564,6 +577,7 @@ def create_selector(
             config=config.avg_cos_similarity,
             max_num_tokens=max_num_tokens,
         )
+
     elif model == "tapas":
         return TapasPruningSelector(
             config=config.tapas,
@@ -572,11 +586,13 @@ def create_selector(
             max_num_rows=max_num_rows,
         )
     elif model == "first_tokens":
+
         return OnesTablePruning(
             config=config.first_tokens,
             max_num_columns=max_num_columns,
             max_num_tokens=max_num_tokens,
         )
+
     else:
         raise NotImplementedError(f"TablePruningModel not implemented {model}")
 
@@ -620,16 +636,20 @@ class Unsupervised(LossSelector):
     ):
         if self._regularization == _Regularization.NONE:
             return None
+
         elif self._regularization == _Regularization.L1:
             # token_scores: <float32>[batch_size, seq_length]
             return tf.reduce_mean(token_scores)
+
         elif self._regularization == _Regularization.L2:
             # token_scores: <float32>[batch_size, seq_length]
             return tf.reduce_mean(token_scores**2)
+
         elif self._regularization == _Regularization.L1_L2:
             # token_scores: <float32>[batch_size, seq_length]
             batch_l1 = tf.reduce_mean(token_scores, axis=1)
             return tf.reduce_mean(batch_l1 * batch_l1)
+
         else:
             raise NotImplementedError(
                 f"Unsupervised loss is not implemented {self._regularization}"
@@ -642,6 +662,7 @@ def create_loss_selector(config, max_num_tokens):
     loss = config_loss.WhichOneof("loss")
     if loss == "unsupervised":
         return Unsupervised(config_loss, max_num_tokens)
+
     else:
         raise NotImplementedError(f"LossSelector not implemented {loss}")
 
@@ -693,10 +714,13 @@ class TopK(MaskTopK):
 def create_hard_selection_selector(config, max_num_tokens):
     if config.selection_fn == _HardSelection.SelectionFn.ALL:
         return NoHardSelection()
+
     elif config.selection_fn == _HardSelection.SelectionFn.TOP_K:
         return TopK(max_num_tokens=max_num_tokens)
+
     elif config.selection_fn == _HardSelection.SelectionFn.MASK_TOP_K:
         return MaskTopK(max_num_tokens=max_num_tokens)
+
     else:
         raise NotImplementedError(
             f"HardSelection not implemented {config.selection_fn}"
@@ -731,6 +755,7 @@ def get_mask_columns_scores(max_num_columns, column_ids, scores):
     condition = tf.math.less(ranges, max_num_columns_ids)
     # <float32>[batch_size, max_num_columns]
     column_score_mask = tf.cast(condition, dtype=tf.float32)
+
     return column_score_mask
 
 
@@ -805,6 +830,7 @@ def get_table_pruning_loss(
             )
         )
         with tf.variable_scope(PRUNING_SCOPE, reuse=tf.AUTO_REUSE):
+
             outputs_pruning = classification_fun(
                 config=config,
                 output_layer=table_selector.get_sequence_output(),
@@ -821,8 +847,11 @@ def get_table_pruning_loss(
                 column_ids=initial_features["column_ids"],
                 classification_class_index=init_classification_class_index,
             )
+
             if table_pruning_loss is not None:
                 table_pruning_loss += outputs_pruning.total_loss
+
             else:
                 table_pruning_loss = outputs_pruning.total_loss
+
     return table_pruning_loss

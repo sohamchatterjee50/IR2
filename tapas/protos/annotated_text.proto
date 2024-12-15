@@ -15,7 +15,7 @@ syntax = "proto2";
 
 package language.tapas;
 
-import "data_processing/protos/interaction.proto";
+import "tapas/protos/interaction.proto";
 
 message AnnotatedText {
   extend language.tapas.Question {

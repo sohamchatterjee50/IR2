@@ -30,6 +30,13 @@ class InnerProductNearestNeighbors:
           2D Array of inner product between each query and the nearest neighbors.
           2D Array of nearest neighbors index for each query.
         """
+        # Error handling for _n_neighbors due to shapes
+        if self._n_neighbors > self._candidates.shape[0]:
+            print(
+                f"Warning: Requested {self._n_neighbors} neighbors, but only {self._candidates.shape[0]} candidates available"
+            )
+            self._n_neighbors = self._candidates.shape[0]
+
         # <float>[num_queries, num_candidates]
         distances = np.matmul(queries, self._candidates.T)
         # <int>[num_queries, n_neighbors]

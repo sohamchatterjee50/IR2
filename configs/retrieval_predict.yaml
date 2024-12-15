@@ -1,0 +1,34 @@
+# This config is the version used in the notebook
+base:
+  data_format: "tfrecord"
+  input_file_train: []
+  input_file_eval: null
+  input_file_predict: "results/nq_retrieval/tf_examples/queries.tfrecord"
+  prediction_output_dir: "results/nq_retrieval/model/queries"
+  init_checkpoint: null
+  max_seq_length: 512
+  minutes_to_sleep_before_predictions: 0
+  do_train: false
+  do_eval: false
+  do_predict: true
+  eval_name: "dual_encoder_queries"
+  grad_clipping: null
+  down_projection_dim: 256
+  init_from_single_encoder: false
+  max_query_length: 128
+  compression_type: ""
+  evaluated_checkpoint_step: 0
+  evaluated_checkpoint_metric: null
+  use_out_of_core_negatives: false
+  mask_repeated_tables: false
+  mask_repeated_questions: false
+  ignore_table_content: false
+  use_mined_negatives: false
+  disabled_features: []
+  learning_rate: 1e-5
+  use_tpu: false
+  bert_config_file: "tapas_retriever/bert_config.json"
+  tf_random_seed: "1"
+  num_eval_steps: 0
+  model_dir: "results/nq_retrieval/model"
+  eval_batch_size: 1

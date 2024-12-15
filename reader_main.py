@@ -457,7 +457,6 @@ def _train_and_predict(
                 do_model_aggregation,
                 do_model_classification,
                 use_answer_as_supervision,
-                use_tpu=tapas_config.use_tpu,
                 global_step=current_step,
                 args=args,
             )
@@ -489,7 +488,6 @@ def _predict(
     do_model_aggregation,
     do_model_classification,
     use_answer_as_supervision,
-    use_tpu,
     global_step,
     args,
 ):
@@ -523,32 +521,29 @@ def _predict(
             args=args,
         )
     if task == tasks.Task.SQA:
-        if use_tpu:
-            _warn("Skipping SQA sequence evaluation because eval is running on TPU.")
 
-        else:
-            for test_set in TestSet:
-                _predict_sequence_for_set(
-                    estimator,
-                    do_model_aggregation,
-                    use_answer_as_supervision,
-                    example_file=_get_test_examples_file(task, output_dir, test_set),
-                    prediction_file=_get_test_prediction_file(
-                        task,
-                        model_dir,
-                        test_set,
-                        is_sequence=True,
-                        global_step=global_step,
-                    ),
-                    other_prediction_file=_get_test_prediction_file(
-                        task,
-                        model_dir,
-                        test_set,
-                        is_sequence=True,
-                        global_step=None,
-                    ),
-                    args=args,
-                )
+        for test_set in TestSet:
+            _predict_sequence_for_set(
+                estimator,
+                do_model_aggregation,
+                use_answer_as_supervision,
+                example_file=_get_test_examples_file(task, output_dir, test_set),
+                prediction_file=_get_test_prediction_file(
+                    task,
+                    model_dir,
+                    test_set,
+                    is_sequence=True,
+                    global_step=global_step,
+                ),
+                other_prediction_file=_get_test_prediction_file(
+                    task,
+                    model_dir,
+                    test_set,
+                    is_sequence=True,
+                    global_step=None,
+                ),
+                args=args,
+            )
 
 
 def _predict_for_set(
@@ -786,7 +781,7 @@ def main(cfg: DictConfig):
             args.test_mode,
             test_batch_size=args.test_batch_size,
             output_dir=output_dir,
-            args=args
+            args=args,
         )
 
     elif mode in (Mode.TRAIN, Mode.PREDICT_AND_EVALUATE, Mode.PREDICT):

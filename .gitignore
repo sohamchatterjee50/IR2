@@ -4,6 +4,7 @@ venv_ir
 # Data and results
 data
 outputs
+results
 
 # Models
 tapas_reader

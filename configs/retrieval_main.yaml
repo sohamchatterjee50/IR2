@@ -2,8 +2,8 @@
 base:
   data_format: "tfrecord"
   input_file_train: []
-  input_file_eval: null #'/media/stefan/My Passport/NQ-Tables/nq-tables2/tf_examples/nq_tables_interactions_dev.tfrecord'
-  input_file_predict: '/media/stefan/My Passport/NQ-Tables/nq-tables2/tf_examples/nq_tables_interactions_test.tfrecord'
+  input_file_eval: null
+  input_file_predict: "tf_examples/nq_tables_interactions_test.tfrecord"
   prediction_output_dir: null
   init_checkpoint: null
   max_seq_length: 512

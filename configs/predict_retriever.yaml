@@ -1,0 +1,30 @@
+base:
+  data_format: tfrecord
+  input_file_train: null
+  input_file_eval: null
+  input_file_predict: /media/stefan/My Passport/NQ-Tables/nq-tables2/tf_examples/nq_tables_interactions_train.tfrecord
+  prediction_output_dir: /media/stefan/My Passport/University/Courses/IR2/IR2/output/
+  init_checkpoint: null
+  max_seq_length: 512
+  minutes_to_sleep_before_predictions: 5
+  eval_name: "default"
+  learning_rate: 5e-5
+  do_predict: true
+  do_train: false
+  do_eval: false 
+  model_dir: ../tapas_nq_hn_retriever_tiny/
+  grad_clipping: null
+  eval_batch_size: 32
+  init_from_single_encoder: true
+  max_query_length: 128
+  compression_type: ""
+  down_projection_dim: 256
+  use_tpu: false
+  bert_config_file: ../tapas_nq_hn_retriever_tiny/bert_config.json
+  evaluated_checkpoint_step: null
+  evaluated_checkpoint_metric: precision_at_1
+  mask_repeated_tables: false
+  mask_repeated_questions: false
+  ignore_table_content: false
+  use_mined_negatives: false
+  disabled_features: []

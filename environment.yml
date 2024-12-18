@@ -1,4 +1,4 @@
-name: ir2
+name: ir2env
 channels:
   - defaults
 dependencies:

@@ -6,9 +6,11 @@
 #SBATCH --gpus=1
 #SBATCH --job-name=IR2
 #SBATCH --ntasks=1
-#SBATCH --time=00:10:00
+#SBATCH --time=07:00:00
 #SBATCH --mem=32000M
-#SBATCH --output=Setup1.out
+#SBATCH --output=run_reader_train2.out
+
+
 pip cache purge
 #module avail
 
@@ -30,13 +32,28 @@ pip cache purge
 module purge
 module load 2023
 module load Anaconda3/2023.07-2
+#module avail miniconda
 
 # Run your code
+#conda info --envs
+
+#conda env create -f environment.yml
+
+# cd /home/scur2840/IR2/Authors_Code/tapas-master
+cd /home/scur2840
+source activate ir2env
+which python
+which pip
+conda install pip
+which pip
+conda env update --file /home/scur2840/IR2-stefan/IR2/environment.yml --prune
 conda info --envs
-
-
 cd /home/scur2840/IR2-stefan/IR2
+srun python reader_main.py
 
-source activate env_ir5
+# virtualenv venv_ir
+# source venv_ir/bin/activate
+# pip install -r requirements.txt
 
-python retriever_predict.py
+
+

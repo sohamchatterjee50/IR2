@@ -226,7 +226,7 @@ def main(cfg: DictConfig):
         #     marker_file_prefix=marker_file_prefix,
         #     single_step=single_step,
         # ):
-        for current_step, checkpoint in [(0, "model.ckpt")]:
+        for current_step, checkpoint in [(0, "model.ckpt-11300")]:
             checkpoint = os.path.join(args.model_dir, checkpoint)
             print(checkpoint)
             try:

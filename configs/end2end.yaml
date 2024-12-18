@@ -1,8 +1,9 @@
 # This config is for the end-to-end (reader) experiment
 base:
-  input_dir: null
-  output_dir: null
-  index_files_pattern: null
+  input_dir: /scratch-shared/scur2840/nq-tables/processed_table_data/nq-tables2/interactions
+  output_dir: /home/scur2840/IR2-stefan/outputs/e2e/
+  table_file: /scratch-shared/scur2840/nq-tables/processed_table_data/nq-tables2/tables/nq_tables_tables_tables.tfrecord
+  index_files_pattern: /home/scur2840/IR2-stefan/outputs/knn/*_knn.jsonl 
   max_rank: 10
   title_multiplicator: 15
   oracle_retrieval: false

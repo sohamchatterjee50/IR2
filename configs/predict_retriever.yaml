@@ -1,9 +1,9 @@
 base:
   data_format: tfrecord
   input_file_train: null
-  input_file_eval: null
-  input_file_predict: /media/stefan/My Passport/NQ-Tables/nq-tables2/tf_examples/nq_tables_interactions_train.tfrecord
-  prediction_output_dir: /media/stefan/My Passport/University/Courses/IR2/IR2/output/
+  input_file_eval: /scratch-shared/scur2840/nq-tables/processed_table_data/nq-tables2/tf_examples/nq_table.tfrecord 
+  input_file_predict: /scratch-shared/scur2840/nq-tables/processed_table_data/nq-tables2/tf_examples/nq_tables_interactions_test.tfrecord #/scratch-shared/scur2840/nq-tables/processed_table_data/nq-tables2/tf_examples/nq_tables_interactions_train.tfrecord
+  prediction_output_dir: /home/scur2840/IR2-stefan/outputs/
   init_checkpoint: null
   max_seq_length: 512
   minutes_to_sleep_before_predictions: 5
@@ -11,8 +11,8 @@ base:
   learning_rate: 5e-5
   do_predict: true
   do_train: false
-  do_eval: false 
-  model_dir: ../tapas_nq_hn_retriever_tiny/
+  do_eval: false
+  model_dir: /scratch-shared/scur2840/checkpoints_50000/checkpoint/2024-12-10-14-47-53/ #/scratch-shared/scur2840/checkpoints_5000/checkpoint/2024-12-10-14-26-47/
   grad_clipping: null
   eval_batch_size: 32
   init_from_single_encoder: true
@@ -20,7 +20,7 @@ base:
   compression_type: ""
   down_projection_dim: 256
   use_tpu: false
-  bert_config_file: ../tapas_nq_hn_retriever_tiny/bert_config.json
+  bert_config_file: /scratch-shared/scur2840/checkpoints_50000/checkpoint/2024-12-10-14-47-53/bert_config.json #/scratch-shared/scur2840/checkpoints_5000/checkpoint/2024-12-10-14-26-47/bert_config.json
   evaluated_checkpoint_step: null
   evaluated_checkpoint_metric: precision_at_1
   mask_repeated_tables: false

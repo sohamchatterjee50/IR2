@@ -17,6 +17,7 @@ from tapas.utils import (
     tf_example_utils,
     e2e_utils,
 )
+from tqdm import tqdm
 from tapas.utils.constants import (
     _MAX_TABLE_ID,
     _MAX_PREDICTIONS_PER_SEQ,
@@ -24,6 +25,7 @@ from tapas.utils.constants import (
 )
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 
+logging.set_verbosity(logging.ERROR)
 
 tf.disable_v2_behavior()
 
@@ -132,7 +134,100 @@ def _to_tf_compression_type(
 
     raise ValueError(f"Unknown compression type: {compression_type}")
 
+def _create_examples(
+    task,
+    interaction_dir,
+    example_dir,
+    vocab_file,
+    filename,
+    batch_size,
+    test_mode,
+    args,
+):
+    """Creates TF example for a single dataset, saving progress every 10,000 steps."""
 
+    filename = f"{filename}.tfrecord"
+    interaction_path = os.path.join(interaction_dir, filename)
+    example_path = os.path.join(example_dir, filename)
+
+    config = tf_example_utils.ClassifierConversionConfig(
+        vocab_file=vocab_file,
+        max_seq_length=args.max_seq_length,
+        use_document_title=args.use_document_title,
+        update_answer_coordinates=args.update_answer_coordinates,
+        drop_rows_to_fit=args.drop_rows_to_fit,
+        max_column_id=_MAX_TABLE_ID,
+        max_row_id=_MAX_TABLE_ID,
+        strip_column_names=False,
+        add_aggregation_candidates=False,
+        expand_entity_descriptions=False,
+    )
+    converter = tf_example_utils.ToClassifierTensorflowExample(config)
+
+    examples = []
+    num_questions, num_conversion_errors = 0, 0
+    intermediate_file_counter = 0
+
+    for interaction in tqdm(prediction_utils.iterate_interactions(interaction_path)):
+
+        number_annot_utils.add_numeric_values(interaction)
+        for i in range(len(interaction.questions)):
+
+            num_questions += 1
+            try:
+                examples.append(converter.convert(interaction, i))
+            except ValueError as e:
+                num_conversion_errors += 1
+                logging.info(
+                    "Can't convert interaction: %s error: %s", interaction.id, e
+                )
+
+            # Save progress every 10,000 examples
+            if len(examples) >= 10000:
+                intermediate_file_counter += 1
+                intermediate_file_path = os.path.join(
+                    example_dir, f"{filename}.part-{intermediate_file_counter:04d}.tfrecord"
+                )
+                with tf.io.TFRecordWriter(
+                    intermediate_file_path,
+                    options=_to_tf_compression_type(args.compression_type),
+                ) as temp_writer:
+                    for temp_example in examples:
+                        temp_writer.write(temp_example.SerializeToString())
+                _print(f"Saved {len(examples)} examples to intermediate file: {intermediate_file_path}")
+                examples.clear()  # Clear the list after saving
+
+        if test_mode and len(examples) >= 100:
+            break
+
+    _print(f"Processed: {filename}")
+    _print(f"Num questions processed: {num_questions}")
+    _print(f"Num examples: {len(examples)}")
+    _print(f"Num conversion errors: {num_conversion_errors}")
+
+    if batch_size is None:
+        random.shuffle(examples)
+
+    else:
+        original_num_examples = len(examples)
+        while len(examples) % batch_size != 0:
+            examples.append(converter.get_empty_example())
+
+        if original_num_examples != len(examples):
+            _print(f"Padded with {len(examples) - original_num_examples} examples.")
+
+    # Save final examples, including any leftover examples after the last intermediate save
+    with tf.io.TFRecordWriter(
+        example_path,
+        options=_to_tf_compression_type(args.compression_type),
+    ) as writer:
+        for example in examples:
+            writer.write(example.SerializeToString())
+
+    _print(f"Final TFRecord saved: {example_path}")
+
+
+'''
 def _create_examples(
     task,
     interaction_dir,
@@ -165,7 +260,7 @@ def _create_examples(
 
     examples = []
     num_questions, num_conversion_errors = 0, 0
-    for interaction in prediction_utils.iterate_interactions(interaction_path):
+    for interaction in tqdm(prediction_utils.iterate_interactions(interaction_path)):
 
         number_annot_utils.add_numeric_values(interaction)
         for i in range(len(interaction.questions)):
@@ -207,7 +302,7 @@ def _create_examples(
         for example in examples:
 
             writer.write(example.SerializeToString())
-
+'''
 
 def _get_train_examples_file(task, output_dir):
     return os.path.join(
@@ -340,7 +435,7 @@ def _train_and_predict(
     tapas_config = classifier_model.TapasClassifierConfig(
         bert_config=bert_config,
         init_checkpoint=init_checkpoint,
-        learning_rate=hparams["learning_rate"],
+        learning_rate= args.learning_rate, #hparams["learning_rate"],
         num_train_steps=num_train_steps,
         num_warmup_steps=num_warmup_steps,
         positive_weight=10.0,
@@ -388,8 +483,8 @@ def _train_and_predict(
         master=None,
         model_dir=model_dir,
         tf_random_seed=args.tf_random_seed,
-        save_checkpoints_steps=1000,
-        keep_checkpoint_max=5,
+        save_checkpoints_steps=200,
+        keep_checkpoint_max=3,
         keep_checkpoint_every_n_hours=4.0,
         tpu_config=tf_estimator.tpu.TPUConfig(
             iterations_per_loop=args.iterations_per_loop,
@@ -401,7 +496,6 @@ def _train_and_predict(
     # As TPU is not available, we use the normal Estimator on CPU/GPU.
     estimator = tf_estimator.tpu.TPUEstimator(
         params={"gradient_accumulation_steps": gradient_accumulation_steps},
-        use_tpu=False,
         model_fn=model_fn,
         config=run_config,
         train_batch_size=train_batch_size // gradient_accumulation_steps,
@@ -457,7 +551,6 @@ def _train_and_predict(
                 do_model_aggregation,
                 do_model_classification,
                 use_answer_as_supervision,
-                use_tpu=tapas_config.use_tpu,
                 global_step=current_step,
                 args=args,
             )
@@ -762,13 +855,13 @@ def main(cfg: DictConfig):
     args = Namespace(**hydra_args)
 
     if args.tapas_verbosity:
-        tf.get_logger().setLevel(args.tapas_verbosity)
+        tf.get_logger().setLevel(0)
 
     task = tasks.Task[args.task]
     output_dir = os.path.join(args.output_dir, task.name.lower())
     model_dir = args.model_dir or os.path.join(output_dir, "model")
     mode = Mode[args.mode.upper()]
-    _check_options(output_dir, task, mode)
+    #_check_options(output_dir, task, mode)
 
     if mode == Mode.CREATE_DATA:
         # Retrieval interactions are model dependant and are created in advance.

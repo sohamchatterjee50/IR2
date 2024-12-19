@@ -148,7 +148,7 @@ def build_pipeline(
 
         _ = (
             results
-            | "Intractions" >> beam.FlatMap(to_interaction)
+            | "Interactions" >> beam.FlatMap(to_interaction)
             | "WriteInteractions"
             >> beam.io.WriteToTFRecord(
                 file_path_prefix=get_interactions(output_path),

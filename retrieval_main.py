@@ -57,7 +57,7 @@ def _predict_and_export_metrics(
 
     # Compute recall@k.
     if not args.evaluated_checkpoint_step or not args.evaluated_checkpoint_metric:
-        # p_at_k = eval_retriever_utils.eval_recall_at_k(
+        # r_at_k = eval_retriever_utils.eval_recall_at_k(
         #     query_prediction_files=output_predict_file,
         #     table_prediction_files=output_predict_file,
         #     make_tables_unique=True,

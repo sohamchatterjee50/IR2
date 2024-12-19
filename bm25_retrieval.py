@@ -33,10 +33,10 @@ def evaluate(index, max_table_rank, thresholds, interactions, rows):
         if nr % (len(interactions) // 10) == 0:
             _print(f"Processed {nr:5d} / {len(interactions):5d}.")
 
-    def precision_at_th(threshold):
+    def recall_at_th(threshold):
         return sum(1 for rank in ranks if rank < threshold) / len(interactions)
 
-    values = [f"{precision_at_th(threshold):.4}" for threshold in thresholds]
+    values = [f"{recall_at_th(threshold):.4}" for threshold in thresholds]
     rows.append(values)
 
 

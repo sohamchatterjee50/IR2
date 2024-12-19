@@ -1,4 +1,4 @@
-## Utils for Evaluating precision@k scores for Table Retriever Predictions
+## Utils for Evaluating recall@k scores for Table Retriever Predictions
 
 import abc, ast, csv, json, datetime, itertools, collections, dataclasses
 import numpy as np
@@ -115,8 +115,8 @@ def _get_embeddings(examples):
     return embeddings
 
 
-def _get_precision_at_k(neighbors, gold_indices):
-    """Calculates different precision@k from the nearest neighbors.
+def _get_recall_at_k(neighbors, gold_indices):
+    """Calculates different recall@k from the nearest neighbors.
 
     Args:
       neighbors: <int32>[NUM_QUERIES, _NUM_NEIGHBORS], where NUM_QUERIES is the
@@ -126,7 +126,7 @@ def _get_precision_at_k(neighbors, gold_indices):
         retrieved, for queries of size NUM_QUERIES.
 
     Returns:
-      precision_at_k: precision@k results for different k values.
+      recall_at_k: recall@k results for different k values.
     """
     if gold_indices.shape[0] != neighbors.shape[0]:
         raise ValueError(
@@ -145,7 +145,7 @@ def _get_precision_at_k(neighbors, gold_indices):
 
     total_queries = float(neighbors.shape[0])
 
-    def _calc_precision_at_k(k):
+    def _calc_recall_at_k(k):
         # <bool>[num_queries, num_neighbors]
         correct_at_k = correct[:, :k]
         # <bool>[num_queries]
@@ -153,12 +153,10 @@ def _get_precision_at_k(neighbors, gold_indices):
         return np.sum(correct_at_k) / total_queries
 
     precision_at = [k for k in [1, 5, 10, 15, 50, 100] if k <= _NUM_NEIGHBORS]
-    precision_at_k = {
-        "precision_at_{}".format(k): _calc_precision_at_k(k) for k in precision_at
-    }
-    logging.info(precision_at_k)
+    recall_at_k = {"recall_at_{}".format(k): _calc_recall_at_k(k) for k in precision_at}
+    logging.info(recall_at_k)
 
-    return precision_at_k
+    return recall_at_k
 
 
 def _get_gold_ids_in_global_indices(
@@ -280,7 +278,7 @@ def process_predictions(
       retrieval_results_file_path: File path to write the metrics.
 
     Returns:
-      A dictionary with precision_at_k metrics for different values of k.
+      A dictionary with recall_at_k metrics for different values of k.
     """
     similarities, neighbors = _retrieve(queries, index)
 
@@ -290,9 +288,9 @@ def process_predictions(
         )
 
     gold_indices = _get_gold_ids_in_global_indices(queries, tables)
-    precision_at_k = _get_precision_at_k(neighbors, gold_indices=gold_indices)
+    recall_at_k = _get_recall_at_k(neighbors, gold_indices=gold_indices)
 
-    return precision_at_k
+    return recall_at_k
 
 
 def build_table_index(
@@ -362,13 +360,13 @@ def read_queries(
     return queries
 
 
-def eval_precision_at_k(
+def eval_recall_at_k(
     query_prediction_files,
     table_prediction_files,
     make_tables_unique,
     retrieval_results_file_path=None,
 ):
-    """Reads queries and tables, processes them to produce precision@k metrics."""
+    """Reads queries and tables, processes them to produce recall@k metrics."""
     queries = read_queries(query_prediction_files)
     tables = read_tables(table_prediction_files, make_tables_unique)
     index = build_table_index(tables)

@@ -74,7 +74,7 @@ There are several steps present to run all the experiments, which are outlined b
 
 1.  Model pre-training.
 2.  Model fine-tuning.
-3.  The selection of the best checkpoint with respect to a retrieval metric (i.e., `eval_precision_at_1`) in the local setting (which considers all tables that appear in the dev set as the corpus). These metrics are printed to XM.
+3.  The selection of the best checkpoint with respect to a retrieval metric (i.e., `eval_recall_at_1`) in the local setting (which considers all tables that appear in the dev set as the corpus). These metrics are printed to XM.
 4.  Producing global predictions for the selected best checkpoint - these consist of representations for all tables in the corpus.
 5.  Generating retrieval metrics based on the global setting, and write KNN tables ID's and scores for each query to a JSON file (to be used for negatives mining or End2End QA).
 

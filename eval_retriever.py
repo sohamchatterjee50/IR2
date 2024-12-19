@@ -1,4 +1,4 @@
-## Evaluates precision@k scores for Table Retriever Predictions
+## Evaluates recall@k scores for Table Retriever Predictions
 ## (This also generates the KNN files for reader experiments)
 import hydra
 from argparse import Namespace
@@ -13,7 +13,7 @@ def main(cfg: DictConfig):
     args = Namespace(**hydra_args)
 
     if args.prediction_files_global:
-        eval_table_retriever_utils.eval_precision_at_k(
+        eval_table_retriever_utils.eval_recall_at_k(
             args.prediction_files_local,
             args.prediction_files_global,
             make_tables_unique=True,
@@ -21,7 +21,7 @@ def main(cfg: DictConfig):
         )
 
     else:
-        eval_table_retriever_utils.eval_precision_at_k(
+        eval_table_retriever_utils.eval_recall_at_k(
             args.prediction_files_local,
             args.prediction_files_local,
             make_tables_unique=True,

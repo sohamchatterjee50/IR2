@@ -18,6 +18,12 @@ conda env create -f environment.yml
 
 Also, before we continue, do note that you can adjust the configurations for each script listed below in their respective config files. They can be found [here](configs) and are named based on which file uses them.
 
+**TIP:** To create new configs without editing the default ones, you can create a copy, change the name and desired values, and use them in the following way when running the `.py` scripts below:
+
+```sh
+python "[SCRIPT_NAME].py" --config-name="[YOUR_CUSTOM_CONFIG_IN_CONFIGS].yaml"
+```
+
 ### **Dataset**
 
 The dataset can be downloaded via the following command:
@@ -108,6 +114,11 @@ python reader_main.py
 Now we can run the main experiment script, which can be achieved by changing the mode to `predict_and_evaluate` in the `reader_main.yaml`:
 ```sh
 python reader_main.py 
+```
+
+This should output an `events.out.tfevents.` file, which can be opened with the following:
+```sh
+tensorboard --logdir="[FOLDER_CONTAINING_TFEVENTS]"
 ```
 
 ## **Citations**

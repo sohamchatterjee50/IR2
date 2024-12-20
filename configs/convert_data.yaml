@@ -2,10 +2,10 @@
 # by the original authors
 # It is used for data conversion
 base:
-  input_interactions_dir: ../data/interactions
-  input_tables_dir: ../data/tables
-  output_dir: ../data/tf_examples
-  vocab_file: ../data/vocab.txt
+  input_interactions_dir: ./data/interactions
+  input_tables_dir: ./data/tables
+  output_dir: ./data/tf_examples
+  vocab_file: ./data/vocab.txt
   max_seq_length: 512
   max_column_id: 512
   max_row_id: 512

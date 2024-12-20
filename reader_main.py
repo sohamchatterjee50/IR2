@@ -9,19 +9,20 @@ from tapas.task_utils import tasks, task_utils
 from tapas.models import classifier_model
 from tapas.models.bert import modeling
 from tapas.utils import (
-    prediction_utils,
-    calc_metric_utils,
+    e2e_utils,
     hparam_utils,
-    number_annot_utils,
     pruning_utils,
     tf_example_utils,
-    e2e_utils,
+    prediction_utils,
+    calc_metric_utils,
+    number_annot_utils,
 )
 from tapas.utils.constants import (
     _MAX_TABLE_ID,
     _MAX_PREDICTIONS_PER_SEQ,
     _CELL_CLASSIFICATION_THRESHOLD,
 )
+from tapas.utils.file_utils import _warn, _print, _to_tf_compression_type
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
 
 
@@ -68,16 +69,6 @@ def _create_measurements_for_metrics(
     calc_metric_utils.write_to_tensorboard(metrics, global_step, logdir)
 
 
-def _print(msg):
-    print(msg)
-    logging.info(msg)
-
-
-def _warn(msg):
-    print(f"Warning: {msg}")
-    logging.warn(msg)
-
-
 def _create_all_examples(
     task, vocab_file, test_mode, output_dir, test_batch_size, args
 ):
@@ -116,21 +107,6 @@ def _create_all_examples(
         test_mode,
         args,
     )
-
-
-def _to_tf_compression_type(
-    compression_type,
-):
-    if not compression_type:
-        return tf.io.TFRecordCompressionType.NONE
-
-    if compression_type == "GZIP":
-        return tf.io.TFRecordCompressionType.GZIP
-
-    if compression_type == "ZLIB":
-        return tf.io.TFRecordCompressionType.ZLIB
-
-    raise ValueError(f"Unknown compression type: {compression_type}")
 
 
 def _create_examples(

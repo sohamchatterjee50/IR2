@@ -13,19 +13,6 @@ from tapas.utils import (
 tf.disable_v2_behavior()
 
 
-# def args():
-#     parser = ArgumentParser()
-#     parser.add_argument(
-#         "--name",
-#         type=str,
-#         default="base",
-#         help="The base config to use from 'retrieval_main.yaml'",
-#     )
-#     args = parser.parse_args()
-
-#     return args
-
-
 def _get_test_input_fn(name, input_file, args):
     """Gets input_fn for eval/predict modes."""
     if input_file is None:
@@ -57,11 +44,6 @@ def _predict_and_export_metrics(
 
     # Compute recall@k.
     if not args.evaluated_checkpoint_step or not args.evaluated_checkpoint_metric:
-        # r_at_k = eval_retriever_utils.eval_recall_at_k(
-        #     query_prediction_files=output_predict_file,
-        #     table_prediction_files=output_predict_file,
-        #     make_tables_unique=True,
-        # )
         metrics_at_k = eval_retriever_utils.eval_metrics_at_k(
             query_prediction_files=output_predict_file,
             table_prediction_files=output_predict_file,

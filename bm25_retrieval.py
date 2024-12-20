@@ -1,4 +1,4 @@
-import hydra, logging
+import hydra
 import pandas as pd
 from argparse import Namespace
 from omegaconf import DictConfig
@@ -7,12 +7,7 @@ from tapas.utils.bm25_utils import (
     iterate_tables,
     iterate_interactions,
 )
-
-
-def _print(message):
-
-    logging.info(message)
-    print(message)
+from tapas.utils.file_utils import _print
 
 
 def evaluate(index, max_table_rank, thresholds, interactions, rows):

@@ -26,7 +26,7 @@ def find_protoc():
 
 
 def needs_update(source, target):
-    """Returns wheter target file is old or does not exist."""
+    """Returns whether target file is old or does not exist."""
     if not os.path.exists(target):
         return True
 

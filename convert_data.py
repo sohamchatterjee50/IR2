@@ -19,7 +19,7 @@ def str_to_type(arg: str):
 
 def run(inputs, outputs, input_format, args):
 
-    # Only require this runner as it will all be done locally
+    # Only require this runner from the original repo as it will all be done locally
     direct_runner.DirectRunner().run(
         create_utils.build_retrieval_pipeline(
             input_files=inputs,
@@ -49,7 +49,7 @@ def main(cfg: DictConfig):
         args.input_interactions_dir, args.output_dir
     )
     if not inputs:
-        raise ValueError(f"Input dir is empty: '{args.input_interactions_dir}'")
+        raise ValueError(f"Input directory is empty: '{args.input_interactions_dir}'")
 
     run(inputs, outputs, create_utils.InputFormat.INTERACTION, args)
 

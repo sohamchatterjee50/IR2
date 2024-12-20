@@ -338,6 +338,7 @@ class ToRetrievalTensorflowExample(beam.DoFn):
         convert_impl = ConverterImplType(self._convert_impl_value)
         if convert_impl == ConverterImplType.PYTHON:
             self._converter = base_utils.ToRetrievalTensorflowExample(self._config)
+
         else:
             raise ValueError(f"Unsupported implementation: {convert_impl.name}")
 
@@ -357,11 +358,13 @@ class ToRetrievalTensorflowExample(beam.DoFn):
             ).inc()
 
         for index in range(len(interaction.questions)):
+
             beam.metrics.Metrics.counter(_NS, "Input question").inc()
             question = interaction.questions[index]
             nr_ext = _NegativeRetrievalExamples.negative_retrieval_examples_ext
             if nr_ext not in question.Extensions:
                 negative_examples = [None]
+
             else:
                 negative_examples = question.Extensions[nr_ext].examples
                 beam.metrics.Metrics.counter(
@@ -370,8 +373,10 @@ class ToRetrievalTensorflowExample(beam.DoFn):
                 ).inc()
 
             for negative_example in negative_examples:
+
                 if negative_example is not None:
                     beam.metrics.Metrics.counter(_NS, "Negative Example").inc()
+
                 try:
                     example = self._converter.convert(
                         interaction,
@@ -379,14 +384,17 @@ class ToRetrievalTensorflowExample(beam.DoFn):
                         negative_example,
                     )
                     beam.metrics.Metrics.counter(_NS, "Conversion success").inc()
+
                 except ValueError as e:
                     beam.metrics.Metrics.counter(_NS, "Conversion error").inc()
                     beam.metrics.Metrics.counter(_NS, str(e)).inc()
+
                 # Make sure examples with the same table are not grouped together.
                 title = interaction.table.document_title
                 new_key = f"{key}#{question.original_text}#{title}"
                 if negative_example is not None:
                     new_key = f"{new_key}_{negative_example.table.table_id}"
+
                 yield _prepand_fingerprint(new_key), example
 
 

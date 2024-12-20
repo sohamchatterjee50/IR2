@@ -11,7 +11,6 @@ import omegaconf
 
 
 # To get arguments from .yaml configuration
-# @hydra.main(version_base=None, config_path="configs", config_name="experiments")
 def get_args():
     cfg = omegaconf.OmegaConf.load("configs/experiments.yaml")
     general = cfg.get("base")

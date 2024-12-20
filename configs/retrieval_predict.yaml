@@ -4,6 +4,7 @@ base:
   input_file_train: !!python/tuple []
   input_file_eval: null
   input_file_predict: results/nq_retrieval/tf_examples/queries.tfrecord
+  model_dir: tapas_dual_encoder_proj_256_large # Make sure it's the same in `experiments`
   prediction_output_dir: results/nq_retrieval/model/queries
   init_checkpoint: null
   max_seq_length: 512
@@ -16,7 +17,7 @@ base:
   down_projection_dim: 256
   init_from_single_encoder: false
   max_query_length: 128
-  compression_type: ""
+  compression_type: null
   evaluated_checkpoint_step: 0
   evaluated_checkpoint_metric: null
   use_out_of_core_negatives: false
@@ -25,9 +26,4 @@ base:
   ignore_table_content: false
   use_mined_negatives: false
   disabled_features: []
-  learning_rate: 1e-5
-  bert_config_file: tapas_retriever/bert_config.json
-  tf_random_seed: 1
-  num_eval_steps: 0
-  model_dir: results/nq_retrieval/model
-  eval_batch_size: 1
+  learning_rate: 1.25e-5

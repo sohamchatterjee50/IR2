@@ -27,7 +27,7 @@ base:
   disabled_features: []
   learning_rate: 1e-5
   bert_config_file: tapas_retriever/bert_config.json
-  tf_random_seed: "1"
+  tf_random_seed: 1
   num_eval_steps: 0
   model_dir: results/nq_retrieval/model
   eval_batch_size: 1

@@ -13,7 +13,7 @@ base:
   gradient_accumulation_steps: 1
   iterations_per_loop: 1000
   test_mode: false
-  tf_random_seed: "1"
+  tf_random_seed: 1
   max_seq_length: 512
   mode: "train" # create_data, train, predict_and_evaluate, evaluate, predict
   loop_predict: true

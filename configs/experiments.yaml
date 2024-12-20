@@ -2,7 +2,7 @@
 base:
   master: null
   model_dir: null
-  tf_random_seed: "1"
+  tf_random_seed: 1
   train_batch_size: 4 # Adjusted due to memory constraints
   eval_batch_size: 32
   predict_batch_size: 32

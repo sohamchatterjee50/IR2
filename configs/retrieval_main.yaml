@@ -1,10 +1,10 @@
 # This config is used for the retrieval_main file
 base:
-  data_format: "tfrecord"
+  data_format: tfrecord
   input_file_train: []
   input_file_eval: null
-  input_file_predict: "tf_examples/nq_tables_interactions_test.tfrecord"
-  model_dir: "tapas_retriever" # tapas_dual_encoder_proj_256_large
+  input_file_predict: tf_examples/nq_tables_interactions_test.tfrecord
+  model_dir: tapas_dual_encoder_proj_256_large
   prediction_output_dir: null
   init_checkpoint: null
   max_seq_length: 512
@@ -12,12 +12,12 @@ base:
   do_train: true
   do_eval: false
   do_predict: false
-  eval_name: "default"
+  eval_name: default
   grad_clipping: null
   down_projection_dim: 256
   init_from_single_encoder: false
   max_query_length: 128
-  compression_type: ""
+  compression_type: null
   evaluated_checkpoint_step: null
   evaluated_checkpoint_metric: null
   use_out_of_core_negatives: false

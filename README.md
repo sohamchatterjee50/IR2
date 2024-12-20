@@ -48,7 +48,7 @@ However, it is not recommended as it will take a long time.
 
 ### **Model Checkpoints**
 
-The model checkpoint can be downloaded via the following command:
+The model checkpoints can be downloaded via the following commands:
 
 ```sh
 retrieval_model_name=tapas_nq_hn_retriever_medium

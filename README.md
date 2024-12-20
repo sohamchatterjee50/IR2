@@ -45,6 +45,16 @@ python nq_preprocess.py
 
 However, it is not recommended as it will take a long time.
 
+For the experiments relating to the SQA dataset, simply run the following:
+
+```sh
+# First download the data
+bash/download_sqa.bash
+
+# Then run the preprocessing
+python sqa_preprocess.py
+```
+
 
 ### **Model Checkpoints**
 

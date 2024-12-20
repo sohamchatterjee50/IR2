@@ -1,5 +1,6 @@
 # This config is based on the initial parameters and decisions made
-# by the original authors in their repository (possibly for other TAPAS experiments)
+# by the original authors in their repository (possibly for other TAPAS experiments,
+# hence the adjustments in certain the `compression_type`)
 # It is used for creating the SQA data files
 base:
   input_dir: data_sqa

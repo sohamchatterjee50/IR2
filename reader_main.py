@@ -1,8 +1,7 @@
 ## Script for all Reader-related experiments
 
-import os, enum, time, hydra, random, functools
+import os, enum, time, hydra, functools
 import tensorflow._api.v2.compat.v1 as tf
-from absl import logging
 from argparse import Namespace
 from omegaconf import DictConfig
 from tapas.task_utils import tasks, task_utils
@@ -11,49 +10,34 @@ from tapas.models.bert import modeling
 from tapas.utils import (
     e2e_utils,
     hparam_utils,
-    pruning_utils,
-    tf_example_utils,
     prediction_utils,
     calc_metric_utils,
-    number_annot_utils,
 )
 from tapas.utils.constants import (
-    _MAX_TABLE_ID,
     _MAX_PREDICTIONS_PER_SEQ,
     _CELL_CLASSIFICATION_THRESHOLD,
 )
-from tapas.utils.file_utils import _warn, _print, _to_tf_compression_type
 from tensorflow._api.v2.compat.v1 import estimator as tf_estimator
+from tapas.utils.file_utils import (
+    _warn,
+    _print,
+    make_directories,
+)
 
 
 tf.disable_v2_behavior()
 
 
 class Mode(enum.Enum):
-    CREATE_DATA = 1
-    TRAIN = 2
-    PREDICT_AND_EVALUATE = 3
-    EVALUATE = 4
-    PREDICT = 5
+    TRAIN = 1
+    PREDICT_AND_EVALUATE = 2
+    EVALUATE = 3
+    PREDICT = 4
 
 
 class TestSet(enum.Enum):
     DEV = 1
     TEST = 2
-
-
-# File Utils ############################
-def make_directories(path):
-    """Create directory recursively. Don't do anything if directory exits."""
-    tf.io.gfile.makedirs(path)
-
-
-def list_directory(path):
-    """List directory contents."""
-    return tf.io.gfile.listdir(path)
-
-
-#########################################
 
 
 def _create_measurements_for_metrics(
@@ -67,122 +51,6 @@ def _create_measurements_for_metrics(
         _print(f"{name} {label}: {value:0.4f}")
     logdir = os.path.join(model_dir, name)
     calc_metric_utils.write_to_tensorboard(metrics, global_step, logdir)
-
-
-def _create_all_examples(
-    task, vocab_file, test_mode, output_dir, test_batch_size, args
-):
-    """Converts interactions to TF examples."""
-    interaction_dir = task_utils.get_interaction_dir(output_dir)
-    example_dir = os.path.join(output_dir, "tf_examples")
-    make_directories(example_dir)
-
-    _create_examples(
-        task,
-        interaction_dir,
-        example_dir,
-        vocab_file,
-        task_utils.get_train_filename(task),
-        batch_size=None,
-        test_mode=test_mode,
-        args=args,
-    )
-    _create_examples(
-        task,
-        interaction_dir,
-        example_dir,
-        vocab_file,
-        task_utils.get_dev_filename(task),
-        test_batch_size,
-        test_mode,
-        args,
-    )
-    _create_examples(
-        task,
-        interaction_dir,
-        example_dir,
-        vocab_file,
-        task_utils.get_test_filename(task),
-        test_batch_size,
-        test_mode,
-        args,
-    )
-
-
-def _create_examples(
-    task,
-    interaction_dir,
-    example_dir,
-    vocab_file,
-    filename,
-    batch_size,
-    test_mode,
-    args,
-):
-    """Creates TF example for a single dataset."""
-
-    filename = f"{filename}.tfrecord"
-    interaction_path = os.path.join(interaction_dir, filename)
-    example_path = os.path.join(example_dir, filename)
-
-    config = tf_example_utils.ClassifierConversionConfig(
-        vocab_file=vocab_file,
-        max_seq_length=args.max_seq_length,
-        use_document_title=args.use_document_title,
-        update_answer_coordinates=args.update_answer_coordinates,
-        drop_rows_to_fit=args.drop_rows_to_fit,
-        max_column_id=_MAX_TABLE_ID,
-        max_row_id=_MAX_TABLE_ID,
-        strip_column_names=False,
-        add_aggregation_candidates=False,
-        expand_entity_descriptions=False,
-    )
-    converter = tf_example_utils.ToClassifierTensorflowExample(config)
-
-    examples = []
-    num_questions, num_conversion_errors = 0, 0
-    for interaction in prediction_utils.iterate_interactions(interaction_path):
-
-        number_annot_utils.add_numeric_values(interaction)
-        for i in range(len(interaction.questions)):
-
-            num_questions += 1
-            try:
-                examples.append(converter.convert(interaction, i))
-
-            except ValueError as e:
-                num_conversion_errors += 1
-                logging.info(
-                    "Can't convert interaction: %s error: %s", interaction.id, e
-                )
-
-        if test_mode and len(examples) >= 100:
-            break
-
-    _print(f"Processed: {filename}")
-    _print(f"Num questions processed: {num_questions}")
-    _print(f"Num examples: {len(examples)}")
-    _print(f"Num conversion errors: {num_conversion_errors}")
-
-    if batch_size is None:
-        random.shuffle(examples)
-
-    else:
-        original_num_examples = len(examples)
-        while len(examples) % batch_size != 0:
-            examples.append(converter.get_empty_example())
-
-        if original_num_examples != len(examples):
-            _print(f"Padded with {len(examples) - original_num_examples} examples.")
-
-    with tf.io.TFRecordWriter(
-        example_path,
-        options=_to_tf_compression_type(args.compression_type),
-    ) as writer:
-
-        for example in examples:
-
-            writer.write(example.SerializeToString())
 
 
 def _get_train_examples_file(task, output_dir):
@@ -233,20 +101,6 @@ def _get_test_prediction_file(
 
     filename = _get_test_filename(task, test_set)
     return os.path.join(model_dir, f"{filename}{suffix}.tsv")
-
-
-def _get_token_selector(args):
-    if not args.prune_columns:
-        return None
-
-    return pruning_utils.HeuristicExactMatchTokenSelector(
-        args.bert_vocab_file,
-        args.max_seq_length,
-        pruning_utils.SelectionType.COLUMN,
-        # Only relevant for SQA where questions come in sequence
-        use_previous_answer=True,
-        use_previous_questions=True,
-    )
 
 
 def _train_and_predict(
@@ -701,9 +555,6 @@ def _eval_for_set(
 def _check_options(output_dir, task, mode):
     """Checks against some invalid options so we can fail fast."""
 
-    if mode == Mode.CREATE_DATA:
-        return
-
     if mode == Mode.PREDICT_AND_EVALUATE or mode == Mode.EVALUATE:
         interactions = _get_test_interactions_file(
             task,
@@ -741,26 +592,7 @@ def main(cfg: DictConfig):
     mode = Mode[args.mode.upper()]
     _check_options(output_dir, task, mode)
 
-    if mode == Mode.CREATE_DATA:
-        # Retrieval interactions are model dependant and are created in advance.
-        if task != tasks.Task.NQ_RETRIEVAL:
-            _print("Creating interactions ...")
-            token_selector = _get_token_selector()
-            task_utils.create_interactions(
-                task, args.input_dir, output_dir, token_selector
-            )
-
-        _print("Creating TF examples ...")
-        _create_all_examples(
-            task,
-            args.bert_vocab_file,
-            args.test_mode,
-            test_batch_size=args.test_batch_size,
-            output_dir=output_dir,
-            args=args,
-        )
-
-    elif mode in (Mode.TRAIN, Mode.PREDICT_AND_EVALUATE, Mode.PREDICT):
+    if mode in (Mode.TRAIN, Mode.PREDICT_AND_EVALUATE, Mode.PREDICT):
         _print("Training or predicting ...")
         _train_and_predict(
             task=task,

@@ -43,7 +43,7 @@ def is_tfrecord(filename):
 
 def iterate_interactions(interactions_file):
     """Get interactions from file."""
-    for value in tf.python_io.tf_record_iterator(interactions_file):
+    for value in tf.io.tf_record_iterator(interactions_file):
         interaction = interaction_pb2.Interaction()
         interaction.ParseFromString(value)
         yield interaction

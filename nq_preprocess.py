@@ -170,7 +170,7 @@ def get_tables(output_dir, name="tables"):
 
 def _iterate_proto(filepath, message):
 
-    for value in tf.python_io.tf_record_iterator(filepath):
+    for value in tf.io.tf_record_iterator(filepath):
 
         i = message()
         i.ParseFromString(value)

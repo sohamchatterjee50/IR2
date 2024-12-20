@@ -10,7 +10,7 @@ from tapas.utils.text_utils import format_text
 
 def iterate_tables(table_file):
 
-    for value in tf.python_io.tf_record_iterator(table_file):
+    for value in tf.io.tf_record_iterator(table_file):
 
         table = interaction_pb2.Table()
         table.ParseFromString(value)
@@ -20,7 +20,7 @@ def iterate_tables(table_file):
 
 def iterate_interaction_tables(interaction_file):
 
-    for value in tf.python_io.tf_record_iterator(interaction_file):
+    for value in tf.io.tf_record_iterator(interaction_file):
 
         interaction = interaction_pb2.Interaction()
         interaction.ParseFromString(value)
@@ -30,7 +30,7 @@ def iterate_interaction_tables(interaction_file):
 
 def iterate_interactions(interactions_file):
     """Get interactions from file."""
-    for value in tf.python_io.tf_record_iterator(interactions_file):
+    for value in tf.io.tf_record_iterator(interactions_file):
 
         interaction = interaction_pb2.Interaction()
         interaction.ParseFromString(value)

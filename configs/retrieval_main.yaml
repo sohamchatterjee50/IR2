@@ -3,7 +3,7 @@ base:
   data_format: tfrecord
   input_file_train: []
   input_file_eval: null
-  input_file_predict: tf_examples/nq_tables_interactions_test.tfrecord
+  input_file_predict: null # tf_examples/nq_tables_interactions_test.tfrecord
   model_dir: tapas_dual_encoder_proj_256_large
   prediction_output_dir: null
   init_checkpoint: null
@@ -26,5 +26,5 @@ base:
   ignore_table_content: false
   use_mined_negatives: false
   disabled_features: []
-  learning_rate: 1e-5
+  learning_rate: 1.25e-5
   

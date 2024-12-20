@@ -55,7 +55,7 @@ def get_hparams():
     return hparams
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="base")
+@hydra.main(version_base=None, config_path="configs", config_name="bm25")
 def main(cfg: DictConfig):
 
     hydra_args = cfg.get("bm25")

@@ -20,7 +20,7 @@ conda env create -f environment.yml
 conda env create -f environment.yml
 ```
 
-Also, before we continue, do note that you can adjust the configurations for each script listed below in their respective config files. They can be found [here](configs) and are named based on which file uses them.
+Also, before we continue, do note that you can adjust the configurations for each script listed below in their respective config files. They can be found [here](configs) and are named based on which file uses them. Make sure to make the parameters as consistent as possible across scripts too (for example, setting the `compression_type` correctly so that it's the same across configurations).
 
 **TIP:** To create new configs without editing the default ones, you can create a copy, change the name and desired values, and use them in the following way when running the `.py` scripts below:
 

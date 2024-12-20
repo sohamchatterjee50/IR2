@@ -1,6 +1,5 @@
 # This config is based on the initial parameters and decisions made
-# by the original authors in their repository (possibly for other TAPAS experiments,
-# hence the adjustments in certain the `compression_type`)
+# by the original authors in their repository (possibly for other TAPAS experiments)
 # It is used for creating the SQA data files
 base:
   input_dir: data_sqa
@@ -12,6 +11,6 @@ base:
   test_batch_size: 32
   update_answer_coordinates: false
   drop_rows_to_fit: false
-  compression_type: null
+  compression_type: GZIP
   prune_columns: false
   use_document_title: false

@@ -1,4 +1,4 @@
-name: env_ir4
+name: env_finetune
 channels:
   - nvidia
   - fragcolor

@@ -179,6 +179,7 @@ def write_proto_outputs(output_file, name, data, proto_message):
             | "WriteTextExamples_%s" % name >> beam.io.WriteToText(output_file)
         )
         return
+
     elif output_file.endswith(".tfrecord"):
         _ = (
             data
@@ -191,6 +192,7 @@ def write_proto_outputs(output_file, name, data, proto_message):
             )
         )
         return
+
     raise ValueError(f"Unsupported output format: {output_file}")
 
 

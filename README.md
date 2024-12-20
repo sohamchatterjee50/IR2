@@ -13,6 +13,10 @@ cd ir2
 First, we need the environment. To set it up, please run the following:
 
 ```sh
+# This environment is for SQA
+conda env create -f environment.yml
+
+# This is the environment used for finetuning
 conda env create -f environment.yml
 ```
 

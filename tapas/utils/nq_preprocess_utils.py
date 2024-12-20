@@ -80,8 +80,10 @@ def get_filenames(path, split):
     """Reads NQ files by yielding each line of serialized json."""
     num_files = 50 if split == Split.train else 5
     for i in range(num_files):
+
         split_name = split.name
         filepath = os.path.join(path, split_name, f"nq-{split_name}-{i:02d}.jsonl")
+
         yield filepath + ".gz"
 
 
@@ -668,10 +670,11 @@ def write_interactions_to_files(
 
 
 def get_version(table):
+
     query = urllib.parse.urlparse(html.unescape(table.document_url)).query
     parsed_query = urllib.parse.parse_qs(query)
-    values = parsed_query["oldid"]
-    value = values[0]
+    value = parsed_query["oldid"][0]
+
     return int(value)
 
 
@@ -681,9 +684,12 @@ def _clusters_are_compatible(
     other_cluster_id,
 ):
     for table in clustering[cluster_id]:
+
         for other_table in clustering[other_cluster_id]:
+
             if not _tables_are_compatible(table, other_table):
                 return False
+
     return True
 
 
@@ -701,21 +707,29 @@ def _tables_are_compatible(
     if _get_document_urls(table) & _get_document_urls(other_table):
         # Tables occur on the same version of the page.
         return False
+
     if math.fabs(len(table.rows) - len(other_table.rows)) > 2:
         return False
+
     if len(table.columns) != len(other_table.columns):
         return False
+
     return True
 
 
 def _get_table_text(table, header_weight):
+
     for _ in range(header_weight):
+
         yield [column.text for column in table.columns]
+
     for row in table.rows:
+
         yield [cell.text for cell in row.cells]
 
 
 def _tokenize_text(text):
+
     text = _SPECIAL_CHAR.sub(" ", text)
     return text.lower().split()
 
@@ -780,6 +794,7 @@ class TableSimilarity:
                 max_ngram_length=self._ngram_length,
             ):
                 embedding[_to_hash(ngram) % self._hash_dimension] += 1
+
             # Apply l2-norm.
             embedding /= math.sqrt(embedding.dot(embedding))
             self._cache[table.table_id] = embedding
@@ -802,6 +817,7 @@ def group_similar_tables(
     )
     clustering = collections.defaultdict(list)
     for table in tables:
+
         clustering[table.table_id].append(table)
 
     similarities = []

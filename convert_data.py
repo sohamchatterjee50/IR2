@@ -39,7 +39,7 @@ def run(inputs, outputs, input_format, args):
     ).wait_until_finish()
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="conversion")
+@hydra.main(version_base=None, config_path="configs", config_name="convert_data")
 def main(cfg: DictConfig):
 
     hydra_args = cfg.get("base")

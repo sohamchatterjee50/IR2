@@ -6,6 +6,7 @@ from absl import logging
 from argparse import Namespace
 from omegaconf import DictConfig
 from tapas.utils import (
+    base_utils,
     pruning_utils,
     prediction_utils,
     tf_example_utils,
@@ -69,19 +70,29 @@ def _create_examples(
     interaction_path = os.path.join(interaction_dir, filename)
     example_path = os.path.join(example_dir, filename)
 
-    config = tf_example_utils.ClassifierConversionConfig(
+    # config = tf_example_utils.ClassifierConversionConfig(
+    #     vocab_file=vocab_file,
+    #     max_seq_length=args.max_seq_length,
+    #     use_document_title=args.use_document_title,
+    #     update_answer_coordinates=args.update_answer_coordinates,
+    #     drop_rows_to_fit=args.drop_rows_to_fit,
+    #     max_column_id=_MAX_TABLE_ID,
+    #     max_row_id=_MAX_TABLE_ID,
+    #     strip_column_names=False,
+    #     add_aggregation_candidates=False,
+    #     expand_entity_descriptions=False,
+    # )
+
+    config = tf_example_utils.RetrievalConversionConfig(
         vocab_file=vocab_file,
         max_seq_length=args.max_seq_length,
         use_document_title=args.use_document_title,
-        update_answer_coordinates=args.update_answer_coordinates,
-        drop_rows_to_fit=args.drop_rows_to_fit,
         max_column_id=_MAX_TABLE_ID,
         max_row_id=_MAX_TABLE_ID,
         strip_column_names=False,
-        add_aggregation_candidates=False,
-        expand_entity_descriptions=False,
     )
-    converter = tf_example_utils.ToClassifierTensorflowExample(config)
+
+    converter = base_utils.ToRetrievalTensorflowExample(config)
 
     examples = []
     num_questions, num_conversion_errors = 0, 0

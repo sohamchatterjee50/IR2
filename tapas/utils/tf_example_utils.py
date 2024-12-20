@@ -15,19 +15,17 @@ from tapas.utils import (
     text_utils,
     interpret_utils,
 )
+from tapas.utils.constants import _NS, _SEP, _MAX_INT
 
 
-_NS = "main"
 _CLS = "[CLS]"
 _EMPTY = "[EMPTY]"
 _MASK = "[MASK]"
-_SEP = "[SEP]"
 _NAN = float("nan")
 _MAX_NUM_CANDIDATES = 1000
 _MAX_NUM_ROWS = 32
 _WP_PER_CELL = 1.5
 _MAX_INDEX_LENGTH = int(_MAX_NUM_CANDIDATES * _MAX_NUM_ROWS * _WP_PER_CELL)
-_MAX_INT = 2**32 - 1
 
 
 @dataclasses.dataclass(frozen=True)

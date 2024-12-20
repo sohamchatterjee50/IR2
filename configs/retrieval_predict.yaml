@@ -1,7 +1,7 @@
 # This config is the version used in the notebook
 base:
   data_format: tfrecord
-  input_file_train: []
+  input_file_train: !!python/tuple []
   input_file_eval: null
   input_file_predict: results/nq_retrieval/tf_examples/queries.tfrecord
   prediction_output_dir: results/nq_retrieval/model/queries
@@ -24,7 +24,7 @@ base:
   mask_repeated_questions: false
   ignore_table_content: false
   use_mined_negatives: false
-  disabled_features: []
+  disabled_features: !!python/tuple [] # Casting required due to a quirk with hydra
   learning_rate: 1e-5
   bert_config_file: tapas_retriever/bert_config.json
   tf_random_seed: 1

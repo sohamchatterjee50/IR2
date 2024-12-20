@@ -2,7 +2,10 @@
 venv_ir
 
 # Data and results
+sqa
 data
+data_sqa
+outs
 outputs
 results
 

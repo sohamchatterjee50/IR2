@@ -1,0 +1,16 @@
+# This config is based on the initial parameters and decisions made
+# by the original authors in their repository (possibly for other TAPAS experiments)
+# It is used for creating the SQA data files
+base:
+  input_dir: data_sqa
+  output_dir: ""
+  bert_vocab_file: tapas_retriever/vocab.txt
+  max_seq_length: 512
+  tapas_verbosity: null
+  test_mode: false
+  test_batch_size: 32
+  update_answer_coordinates: false
+  drop_rows_to_fit: false
+  compression_type: GZIP
+  prune_columns: false
+  use_document_title: false

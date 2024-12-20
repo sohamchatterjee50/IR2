@@ -10,8 +10,7 @@ from tapas.utils import io_utils, base_utils, create_utils
 # Extra utility to convert from string to ConverterImplType
 def str_to_type(arg: str):
 
-    arg = arg.upper()
-    if arg == "PYTHON":
+    if arg.upper() == "PYTHON":
         return create_utils.ConverterImplType.PYTHON
 
     raise ValueError(f"Value '{arg}' not supported!")
@@ -53,6 +52,7 @@ def main(cfg: DictConfig):
 
     run(inputs, outputs, create_utils.InputFormat.INTERACTION, args)
 
+    # In case tables exist also
     if args.input_tables_dir is not None:
         table_inputs, table_outputs = io_utils.get_inputs_outputs(
             args.input_tables_dir, args.output_dir

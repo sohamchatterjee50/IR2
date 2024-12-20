@@ -4,7 +4,7 @@
 base:
   input_dir: data_sqa
   output_dir: ""
-  bert_vocab_file: tapas_retriever/vocab.txt
+  bert_vocab_file: tapas_dual_encoder_proj_256_large/vocab.txt
   max_seq_length: 512
   tapas_verbosity: null
   test_mode: false

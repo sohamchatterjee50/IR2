@@ -1,17 +1,16 @@
-# This config is for the experiment_utils file
+# This config is for the `experiment_utils` file (also influences `retrieval_main`)
 base:
-  session_master: null
   master: null
   model_dir: null
-  tf_random_seed: null
-  train_batch_size: 128
+  tf_random_seed: "1"
+  train_batch_size: 4 # Adjusted due to memory constraints
   eval_batch_size: 32
   predict_batch_size: 32
   gradient_accumulation_steps: 1
 
   # Training parameters
-  num_train_examples: null
-  learning_rate: 5e-5
+  num_train_examples: 5120
+  learning_rate: 1.25e-5
   warmup_ratio: 0.01
 
   # Evaluation parameters
@@ -26,8 +25,8 @@ base:
   bert_config_softmax_temperature: null
 
   # Checkpointing
-  save_checkpoints_steps: 1000
-  keep_checkpoint_max: 5
+  save_checkpoints_steps: 100
+  keep_checkpoint_max: 3
   keep_checkpoint_every_n_hours: 4.0
   init_checkpoint: "tapas_retriever/model.ckpt"
   max_eval_count: 100

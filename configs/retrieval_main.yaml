@@ -4,17 +4,18 @@ base:
   input_file_train: []
   input_file_eval: null
   input_file_predict: "tf_examples/nq_tables_interactions_test.tfrecord"
+  model_dir: "tapas_retriever" # tapas_dual_encoder_proj_256_large
   prediction_output_dir: null
   init_checkpoint: null
   max_seq_length: 512
   minutes_to_sleep_before_predictions: 5
-  do_train: false
+  do_train: true
   do_eval: false
-  do_predict: true
+  do_predict: false
   eval_name: "default"
   grad_clipping: null
-  down_projection_dim: 0
-  init_from_single_encoder: true
+  down_projection_dim: 256
+  init_from_single_encoder: false
   max_query_length: 128
   compression_type: ""
   evaluated_checkpoint_step: null
@@ -26,4 +27,4 @@ base:
   use_mined_negatives: false
   disabled_features: []
   learning_rate: 1e-5
-  use_tpu: false
+  

@@ -26,7 +26,6 @@ base:
   use_mined_negatives: false
   disabled_features: []
   learning_rate: 1e-5
-  use_tpu: false
   bert_config_file: "tapas_retriever/bert_config.json"
   tf_random_seed: "1"
   num_eval_steps: 0

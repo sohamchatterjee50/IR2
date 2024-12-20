@@ -11,6 +11,6 @@ base:
   test_batch_size: 32
   update_answer_coordinates: false
   drop_rows_to_fit: false
-  compression_type: GZIP
+  compression_type: null
   prune_columns: false
   use_document_title: false

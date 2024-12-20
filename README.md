@@ -103,6 +103,9 @@ Then we can run the dual encoder experiment:
 python retrieval_main.py
 ```
 
+**NOTE:** Because `retrieval_main.py` utilizes `experiment_utils`, another configuration may need to be adjusted [here](/configs/experiments.yaml). 
+
+
 By default, the above script only performs prediction, as training the model fully is outside the scope of this study.
 
 Now, all that needs to be done is to run the evaluation to print recall@k scores in the global setting given the best

@@ -25,6 +25,6 @@ base:
   mask_repeated_questions: false
   ignore_table_content: false
   use_mined_negatives: false
-  disabled_features: !!python/tuple [] # Casting required due to a quirk with hydra
+  disabled_features: [] # Casting required due to a quirk with hydra
   learning_rate: 1.25e-5
   

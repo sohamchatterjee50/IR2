@@ -91,6 +91,9 @@ def main(cfg: DictConfig):
     hydra_args = cfg.get("base")
     args = Namespace(**hydra_args)
 
+    # Typecasting due to Hydra quirk
+    args.disabled_features = tuple(args.disabled_features)
+
     bert_config = experiment_utils.bert_config_from_flags()
     total_steps = experiment_utils.num_train_steps()
 

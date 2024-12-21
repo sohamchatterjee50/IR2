@@ -1,8 +1,8 @@
 # This config is based on the initial parameters and decisions made
 # by the original authors
 base: 
-  interaction_files: ["./data/tf_examples/dev.tfrecord"]
-  table_file: ""
+  interaction_files: ./data/interactions/test.tfrecord
+  table_file: ./data/tables/tables.tfrecord
   max_table_rank: 50
   min_term_rank: 100
   drop_term_frequency: True

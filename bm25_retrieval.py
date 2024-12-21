@@ -55,10 +55,10 @@ def get_hparams():
     return hparams
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="bm25")
+@hydra.main(version_base=None, config_path="configs", config_name="bm25_retrieval")
 def main(cfg: DictConfig):
 
-    hydra_args = cfg.get("bm25")
+    hydra_args = cfg.get("base")
     args = Namespace(**hydra_args)
 
     max_table_rank = args.max_table_rank

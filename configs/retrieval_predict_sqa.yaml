@@ -18,7 +18,7 @@ base:
   init_from_single_encoder: false
   max_query_length: 128
   compression_type: null
-  evaluated_checkpoint_step: 0
+  evaluated_checkpoint_step: null
   evaluated_checkpoint_metric: null
   use_out_of_core_negatives: false
   mask_repeated_tables: false

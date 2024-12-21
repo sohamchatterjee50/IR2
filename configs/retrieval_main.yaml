@@ -4,7 +4,7 @@ base:
   input_file_train: # data/tf_examples/nq_tables_interactions_train.tfrecord
   input_file_eval: null
   input_file_predict: null # tf_examples/nq_tables_interactions_test.tfrecord
-  model_dir: tapas_dual_encoder_proj_256_large # Make sure it's the same in `experiments`
+  model_dir: tapas_dual_encoder_proj_256_large 
   prediction_output_dir: null
   init_checkpoint: null
   max_seq_length: 512

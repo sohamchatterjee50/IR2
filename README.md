@@ -58,8 +58,9 @@ bash/download_sqa.bash
 # Then run the preprocessing
 python reformat_sqa.py
 
-# Afterwards just use process.py (with the correct configuration)
+# Afterwards just use the same pipeline with the adjusted config
 python preprocess.py --config-name sqa_preprocess
+python convert_data.py --config-name convert_data_sqa
 ```
 
 

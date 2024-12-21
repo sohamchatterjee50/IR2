@@ -112,7 +112,7 @@ python retrieval_main.py
 
 By default, the above script only performs prediction, as training the model fully is outside the scope of this study.
 
-Now, all that needs to be done is to run the evaluation to print recall@k scores in the global setting given the best
+Now, all that needs to be done is to run the evaluation to print the metrics@k scores in the global setting given the best
 model (e.g., 5K checkpoint in this case). This process generates the KNN of the most similar tables per query and their similarity scores to a `jsonl` file.
 
 *   Set `prediction_files_local` to the best model output. This file holds the query ids, their representations, and the ids for the gold table.

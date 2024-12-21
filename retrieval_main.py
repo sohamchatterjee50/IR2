@@ -36,13 +36,37 @@ def _get_test_input_fn(name, input_file, args):
 def _predict_and_export_metrics(
     mode, input_fn, checkpoint_path, step, estimator, output_dir, args
 ):
-    """Exports model predictions and calculates recall@k."""
+    """Exports model predictions and calculates metrics@k."""
     tf.logging.info("Running predictor for step %d.", step)
     result = estimator.predict(input_fn=input_fn, checkpoint_path=checkpoint_path)
     output_predict_file = os.path.join(output_dir, f"{mode}_results_{step}.tsv")
     write_predictions(result, output_predict_file)
 
-    # Compute recall@k.
+    # Compute metrics@k.
+    if not args.evaluated_checkpoint_step or not args.evaluated_checkpoint_metric:
+        # p_at_k = eval_retriever_utils.eval_precision_at_k(
+        #     query_prediction_files=output_predict_file,
+        #     table_prediction_files=output_predict_file,
+        #     make_tables_unique=True,
+        # )
+        metrics_at_k = eval_retriever_utils.eval_metrics_at_k(
+            query_prediction_files=output_predict_file,
+            table_prediction_files=output_predict_file,
+            make_tables_unique=True,
+        )
+        experiment_utils.save_metrics(output_dir, mode, step, metrics_at_k)
+
+
+def _predict_and_export_metrics(
+    mode, input_fn, checkpoint_path, step, estimator, output_dir, args
+):
+    """Exports model predictions and calculates precision@k."""
+    tf.logging.info("Running predictor for step %d.", step)
+    result = estimator.predict(input_fn=input_fn, checkpoint_path=checkpoint_path)
+    output_predict_file = os.path.join(output_dir, f"{mode}_results_{step}.tsv")
+    write_predictions(result, output_predict_file)
+
+    # Compute precision@k.
     if not args.evaluated_checkpoint_step or not args.evaluated_checkpoint_metric:
         metrics_at_k = eval_retriever_utils.eval_metrics_at_k(
             query_prediction_files=output_predict_file,
@@ -100,7 +124,7 @@ def main(cfg: DictConfig):
     retriever_config = retriever_model.RetrieverConfig(
         bert_config=bert_config,
         init_checkpoint=args.init_checkpoint,
-        learning_rate=args.learning_rate,
+        learning_rate=experiment_utils.get_learning_rate(),
         num_train_steps=total_steps,
         num_warmup_steps=experiment_utils.num_warmup_steps(),
         grad_clipping=args.grad_clipping,

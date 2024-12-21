@@ -1,4 +1,4 @@
-## Utilities for Evaluating the recall@k Scores for Table Retriever Predictions
+## Utilities for Evaluating the metrics@k Scores for Table Retriever Predictions
 import abc, ast, csv, json, datetime, dataclasses, itertools, collections
 import numpy as np
 import tensorflow._api.v2.compat.v1 as tf
@@ -451,6 +451,52 @@ def eval_metrics_at_k(
     map_at_k = _get_map_at_k(neighbors, gold_indices=gold_indices)
 
     return {**precision_at_k, **recall_at_k, **ndcg_at_k, **map_at_k}
+
+
+def _get_precision_at_k(neighbors, gold_indices):
+    """Calculates different precision@k from the nearest neighbors.
+
+    Args:
+      neighbors: <int32>[NUM_QUERIES, _NUM_NEIGHBORS], where NUM_QUERIES is the
+        total number of queries.
+      gold_indices: <int32>[NUM_QUERIES, _MAX_NUM_TABLES_PER_QUERY],
+        matrix containing the indices for the gold tables that should be
+        retrieved, for queries of size NUM_QUERIES.
+
+    Returns:
+      precision_at_k: precision@k results for different k values.
+    """
+    if gold_indices.shape[0] != neighbors.shape[0]:
+        raise ValueError(
+            f"Difference in shapes: {gold_indices.shape} {neighbors.shape[0]}"
+        )
+
+    # <int32>[num_queries, num_neigbors, 1]
+    neighbors = np.expand_dims(neighbors, axis=-1)
+    # <int32>[num_queries, 1, _MAX_NUM_TABLES_PER_QUERY]
+    gold_indices = np.expand_dims(gold_indices, axis=-2)
+
+    # <bool>[num_queries, num_neigbors, _MAX_NUM_TABLES_PER_QUERY]
+    correct = np.equal(neighbors, gold_indices)
+    # <bool>[num_queries, num_neigbors]
+    correct = np.any(correct, axis=-1)
+
+    total_queries = float(neighbors.shape[0])
+
+    def _calc_precision_at_k(k):
+        # <bool>[num_queries, num_neighbors]
+        correct_at_k = correct[:, :k]
+        # <bool>[num_queries]
+        correct_at_k = np.any(correct_at_k, axis=1)
+        return np.sum(correct_at_k) / total_queries
+
+    precision_at = [k for k in [1, 5, 10, 15, 50, 100] if k <= _NUM_NEIGHBORS]
+    precision_at_k = {
+        "precision_at_{}".format(k): _calc_precision_at_k(k) for k in precision_at
+    }
+    logging.info(precision_at_k)
+
+    return precision_at_k
 
 
 def _get_recall_at_k(neighbors, gold_indices):

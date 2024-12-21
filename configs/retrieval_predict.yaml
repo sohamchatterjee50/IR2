@@ -2,17 +2,17 @@
 base:
   data_format: tfrecord
   input_file_train: null
-  input_file_eval: null
-  input_file_predict: results/nq_retrieval/tf_examples/queries.tfrecord
-  model_dir: tapas_dual_encoder_proj_256_large 
-  prediction_output_dir: results/nq_retrieval/model/queries
+  input_file_eval: nq-tables/tf_examples/nq_table.tfrecord 
+  input_file_predict: nq-tables/tf_examples/nq_tables_interactions_test.tfrecord
+  model_dir: tapas_dual_encoder_proj_256_large  # Be sure to change this to the model you want to evaluate
+  prediction_output_dir: outputs/
   init_checkpoint: null
   max_seq_length: 512
   minutes_to_sleep_before_predictions: 0
   do_train: false
   do_eval: false
   do_predict: true
-  eval_name: dual_encoder_queries
+  eval_name: retrieval_predict
   grad_clipping: null
   down_projection_dim: 256
   init_from_single_encoder: false

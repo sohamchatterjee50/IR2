@@ -8,7 +8,7 @@ base:
   gradient_accumulation_steps: 1
 
   # Training parameters
-  num_train_examples: 1000 # Is effectively the number of steps. For NQ it's 5120
+  num_train_examples: 4000 # For NQ it's 5120
   learning_rate: 1.25e-5
   warmup_ratio: 0.01
 
@@ -17,7 +17,7 @@ base:
   eval_throttle_secs: 600
   eval_start_delay_secs: 120
 
-  bert_config_file: tapas_dual_encoder_proj_256_large/bert_config.json
+  bert_config_file: /scratch-shared/scur2849/tapas_sqa_large/bert_config.json
   bert_config_attention_probs_dropout_prob: null
   bert_config_hidden_dropout_prob: null
   bert_config_initializer_range: null

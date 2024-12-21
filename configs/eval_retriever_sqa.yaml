@@ -1,0 +1,6 @@
+# This config is for the retrieval result evaluation for SQA
+# (which also generates the KNN files needed for reader experiments)
+base:
+  prediction_files_local: null
+  prediction_files_global: null
+  retrieval_results_file_path: null

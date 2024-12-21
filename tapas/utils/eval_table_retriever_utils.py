@@ -6,6 +6,7 @@ import tensorflow._api.v2.compat.v1 as tf
 from absl import logging
 from typing import Text, List
 from tapas.utils.constants import _NUM_NEIGHBORS
+from tapas.utils.eval_retriever_utils import _get_map_at_k, _get_ndcg_at_k
 
 
 class InnerProductNearestNeighbors:
@@ -159,6 +160,7 @@ def _get_recall_at_k(neighbors, gold_indices):
     return recall_at_k
 
 
+'''
 def _get_gold_ids_in_global_indices(
     queries,
     tables,
@@ -187,6 +189,7 @@ def _get_gold_ids_in_global_indices(
     )
     for query_index, query in enumerate(queries):
 
+        # Only if the table exists, add query
         try:
             table_indexes = {
                 table_id_to_index[table_id] for table_id in query.table_ids
@@ -202,6 +205,116 @@ def _get_gold_ids_in_global_indices(
             indexes[query_index, i] = table_index
 
     return indexes
+'''
+
+
+def _get_gold_ids_in_global_indices(queries, tables):
+    """Gets the gold tables in terms of their indices in the table index.
+
+    Args:
+      queries: List of query examples.
+      tables: List of table examples.
+
+    Returns:
+      gold_indices: <int32>[num_valid_queries, _MAX_NUM_TABLES_PER_QUERY]
+      valid_query_indices: List of indices of valid queries in the original list.
+    """
+    table_id_to_index = {
+        table.table_id: table_index for table_index, table in enumerate(tables)
+    }
+
+    # Step 1: Identify valid queries and their original indices
+    valid_query_indices = [
+        i
+        for i, query in enumerate(queries)
+        if all(table_id in table_id_to_index for table_id in query.table_ids)
+    ]
+
+    # Step 2: Generate gold indices only for valid queries
+    valid_queries = [queries[i] for i in valid_query_indices]
+    max_num_tables_per_query = (
+        max(len(query.table_ids) for query in valid_queries) if valid_queries else 0
+    )
+
+    gold_indices = (
+        np.zeros(
+            shape=(len(valid_queries), max_num_tables_per_query),
+            dtype=np.int32,
+        )
+        - 1
+    )
+
+    for query_index, query in enumerate(valid_queries):
+        table_indexes = sorted(
+            table_id_to_index[table_id] for table_id in query.table_ids
+        )
+
+        for i, table_index in enumerate(table_indexes):
+            gold_indices[query_index, i] = table_index
+
+    return gold_indices, valid_query_indices
+
+
+def _filter_queries_with_matching_tables(queries, tables):
+    """Filters queries to retain only those with matching tables.
+
+    Args:
+      queries: List of query examples
+      tables: List of table examples
+
+    Returns:
+      List of queries that have a matching table in the table list.
+    """
+    table_ids = {table.table_id for table in tables}
+    filtered_queries = [
+        query
+        for query in queries
+        if any(table_id in table_ids for table_id in query.table_ids)
+    ]
+    return filtered_queries
+
+
+'''
+def _get_gold_ids_in_global_indices(
+    queries,
+    tables,
+):
+    """Gets the gold tables in terms of their indices in the index.
+
+    Args:
+      queries: List of query examples
+      tables: List of table examples
+
+    Returns:
+     <int32>[num_queries, _MAX_NUM_TABLES_PER_QUERY]
+    """
+    table_id_to_index = {
+        table.table_id: table_index for table_index, table in enumerate(tables)
+    }
+
+    # Only include queries where all table_ids exist in the table list
+    valid_queries = [
+        query for query in queries if all(table_id in table_id_to_index for table_id in query.table_ids)
+    ]
+
+    max_num_tables_per_query = max(len(query.table_ids) for query in valid_queries) if valid_queries else 0
+
+    indexes = (
+        np.zeros(
+            shape=(len(valid_queries), max_num_tables_per_query),
+            dtype=np.int32,
+        )
+        - 1
+    )
+
+    for query_index, query in enumerate(valid_queries):
+        table_indexes = sorted(table_id_to_index[table_id] for table_id in query.table_ids)
+
+        for i, table_index in enumerate(table_indexes):
+            indexes[query_index, i] = table_index
+
+    return indexes
+'''
 
 
 def _retrieve(
@@ -287,10 +400,14 @@ def process_predictions(
             queries, tables, similarities, neighbors, retrieval_results_file_path
         )
 
-    gold_indices = _get_gold_ids_in_global_indices(queries, tables)
-    recall_at_k = _get_recall_at_k(neighbors, gold_indices=gold_indices)
+    gold_indices, valid_q_indxs = _get_gold_ids_in_global_indices(queries, tables)
+    neighbors = neighbors[valid_q_indxs]
 
-    return recall_at_k
+    precision_at_k = _get_precision_at_k(neighbors, gold_indices=gold_indices)
+    ndcg_at_k = _get_ndcg_at_k(neighbors, gold_indices=gold_indices)
+    map_at_k = _get_map_at_k(neighbors, gold_indices=gold_indices)
+
+    return {**precision_at_k, **ndcg_at_k, **map_at_k}
 
 
 def build_table_index(
@@ -370,5 +487,8 @@ def eval_recall_at_k(
     queries = read_queries(query_prediction_files)
     tables = read_tables(table_prediction_files, make_tables_unique)
     index = build_table_index(tables)
+
+    # Filter queries to keep only those with matching tables
+    queries = _filter_queries_with_matching_tables(queries, tables)
 
     return process_predictions(queries, tables, index, retrieval_results_file_path)

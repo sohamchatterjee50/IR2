@@ -1,7 +1,7 @@
 # This config is the version used in the notebook
 base:
   data_format: tfrecord
-  input_file_train: !!python/tuple []
+  input_file_train: null
   input_file_eval: null
   input_file_predict: results/nq_retrieval/tf_examples/queries.tfrecord
   model_dir: tapas_dual_encoder_proj_256_large # Make sure it's the same in `experiments`

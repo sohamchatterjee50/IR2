@@ -59,7 +59,7 @@ bash/download_sqa.bash
 python reformat_sqa.py
 
 # Afterwards just use process.py (with the correct configuration)
-python process.py --config-name sqa_preprocess
+python preprocess.py --config-name sqa_preprocess
 ```
 
 

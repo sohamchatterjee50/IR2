@@ -1,0 +1,5 @@
+# This config is for preprocessing the SQA data
+base:
+  input_dir: data_sqa
+  output_dir: sqa_reformatted
+

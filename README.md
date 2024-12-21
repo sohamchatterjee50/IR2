@@ -30,7 +30,7 @@ python "[SCRIPT_NAME].py" --config-name="[YOUR_CUSTOM_CONFIG_IN_CONFIGS].yaml"
 
 ### **Dataset**
 
-The dataset can be downloaded via the following command:
+The Natural Questions dataset can be downloaded via the following command:
 
 ```sh
 mkdir -p "data"
@@ -44,19 +44,22 @@ Note that doing the above requires `gsutil` installed beforehand. Instructions o
 
 It is possible to generate the data manually via the following script:
 ```sh
-python nq_preprocess.py
+python preprocess.py
 ```
 
-However, it is not recommended as it will take a long time.
+However, it is not recommended for NQ as it will take a long time.
 
 For the experiments relating to the SQA dataset, simply run the following:
 
 ```sh
-# First download the data
+# First download the data (automatically only uses the first train and dev split)
 bash/download_sqa.bash
 
 # Then run the preprocessing
-python sqa_preprocess.py
+python reformat_sqa.py
+
+# Afterwards just use process.py (with the correct configuration)
+python process.py --config-name sqa_preprocess
 ```
 
 

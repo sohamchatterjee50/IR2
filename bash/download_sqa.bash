@@ -21,13 +21,22 @@ if [ $? -eq 0 ]; then
     if [ $? -eq 0 ]; then
         echo "Extraction completed successfully!"
         
-        # Move files from the SQA Release directory to current directory, preserving table_csv
-        echo "Moving files and cleaning up..."
-        mv "SQA Release 1.0"/* .
-        rmdir "SQA Release 1.0"
+        # Move necessary files from the SQA Release directory to current directory
+        echo "Organizing files and cleaning up..."
+        mv "SQA Release 1.0/random-split-1-dev.tsv" "dev.tsv"
+        mv "SQA Release 1.0/random-split-1-train.tsv" "train.tsv"
+        mv "SQA Release 1.0/test.tsv" .
+        
+        # Preserve the "table_csv" folder and its contents
+        if [ -d "SQA Release 1.0/table_csv" ]; then
+            mv "SQA Release 1.0/table_csv" .
+        fi
+        
+        # Remove unneeded files and directories
+        rm -rf "SQA Release 1.0"
         rm "SQA Release 1.0.zip"
         
-        echo "Files can be found in the ${FOLDER} directory"
+        echo "Files have been organized in the ${FOLDER} directory."
     else
         echo "Error: Failed to extract the zip file."
         exit 1

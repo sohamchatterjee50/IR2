@@ -7,6 +7,7 @@ from absl import logging
 from argparse import Namespace
 from omegaconf import DictConfig
 from tapas.utils.constants import _NS
+from tapas.task_utils import sqa_utils
 from tapas.protos import interaction_pb2
 from tapas.utils import nq_preprocess_utils
 from apache_beam.runners.direct import direct_runner
@@ -59,14 +60,14 @@ def add_split(line, split):
     return line, split
 
 
-def _merge_group(
-    tables,
-):
+def _merge_group(tables, dataset):
     """Merges tables to the table with the latest version."""
     beam.metrics.Metrics.counter(_NS, "Tables: Duplicates").inc(len(tables))
     beam.metrics.Metrics.counter(_NS, "Tables: Unique").inc()
     table = interaction_pb2.Table()
-    table.CopyFrom(max(tables, key=nq_preprocess_utils.get_version))
+
+    key = _select_key(dataset)
+    table.CopyFrom(max(tables, key=key))
     # Set alternative document urls.
     document_urls = {table.document_url for table in tables}
     document_urls.remove(table.document_url)
@@ -82,33 +83,79 @@ def _merge_group(
     return table
 
 
-def _merge_tables_fn(
-    key_tables,
-):
+def _merge_tables_fn(key_tables, dataset_name):
     """Merges similar tables returns the latest version."""
     _, tables = key_tables
     tables = list(tables)
     groups = nq_preprocess_utils.group_similar_tables(tables)
     for group in groups:
 
-        yield _merge_group(group)
+        yield _merge_group(group, dataset_name)
 
 
-def _remove_duplicate_tables(tables):
+def _remove_duplicate_tables(tables, dataset_name):
     return (
         tables
         | "KeyByDocTitle" >> beam.Map(lambda table: (table.document_title, table))
         | "GroupByDocTitle" >> beam.GroupByKey()
         | "Pre-Shuffle-Tables" >> beam.transforms.util.Reshuffle()
-        | "MergeTables" >> beam.FlatMap(_merge_tables_fn)
+        | "MergeTables"
+        >> beam.FlatMap(lambda key_tables: _merge_tables_fn(key_tables, dataset_name))
         | "Post-Shuffle-Tables" >> beam.transforms.util.Reshuffle()
     )
 
 
-def build_pipeline(
-    filenames,
-    output_path,
-):
+def _select_parser(dataset_name: str):
+
+    if dataset_name == "NQ":
+        parser = beam.Map(process_line)
+
+    elif dataset_name == "SQA":
+        parser = beam.Map(sqa_utils.process_line)
+
+    else:
+        raise ValueError(f"Unsupported Dataset for parser: {dataset_name}")
+
+    return parser
+
+
+def _select_table_converter(dataset_name: str):
+
+    if dataset_name == "NQ":
+        return to_table
+
+    elif dataset_name == "SQA":
+        return sqa_utils.to_table
+
+    else:
+        raise ValueError(f"Unsupported Dataset for table: {dataset_name}")
+
+
+def _select_interaction_converter(dataset_name: str):
+
+    if dataset_name == "NQ":
+        return to_interaction
+
+    elif dataset_name == "SQA":
+        return sqa_utils.to_interaction
+
+    else:
+        raise ValueError(f"Unsupported Dataset for interactions: {dataset_name}")
+
+
+def _select_key(dataset_name: str):
+
+    if dataset_name == "NQ":
+        return nq_preprocess_utils.get_version
+
+    elif dataset_name == "SQA":
+        return sqa_utils.get_version
+
+    else:
+        raise ValueError(f"Unsupported Dataset for key: {dataset_name}")
+
+
+def build_pipeline(filenames, output_path, args):
     """Builds the processing pipeline."""
 
     def _pipeline(root):
@@ -132,23 +179,25 @@ def build_pipeline(
             lines
             | "Flatten" >> beam.Flatten()
             | "Pre-Shuffle" >> beam.transforms.util.Reshuffle()
-            | "Parse" >> beam.Map(process_line)
+            | "Parse" >> _select_parser(args.dataset)
             | "Post-Shuffle" >> beam.transforms.util.Reshuffle()
         )
 
-        tables = results | "Tables" >> beam.FlatMap(to_table)
+        table_converter = _select_table_converter(args.dataset)
+        tables = results | "Tables" >> beam.FlatMap(table_converter)
 
         _ = _remove_duplicate_tables(
-            tables
+            tables, args.dataset
         ) | "WriteMergedTables" >> beam.io.WriteToTFRecord(
             file_path_prefix=get_tables(output_path),
             shard_name_template="",
             coder=beam.coders.ProtoCoder(interaction_pb2.Table),
         )
 
+        interaction_conv = _select_interaction_converter(args.dataset)
         _ = (
             results
-            | "Interactions" >> beam.FlatMap(to_interaction)
+            | "Interactions" >> beam.FlatMap(interaction_conv)
             | "WriteInteractions"
             >> beam.io.WriteToTFRecord(
                 file_path_prefix=get_interactions(output_path),
@@ -161,7 +210,7 @@ def build_pipeline(
 
 
 def get_interactions(output_dir):
-    return os.path.join(output_dir, "nq_premerge.tfrecord")
+    return os.path.join(output_dir, "premerge.tfrecord")
 
 
 def get_tables(output_dir, name="tables"):
@@ -198,17 +247,26 @@ def main(cfg: DictConfig):
 
     for corpus in nq_preprocess_utils.Split:
 
-        filenames[corpus] = list(
-            nq_preprocess_utils.get_filenames(
-                path=input_path,
-                split=corpus,
+        if args.dataset == "NQ":
+            filenames[corpus] = list(
+                nq_preprocess_utils.get_filenames(
+                    path=input_path,
+                    split=corpus,
+                )
             )
-        )
 
-    pipeline = build_pipeline(
-        filenames,
-        output_path,
-    )
+        elif args.dataset == "SQA":
+            filenames[corpus] = list(
+                sqa_utils.get_filenames(
+                    path=input_path,
+                    split=corpus,
+                )
+            )
+
+        else:
+            raise ValueError(f"Unsupported Dataset: {args.dataset}")
+
+    pipeline = build_pipeline(filenames, output_path, args)
 
     direct_runner.DirectRunner().run(pipeline)
 

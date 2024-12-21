@@ -1,3 +1,5 @@
+# This config is for preprocessing the NQ data
 base:
   input_path: gs://natural_questions/v1.0
-  output_path: data
+  output_path: sqa
+  dataset: SQA # NQ, SQA

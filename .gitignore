@@ -5,6 +5,7 @@ venv_ir
 sqa
 data
 data_sqa
+sqa_reformatted
 outs
 outputs
 results

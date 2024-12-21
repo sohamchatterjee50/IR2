@@ -116,7 +116,7 @@ def main(cfg: DictConfig):
     )
 
     model_fn = retriever_model.model_fn_builder(retriever_config)
-    estimator = experiment_utils.build_estimator(model_fn)
+    estimator = experiment_utils.build_estimator(model_fn, args.model_dir)
 
     if args.do_train:
         tf.io.gfile.makedirs(args.model_dir)

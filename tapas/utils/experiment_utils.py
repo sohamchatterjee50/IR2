@@ -58,14 +58,14 @@ def num_warmup_steps():
     return int(num_steps * args.warmup_ratio)
 
 
-def build_estimator(model_fn):
+def build_estimator(model_fn, model_dir):
     """Builds a TPUEstimator using the common experiment flags."""
 
     is_per_host = tf_estimator.tpu.InputPipelineConfig.PER_HOST_V2
     run_config = tf_estimator.tpu.RunConfig(
         cluster=None,
         master=args.master,
-        model_dir=args.model_dir,
+        model_dir=model_dir,
         tf_random_seed=args.tf_random_seed,
         save_checkpoints_steps=args.save_checkpoints_steps,
         keep_checkpoint_max=args.keep_checkpoint_max,

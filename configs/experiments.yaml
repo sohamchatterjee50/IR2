@@ -1,7 +1,6 @@
 # This config is for the `experiment_utils` file (also influences `retrieval_main`)
 base:
   master: null
-  model_dir: tapas_dual_encoder_proj_256_large # Ensure this is the same as in `retrieval_main`
   tf_random_seed: 1
   train_batch_size: 4 # Adjusted due to memory constraints
   eval_batch_size: 32

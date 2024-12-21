@@ -21,6 +21,11 @@ def get_args():
 args = get_args()
 
 
+def get_num_eval_steps():
+
+    return args.num_eval_steps
+
+
 def bert_config_from_flags():
     """Reads the BERT config from flags."""
     bert_config = modeling.BertConfig.from_json_file(args.bert_config_file)

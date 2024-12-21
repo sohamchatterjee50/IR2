@@ -153,7 +153,7 @@ def main(cfg: DictConfig):
             try:
                 result = estimator.evaluate(
                     input_fn=eval_input_fn,
-                    steps=args.num_eval_steps,
+                    steps=experiment_utils.get_num_eval_steps(),
                     name=args.eval_name,
                     checkpoint_path=checkpoint,
                 )

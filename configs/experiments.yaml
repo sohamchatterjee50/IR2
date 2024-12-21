@@ -9,7 +9,7 @@ base:
   gradient_accumulation_steps: 1
 
   # Training parameters
-  num_train_examples: 5120
+  num_train_examples: 1000 # Is effectively the number of steps. For NQ it's 5120
   learning_rate: 1.25e-5
   warmup_ratio: 0.01
 

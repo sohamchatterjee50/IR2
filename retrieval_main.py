@@ -190,18 +190,18 @@ def main(cfg: DictConfig):
                 estimator.model_dir, args.evaluated_checkpoint_metric
             )
 
-        # for current_step, checkpoint in experiment_utils.iterate_checkpoints(
-        #     model_dir=estimator.model_dir,
-        #     total_steps=total_steps,
-        #     marker_file_prefix=marker_file_prefix,
-        #     single_step=single_step,
-        # ):
-        for current_step, checkpoint in [
-            (
-                1,
-                "tapas_retriever/model.ckpt",
-            )
-        ]:
+        for current_step, checkpoint in experiment_utils.iterate_checkpoints(
+            model_dir=estimator.model_dir,
+            total_steps=total_steps,
+            marker_file_prefix=marker_file_prefix,
+            single_step=single_step,
+        ):
+            # for current_step, checkpoint in [
+            #     (
+            #         1,
+            #         "tapas_retriever/model.ckpt",
+            #     )
+            # ]:
             try:
                 if predict_input_fn is not None:
                     _predict_and_export_metrics(
